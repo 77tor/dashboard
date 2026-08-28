@@ -1,0 +1,206 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden; color: #333; position: relative; }
+
+/* LAYOUT */
+.sidebar { width: 300px; background: #ffffff; border-right: 1px solid #e0e0e0; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.sidebar-right { width: 400px; border-right: none; border-left: 1px solid #e0e0e0; overflow: hidden; }
+.main-content { flex: 1; padding: 12px; display: flex; flex-direction: column; background: #eef1f6; position: relative; }
+
+/* KORT */
+.card { background: #f8f9fa; border: 1px solid #dcdcdc; border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.card h3 { font-size: 0.85rem; color: #1a73e8; margin-bottom: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.btn-edit-icon { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #666; padding: 2px 4px; width: auto; margin: 0; }
+.btn-edit-icon:hover { color: #1a73e8; background: #e8f0fe; border-radius: 4px; }
+
+/* KNAPPER & FORMS */
+button { background: #1a73e8; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 4px; font-size: 0.85rem; transition: background 0.2s ease; }
+button:hover { background: #1557b0; }
+.btn-timer { background: #ff9800; }
+.btn-timer:hover { background: #e68a00; }
+.btn-group { background: #4caf50; }
+.btn-group:hover { background: #388e3c; }
+.btn-student { background: #e91e63; }
+.btn-student:hover { background: #c2185b; }
+.btn-plan { background: #9c27b0; margin-top: 6px; flex-shrink: 0; }
+.btn-plan:hover { background: #7b1fa2; }
+
+select, input[type="text"], input[type="url"], input[type="number"], input[type="password"], textarea { 
+  width: 100%; 
+  padding: 8px 10px; 
+  border: 1px solid #cbd5e1; 
+  border-radius: 6px; 
+  font-size: 0.88rem; 
+  outline: none;
+}
+select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
+
+/* MIDTFELT RAMME */
+.frame-container { flex: 1; border-radius: 12px; overflow: hidden; background: #ffffff; border: 2px solid #cfd8dc; display: flex; flex-direction: column; }
+#mainFrame { width: 100%; height: 100%; border: none; flex: 1; }
+
+/* TOP BAR */
+.top-bar { background: #fff; padding: 8px 12px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-radius: 8px; font-size: 0.9rem; }
+.top-bar input { margin: 0; width: 60%; }
+
+/* FASTLENKER */
+.links-grid { display: grid; gap: 5px; }
+.links-grid a { display: block; background: #ffffff; text-align: center; padding: 6px; border: 1px solid #ccc; border-radius: 6px; text-decoration: none; color: #333; font-weight: 500; font-size: 0.85rem; }
+.links-grid a:hover { background: #e8f0fe; color: #1a73e8; }
+
+/* DAGSPLAN */
+.schedule-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 6px 8px; }
+.schedule-card { display: flex; align-items: center; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 4px 10px; gap: 10px; flex: 1; min-height: 0; opacity: 0.75; transition: all 0.3s ease; }
+.schedule-card.pause-card { background: #fffdf5; border-color: #ffe082; }
+
+.schedule-card.active-now { 
+  opacity: 1 !important;
+  background: #f0fdf4 !important; 
+  border: 2.5px solid #22c55e !important; 
+  transform: none !important;
+  z-index: 2;
+  animation: pulse-border 2s infinite alternate;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: inset 0 0 0 0 rgba(34, 197, 94, 0.4), 0 2px 6px rgba(0,0,0,0.08); }
+  100% { box-shadow: inset 0 0 8px 2px rgba(34, 197, 94, 0.3), 0 4px 10px rgba(34, 197, 94, 0.15); }
+}
+
+.schedule-time { width: 125px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
+.schedule-label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; line-height: 1; }
+.active-now .schedule-label { color: #15803d; font-size: 0.8rem; }
+.schedule-clock { font-size: 0.75rem; font-weight: 600; color: #94a3b8; margin-bottom: 1px; }
+.active-now .schedule-clock { color: #166534; font-weight: 700; }
+.schedule-subject { font-size: 0.95rem; font-weight: 800; color: #334155; line-height: 1.1; }
+.active-now .schedule-subject { font-size: 1.15rem; color: #052e16; }
+
+.active-badge { display: inline-flex; align-items: center; gap: 4px; background: #22c55e; color: white; font-size: 0.65rem; font-weight: 900; padding: 2px 7px; border-radius: 12px; margin-top: 3px; width: fit-content; letter-spacing: 0.5px; }
+.active-badge::before { content: ''; display: inline-block; width: 6px; height: 6px; background-color: white; border-radius: 50%; animation: blink 1s infinite alternate; }
+@keyframes blink { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+
+.schedule-img-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; }
+.schedule-img { height: 100%; max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.1)); transition: transform 0.3s ease; }
+.active-now .schedule-img { transform: scale(1.05); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
+.schedule-empty { font-size: 0.75rem; color: #cbd5e1; font-style: italic; }
+
+/* FLYTTBARE VINDUER (MODALER) */
+.floating-modal { 
+  display: none; 
+  position: fixed !important; 
+  z-index: 9999; 
+  background: #ffffff; 
+  border-radius: 14px; 
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25); 
+  flex-direction: column; 
+  overflow: hidden; 
+  border: 1px solid #cbd5e1; 
+}
+
+.modal-header { 
+  background: #2563eb; 
+  color: white; 
+  padding: 12px 18px; 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  font-weight: 700; 
+  font-size: 1rem;
+  flex-shrink: 0; 
+  cursor: move; 
+  user-select: none; 
+}
+.close-btn { background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: auto; margin: 0; padding: 0 4px; line-height: 1; opacity: 0.8; }
+.close-btn:hover { opacity: 1; }
+
+.modal-body { flex: 1; padding: 20px; overflow-y: auto; position: relative; background: #fff; }
+
+/* SPESIFIKKE MODAL STØRRELSER */
+#timerModal { width: 360px; height: auto; top: 15vh; left: 35vw; }
+#groupModal { width: 850px; max-height: 85vh; top: 8vh; left: 20vw; }
+#planModal { width: 680px; max-height: 85vh; top: 10vh; left: 25vw; }
+#linkModal { width: 700px; max-height: 85vh; top: 10vh; left: 25vw; }
+#studentModal { width: 550px; max-height: 85vh; top: 10vh; left: 25vw; }
+
+.plan-edit-table { width: 100%; border-collapse: collapse; }
+.plan-edit-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; font-size: 0.88rem; }
+.plan-edit-table label { font-weight: bold; font-size: 0.85rem; color: #475569; }
+
+/* FANER I GRUPPEGENERATOR */
+#tabAdminBtn, #tabStudentBtn {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+#tabAdminBtn.active, #tabStudentBtn.active { background-color: #2563eb !important; color: white !important; font-weight: bold; }
+#tabAdminBtn:not(.active), #tabStudentBtn:not(.active) { background-color: #f1f5f9 !important; color: #64748b !important; }
+
+/* Fullskjerm-modus for midtfeltet */
+/* Plassering av knappen i vanlige og fullskjerm-modus */
+#fullscreenBtn {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000000;
+  padding: 3px 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  border: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: opacity 0.2s ease;
+}
+
+#fullscreenBtn:hover {
+  background: rgba(15, 23, 42, 0.98);
+}
+
+/* Stil for selve rammen i fullskjerm */
+.frame-container.is-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 999999 !important;
+  background: #000;
+}
+
+/* GRUPPEGENERATOR LAYOUT */
+.group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 14px; }
+.group-card { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.group-card h4 { font-size: 0.92rem; color: #1e293b; border-bottom: 2px solid #22c55e; padding-bottom: 6px; margin-bottom: 8px; }
+.group-card ul { list-style: none; padding: 0; margin: 0; font-size: 0.88rem; }
+.group-card li { padding: 4px 0; border-bottom: 1px dashed #e2e8f0; color: #334155; }
+.group-card li:last-child { border-bottom: none; }
+
+/* TIMER & ALARM STILER */
+.timer-container { text-align: center; }
+.timer-display { font-size: 3.2rem; font-weight: bold; margin: 0.6rem 0; font-family: monospace; color: #1e293b; }
+.timer-inputs { display: flex; justify-content: center; gap: 6px; margin-bottom: 0.8rem; }
+.timer-inputs input { width: 65px; padding: 6px; font-size: 1rem; text-align: center; border: 1.5px solid #cbd5e1; border-radius: 6px; }
+.sound-select { margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 4px; align-items: center; font-size: 0.85rem; }
+.sound-row { display: flex; gap: 6px; width: 100%; justify-content: center; }
+.preset-btns, .controls { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 0.8rem; }
+.timer-container button { padding: 7px 12px; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background-color: #3b82f6; color: white; width: auto; margin-top: 0; }
+.timer-container button.start { background-color: #22c55e; font-size: 0.95rem; padding: 8px 18px; }
+.timer-container button.start:hover { background-color: #16a34a; }
+.timer-container button.reset { background-color: #ef4444; font-size: 0.95rem; padding: 8px 18px; }
+.timer-container button.reset:hover { background-color: #dc2626; }
+.timer-container button.preset { background-color: #8b5cf6; }
+.timer-container button.preset:hover { background-color: #7c3aed; }
+.timer-container button.test-btn { background-color: #64748b; padding: 6px 10px; font-size: 0.8rem; }
+.timer-container button.test-btn:hover { background-color: #475569; }
+
+.alarm-active { animation: flash-red 0.8s infinite alternate; }
+@keyframes flash-red { 0% { background-color: #ffffff; } 100% { background-color: #fee2e2; } }
+
+.modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center; z-index: 10000; border-radius: 12px; }
+.modal-content-inner { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.3); max-width: 280px; width: 85%; }
