@@ -11,13 +11,33 @@ function renderLinks() {
   const container = document.getElementById('linksContainer');
   if (!container) return;
   container.innerHTML = "";
+  
   customLinks.forEach(link => {
     const a = document.createElement('a');
-    a.href = link.url;
-    a.target = link.external ? "_blank" : "mainFrame";
+    a.href = "#"; // Hindrer at siden hopper
+    
+    a.onclick = (e) => {
+      e.preventDefault();
+      if (link.external) {
+        window.open(link.url, '_blank');
+      } else {
+        setAndSaveIframeUrl(link.url); // Lagrer i localStorage OG åpner i midtfeltet
+      }
+    };
+
     a.innerText = link.name + (link.external ? " ↗" : "");
     container.appendChild(a);
   });
+}
+
+/* --- HJELPEFUNKSJONER FOR LOCALSTORAGE --- */
+function saveState(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function loadState(key, defaultValue = null) {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : defaultValue;
 }
 
 function buildLinkEditor() {
@@ -58,7 +78,7 @@ function saveLinks() {
   closeModal('linkModal');
 }
 
-/* --- DAGSPLAN LOGIKK --- */
+/* --- DAGSPLAN LOGIKK M/ LOCALSTORAGE --- */
 const availableImages = [
   "Arbeidstime", "Bibliotek", "Engelsk", "Forestilling", "Friminutt", 
   "Gym", "Klassens time", "Krle", "Kunst", "Lek", 
@@ -66,7 +86,9 @@ const availableImages = [
   "Samling", "Spising", "Stasjoner", "Stillelesing", "Svømming", "Uteskole"
 ];
 
-let timeSlots = [
+
+// Standard timeoppsett som gjelder for alle dager i utgangspunktet
+const defaultDayStructure = [
   { id: "t1", label: "1. time", start: "08:30", end: "09:15", time: "08.30 - 09.15", img: "" },
   { id: "t2", label: "Friminutt", start: "09:15", end: "09:30", time: "09.15 - 09.30", img: "Friminutt.png" },
   { id: "t3", label: "2. time", start: "09:30", end: "10:00", time: "09.30 - 10.00", img: "" },
@@ -77,19 +99,55 @@ let timeSlots = [
   { id: "t8", label: "5. time", start: "12:15", end: "13:15", time: "12.15 - 13.15", img: "" }
 ];
 
+// Generer en hel uke (mandag–fredag) basert på malen
+function createDefaultWeek() {
+  const week = {
+    mandag: JSON.parse(JSON.stringify(defaultDayStructure)),
+    tirsdag: JSON.parse(JSON.stringify(defaultDayStructure)),
+    onsdag: JSON.parse(JSON.stringify(defaultDayStructure)),
+    torsdag: JSON.parse(JSON.stringify(defaultDayStructure)),
+    fredag: JSON.parse(JSON.stringify(defaultDayStructure))
+  };
+  // Mandager slutter 5. time kl 13:30 som standard
+  week.mandag[7].end = "13:30";
+  week.mandag[7].time = "12.15 - 13.30";
+  return week;
+}
+
+// Hjelpefunksjon for å finne dagens ukedag (lørdag/søndag blir mandag)
+function getCurrentDayName() {
+  const dayIndex = new Date().getDay();
+  const dayMap = { 1: 'mandag', 2: 'tirsdag', 3: 'onsdag', 4: 'torsdag', 5: 'fredag' };
+  return dayMap[dayIndex] || 'mandag';
+}
+
+// Hent lagret ukesplan fra localStorage hvis den finnes, ellers lag ny
+let savedWeek = localStorage.getItem('dagsplanUkesplan');
+let weekSchedule = savedWeek ? JSON.parse(savedWeek) : createDefaultWeek();
+
+// Hvilken dag som vises på skjermen akkurat nå
+let activeDay = getCurrentDayName();
+// Hvilken dag som redigeres i modalen akkurat nå
+let editingDay = getCurrentDayName();
+
 function updateDates() {
   const now = new Date();
-  if (now.getDay() === 1) { // Mandager slutter 13:30
-    timeSlots[7].end = "13:30";
-    timeSlots[7].time = "12.15 - 13.30";
+  
+  // 1. Sett aktiv dag automatisk ut fra kalenderen (mandag-fredag)
+  const currentDay = getCurrentDayName();
+  if (activeDay !== currentDay) {
+    activeDay = currentDay;
+    renderSchedule(); // Oppdaterer timeplanen hvis dagen har skiftet
   }
 
+  // 2. Oppdater dato-tekstene i toppen
   const options = { weekday: 'long', day: 'numeric', month: 'long' };
   const dateEl = document.getElementById('currentDate');
   const yearEl = document.getElementById('currentYear');
   if (dateEl) dateEl.innerText = now.toLocaleDateString('no-NO', options);
   if (yearEl) yearEl.innerText = now.getFullYear();
 
+  // 3. Teller dager i året og dager til nyttår
   const start = new Date(now.getFullYear(), 0, 0);
   const diff = now - start;
   const oneDay = 1000 * 60 * 60 * 24;
@@ -115,8 +173,11 @@ function renderSchedule() {
   if (!container) return;
   container.innerHTML = "";
 
+  const timeSlots = weekSchedule[activeDay] || [];
+
   timeSlots.forEach(slot => {
-    const isActive = isTimeActive(slot.start, slot.end);
+    const isToday = getCurrentDayName() === activeDay;
+    const isActive = isToday && isTimeActive(slot.start, slot.end);
     const isPause = slot.label === "Friminutt" || slot.label === "Spising";
     
     const item = document.createElement('div');
@@ -148,9 +209,40 @@ function renderSchedule() {
 function buildPlanEditor() {
   const table = document.getElementById('planEditTable');
   if (!table) return;
-  table.innerHTML = "";
 
-  timeSlots.forEach((slot) => {
+  const days = [
+    { key: 'mandag', name: 'Man' },
+    { key: 'tirsdag', name: 'Tir' },
+    { key: 'onsdag', name: 'Ons' },
+    { key: 'torsdag', name: 'Tor' },
+    { key: 'fredag', name: 'Fre' }
+  ];
+
+  let dayNavHTML = `<div style="display:flex; gap:4px; margin-bottom:12px;">`;
+  days.forEach(d => {
+    const isSel = d.key === editingDay;
+    dayNavHTML += `
+      <button type="button" onclick="switchEditDay('${d.key}')" 
+              style="flex:1; padding:6px 2px; font-weight:bold; cursor:pointer; font-size:12px;
+                     border:1px solid #cbd5e1; border-radius:4px; 
+                     background:${isSel ? '#4f46e5' : '#f1f5f9'}; 
+                     color:${isSel ? '#fff' : '#334155'};">
+        ${d.name}
+      </button>`;
+  });
+  dayNavHTML += `</div>`;
+
+  let tableHTML = `
+    ${dayNavHTML}
+    <tr style="font-weight:bold; background:#f0f4f8;">
+      <td style="padding:6px;">Økt</td>
+      <td style="padding:6px;">Start / Slutt</td>
+      <td style="padding:6px;">Bilde / Fag</td>
+    </tr>
+  `;
+
+  const currentSlots = weekSchedule[editingDay] || [];
+  currentSlots.forEach(slot => {
     let optionsHTML = `<option value="">-- Velg bilde --</option>`;
     availableImages.forEach(imgName => {
       const filename = imgName + ".png";
@@ -158,30 +250,123 @@ function buildPlanEditor() {
       optionsHTML += `<option value="${filename}" ${selected}>${imgName}</option>`;
     });
 
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><label>${slot.label}<br><small style="color:#666">${slot.time}</small></label></td>
-      <td>
-        <select id="select_${slot.id}">
-          ${optionsHTML}
-        </select>
-      </td>
+    tableHTML += `
+      <tr>
+        <td style="padding:6px;"><b>${slot.label}</b></td>
+        <td style="padding:6px; white-space:nowrap;">
+          <input type="time" id="start_${slot.id}" value="${slot.start}" style="padding:3px; font-size:12px;"> - 
+          <input type="time" id="end_${slot.id}" value="${slot.end}" style="padding:3px; font-size:12px;">
+        </td>
+        <td style="padding:6px;">
+          <select id="select_${slot.id}" style="width:100%; padding:4px;">
+            ${optionsHTML}
+          </select>
+        </td>
+      </tr>
     `;
-    table.appendChild(row);
+  });
+
+  table.innerHTML = tableHTML;
+}
+
+// Bytter dag inne i modalen
+function switchEditDay(dayKey) {
+  saveCurrentEditState();
+  editingDay = dayKey;
+  buildPlanEditor();
+}
+
+// Lagrer endringene for dagen du står på midlertidig
+function saveCurrentEditState() {
+  const currentSlots = weekSchedule[editingDay];
+  if (!currentSlots) return;
+
+  currentSlots.forEach(slot => {
+    const startInput = document.getElementById(`start_${slot.id}`);
+    const endInput = document.getElementById(`end_${slot.id}`);
+    const select = document.getElementById(`select_${slot.id}`);
+
+    if (startInput && endInput) {
+      slot.start = startInput.value;
+      slot.end = endInput.value;
+      slot.time = `${slot.start.replace(':', '.')} - ${slot.end.replace(':', '.')}`;
+    }
+    if (select) {
+      slot.img = select.value;
+    }
   });
 }
 
+// Lagrer hele uken til localStorage
 function saveSchedule() {
-  timeSlots.forEach(slot => {
-    const select = document.getElementById(`select_${slot.id}`);
-    if (select) slot.img = select.value;
-  });
+  saveCurrentEditState();
+  localStorage.setItem('dagsplanUkesplan', JSON.stringify(weekSchedule));
   renderSchedule();
   closeModal('planModal');
 }
 
+// Tømmer og tilbakestiller hele uken
+function clearSchedule() {
+  if (confirm("Vil du tømme ukesplanen og tilbakestille alle tider og fag for hele uken?")) {
+    localStorage.removeItem('dagsplanUkesplan');
+    weekSchedule = createDefaultWeek();
+    renderSchedule();
+    buildPlanEditor();
+  }
+}
+
+// Hjelpefunksjon hvis du vil bytte aktiv dag fra hovedskjermen
+function changeActiveDay(dayName) {
+  activeDay = dayName;
+  renderSchedule();
+}
+
+
+
+
+/* --- ÅPNE OG LAGRE IFRAME-LENKE --- */
+function setAndSaveIframeUrl(url) {
+  if (!url) return;
+  
+  let embedUrl = url;
+  if (embedUrl.includes('docs.google.com') && embedUrl.includes('/edit')) {
+    embedUrl = embedUrl.replace(/\/edit.*$/, '/preview');
+  }
+
+  const iframe = document.getElementById('mainFrame');
+  if (iframe) {
+    // Hvis det er en opplastet fil (data-url), gjør den om til Blob slik at nettleseren godtar visning
+    if (embedUrl.startsWith('data:')) {
+      fetch(embedUrl)
+        .then(res => res.blob())
+        .then(blob => {
+          iframe.src = URL.createObjectURL(blob);
+        })
+        .catch(() => {
+          iframe.src = embedUrl;
+        });
+    } else {
+      iframe.src = embedUrl;
+    }
+  }
+
+  // Lagrer lenken/filen i localStorage
+  try {
+    saveState('activeIframeUrl', embedUrl);
+  } catch (err) {
+    console.warn("Innholdet var for stort til å lagres i minnet:", err);
+  }
+}
+
+/* --- ÅPNE SAMLING --- */
+function openSamling(url) {
+  setAndSaveIframeUrl(url);
+  closeModal('samlingModal');
+}
+
 /* --- MODALER & DRAG & DROP --- */
 let highestZ = 9999;
+
 function bringToFront(element) {
   if (!element) return;
   highestZ++;
@@ -191,8 +376,13 @@ function bringToFront(element) {
 function openModal(id) {
   if (id === 'planModal') buildPlanEditor();
   if (id === 'linkModal') buildLinkEditor();
+  
   const el = document.getElementById(id);
   if (el) {
+    el.style.top = '50%';
+    el.style.left = '50%';
+    el.style.transform = 'translate(-50%, -50%)';
+    
     el.style.display = 'flex';
     bringToFront(el);
   }
@@ -215,9 +405,15 @@ function setupDraggableModals() {
 
     header.addEventListener('mousedown', (e) => {
       if (e.target.classList.contains('close-btn')) return;
+      
+      const rect = modal.getBoundingClientRect();
+      modal.style.transform = 'none';
+      modal.style.left = `${rect.left}px`;
+      modal.style.top = `${rect.top}px`;
+
       isDragging = true;
-      offsetX = e.clientX - modal.offsetLeft;
-      offsetY = e.clientY - modal.offsetTop;
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -231,7 +427,8 @@ function setupDraggableModals() {
   });
 }
 
-/* --- ÅPNE FILER (PDF/BILDER I FRAME - OFFICE I NYTT VINDU) --- */
+
+/* --- ÅPNE OG LAGRE LOKALE FILER --- */
 function loadFile(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -266,10 +463,54 @@ function loadFile(event) {
     };
     reader.readAsDataURL(file);
   } else {
-    const fileURL = URL.createObjectURL(file);
-    const iframe = document.getElementById('mainFrame');
-    if (iframe) iframe.src = fileURL;
+    // Les filen og lagre den som Data-URL i localStorage
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      setAndSaveIframeUrl(dataUrl);
+    };
+    reader.readAsDataURL(file);
   }
+}
+
+
+
+/* --- FILOPPLASTING & LINK-MODAL LOGIKK --- */
+function openFilePickerModal() {
+  openModal('filePickerModal');
+}
+
+function closeFilePickerModal() {
+  closeModal('filePickerModal');
+}
+
+function loadFileAndCloseModal(event) {
+  if (typeof loadFile === 'function') {
+    loadFile(event);
+  }
+  closeFilePickerModal();
+}
+
+function loadGoogleUrlAndClose() {
+  const urlInput = document.getElementById('googleUrlInput');
+  if (!urlInput || !urlInput.value.trim()) {
+    alert("Vennligst lim inn en gyldig nettadresse.");
+    return;
+  }
+
+  let url = urlInput.value.trim();
+
+  // Konverter Google Drive / Docs-lenker til preview
+  if (url.includes('docs.google.com')) {
+    if (url.includes('/edit') && !url.includes('embedded=true')) {
+      url = url.replace(/\/edit.*$/, '/preview');
+    }
+  }
+
+  setAndSaveIframeUrl(url);
+
+  urlInput.value = "";
+  closeFilePickerModal();
 }
 
 /* --- FULLSKJERM FOR MIDTFELT --- */
@@ -295,23 +536,9 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-/* --- FILOPPLASTING MODAL LOGIKK --- */
-function openFilePickerModal() {
-  openModal('filePickerModal');
-}
 
-function closeFilePickerModal() {
-  closeModal('filePickerModal');
-}
 
-function loadFileAndCloseModal(event) {
-  if (typeof loadFile === 'function') {
-    loadFile(event);
-  }
-  closeFilePickerModal();
-}
-
-/* --- GRUPPEGENERATOR LOGIKK --- */
+/* --- GRUPPEGENERATOR DEFINISJONER --- */
 const groupRules = [];
 let currentStudents = [];
 
@@ -320,6 +547,43 @@ const namePresets = {
   animals: ["🦁 Løvene", "🐯 Tigerne", "🐘 Elefantene", "🐬 Delfinene", "🦅 Ørnene", "🐼 Pandaene", "🐺 Ulvene", "🐻 Bjørnene", "🦊 Gaupene", "🦅 Falkene"],
   shapes: ["⭕️ Sirkel", "⬛️ Firkant", "🔺 Trekant", "⭐️ Stjerne", "🔷 Diamant", "🔹 Rombe", "▫️ Kvadrat", "🛑 Åttekant", "🔻 Opp-ned trekant", "💠 Ruter"]
 };
+
+// Setter standardverdier og viser klasselistene automatisk uten PIN
+function initGroupApp() {
+  setGroupDefaults();
+  
+  // Viser feltet for valgbare klasser direkte
+  const fileSelectBox = document.getElementById('fileSelectBox');
+  if (fileSelectBox) {
+    fileSelectBox.style.display = 'block';
+  }
+  
+  // Genererer avkrysningsboksene for klassene med én gang
+  renderClassCheckboxes();
+}
+
+// Kjøres automatisk når siden lastes
+document.addEventListener('DOMContentLoaded', initGroupApp);
+
+function setGroupDefaults() {
+  const modeSelect = document.getElementById('modeSelect') || document.getElementById('groupMode');
+  const numberInput = document.getElementById('numberInput') || document.getElementById('groupCount') || document.getElementById('groupSize');
+  const namingSelect = document.getElementById('namingSelect') || document.getElementById('groupTheme');
+
+  if (modeSelect) {
+    const hasNumGroupsOption = Array.from(modeSelect.options).some(opt => opt.value === 'numGroups');
+    modeSelect.value = hasNumGroupsOption ? 'numGroups' : 'total';
+    toggleMode();
+  }
+
+  if (numberInput) {
+    numberInput.value = 3;
+  }
+
+  if (namingSelect) {
+    namingSelect.value = 'animals';
+  }
+}
 
 function switchGroupTab(tab) {
   const adminTab = document.getElementById('adminGroupView');
@@ -340,46 +604,66 @@ function switchGroupTab(tab) {
   }
 }
 
-function checkPin() {
-  const pinInput = document.getElementById('pinInput');
-  const fileSelectBox = document.getElementById('fileSelectBox');
-  const CORRECT_PIN = "4635"; 
 
-  if (pinInput && pinInput.value === CORRECT_PIN) {
-    if (fileSelectBox) {
-      fileSelectBox.style.display = 'block';
-      renderClassCheckboxes();
-    }
-  } else {
-    alert("Feil PIN-kode! Prøv igjen.");
+function renderClassCheckboxes() {
+  const containers = [
+    document.getElementById('classCheckboxContainer'),
+    document.getElementById('studentClassCheckboxContainer')
+  ];
+
+  if (!window.classLists) return;
+
+  const savedClasses = JSON.parse(localStorage.getItem('selectedClasses') || '[]');
+
+  containers.forEach(container => {
+    if (!container) return;
+    container.innerHTML = '';
+
+    Object.keys(window.classLists).forEach(className => {
+      const label = document.createElement('label');
+      label.style.cssText = 'display:flex; align-items:center; gap:4px; cursor:pointer;';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = className;
+      checkbox.className = 'class-checkbox';
+      
+      if (savedClasses.includes(className)) {
+        checkbox.checked = true;
+      }
+
+      checkbox.onchange = (e) => syncAndSaveClasses(e.target.value, e.target.checked);
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(className));
+      container.appendChild(label);
+    });
+  });
+
+  if (savedClasses.length > 0) {
+    updateSelectedClasses();
   }
 }
 
-function renderClassCheckboxes() {
-  const container = document.getElementById('classCheckboxContainer');
-  if (!container || !window.classLists) return;
+// Synkroniserer avkryssing mellom begge modalene og lagrer i minnet
+function syncAndSaveClasses(className, isChecked) {
+  const allCheckboxes = document.querySelectorAll(`.class-checkbox[value="${className}"]`);
+  allCheckboxes.forEach(cb => cb.checked = isChecked);
 
-  container.innerHTML = '';
-  Object.keys(window.classLists).forEach(className => {
-    const label = document.createElement('label');
-    label.style.cssText = 'display:flex; align-items:center; gap:4px; cursor:pointer;';
+  const selectedClassNames = Array.from(document.querySelectorAll('#classCheckboxContainer input[type="checkbox"]:checked')).map(cb => cb.value);
+  localStorage.setItem('selectedClasses', JSON.stringify(selectedClassNames));
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = className;
-    checkbox.onchange = updateSelectedClasses;
-
-    label.appendChild(checkbox);
-    label.appendChild(document.createTextNode(className));
-    container.appendChild(label);
-  });
+  updateSelectedClasses();
 }
 
 function updateSelectedClasses() {
   const checkboxes = document.querySelectorAll('#classCheckboxContainer input[type="checkbox"]:checked');
-  const textarea = document.getElementById('studentsInput') || document.getElementById('groupStudentsInput');
-  
+  const groupTextarea = document.getElementById('studentsInput') || document.getElementById('groupStudentsInput');
+  const studentTextarea = document.getElementById('studentListInput');
+
   currentStudents = [];
+  let nameList = [];
+
   const selectedClassNames = Array.from(checkboxes).map(cb => cb.value);
   const isMultiple = selectedClassNames.length > 1;
 
@@ -388,17 +672,21 @@ function updateSelectedClasses() {
     const list = window.classLists[className] || [];
     
     list.forEach(studentName => {
+      const displayName = isMultiple ? `${studentName} (${className})` : studentName;
       currentStudents.push({
         name: studentName,
         className: className,
-        displayName: isMultiple ? `${studentName} (${className})` : studentName
+        displayName: displayName
       });
+      nameList.push(displayName);
     });
   });
 
-  if (textarea) {
-    textarea.value = currentStudents.map(s => s.displayName).join('\n');
-  }
+  const textContent = nameList.join('\n');
+
+  // Fyller inn elevlisten i begge felt samtidig
+  if (groupTextarea) groupTextarea.value = textContent;
+  if (studentTextarea) studentTextarea.value = textContent;
 
   const balanceOption = document.getElementById('balanceClassesOption');
   if (balanceOption) {
@@ -407,6 +695,7 @@ function updateSelectedClasses() {
 
   updateStudentCount();
 }
+
 
 function uploadStudentFile(event) {
   const file = event.target.files[0];
@@ -496,6 +785,7 @@ function toggleCustomNaming() {
   }
 }
 
+/* --- GRUPPEGENERATOR LOGIKK --- */
 function getGroupName(index) {
   const namingSelect = document.getElementById('namingSelect');
   const namingType = namingSelect ? namingSelect.value : 'numbers';
@@ -508,10 +798,13 @@ function getGroupName(index) {
     const names = rawCustom.split(',').map(s => s.trim()).filter(s => s.length > 0);
     return names[index] ? `✨ ${names[index]}` : `✨ Gruppe ${index + 1}`;
   }
-  if (namePresets[namingType]) {
+  
+  // Sjekker om namePresets eksisterer før den slås opp
+  if (typeof namePresets !== 'undefined' && namePresets[namingType]) {
     const preset = namePresets[namingType];
     return preset[index] ? preset[index] : `${preset[index % preset.length]} ${Math.floor(index / preset.length) + 1}`;
   }
+
   return `Gruppe ${index + 1}`;
 }
 
@@ -591,8 +884,8 @@ function generateGroups() {
 function countViolations(groups) {
   let violations = 0;
   groupRules.forEach(rule => {
-    const p1 = rule.p1.toLowerCase();
-    const p2 = rule.p2.toLowerCase();
+    const p1 = (rule.p1 || '').toLowerCase();
+    const p2 = (rule.p2 || '').toLowerCase();
 
     const p1Group = groups.findIndex(g => g.some(s => s.name.toLowerCase().includes(p1) || s.displayName.toLowerCase().includes(p1)));
     const p2Group = groups.findIndex(g => g.some(s => s.name.toLowerCase().includes(p2) || s.displayName.toLowerCase().includes(p2)));
@@ -811,7 +1104,7 @@ function playAlarmSound() {
   if (repeatVal === 'loop') {
     currentAudio.loop = true;
   } else {
-    const maxRepeats = parseInt(repeatVal);
+    const maxRepeats = parseInt(repeatVal, 10);
     currentAudio.addEventListener('ended', function() {
       playCount++;
       if (playCount < maxRepeats) {
@@ -853,25 +1146,45 @@ function restartSameTime() {
   startTimer();
 }
 
-/* --- NAVIGASJON LOGIKK --- */
+
+/* --- NAVIGASJON (HJEM) --- */
 function goHome() {
   const mainFrame = document.getElementById('mainFrame');
   if (mainFrame) {
     mainFrame.src = 'hjem.html';
   }
+  
+  // Sletter den lagrede ramme-URL-en slik at Hjem-siden lastes ved neste oppstart/F5
+  localStorage.removeItem('activeIframeUrl');
 }
 
-/* LISTENERS & INIT */
-window.onload = function() {
-  renderLinks();
-  updateDates();
-  renderSchedule();
-  setupDraggableModals();
+/* --- SAMLET OPPSTARTSLOGIKK --- */
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof renderLinks === 'function') renderLinks();
+  if (typeof updateClock === 'function') updateClock();
+  
+  // Oppdaterer dato og setter riktig dag fra kalenderen ved start
+  if (typeof updateDates === 'function') updateDates();
+  if (typeof renderSchedule === 'function') renderSchedule();
+  if (typeof setupDraggableModals === 'function') setupDraggableModals();
+
+  if (typeof loadState === 'function') {
+    const lastUrl = loadState('activeIframeUrl');
+    if (lastUrl) {
+      const iframe = document.getElementById('mainFrame');
+      if (iframe) iframe.src = lastUrl;
+    }
+  }
 
   const minInput = document.getElementById('min');
   const secInput = document.getElementById('sec');
   if (minInput) minInput.addEventListener('change', applyInputTime);
   if (secInput) secInput.addEventListener('change', applyInputTime);
 
-  setInterval(renderSchedule, 60000);
-};
+  // Kjører hvert sekund for å holde klokken, datovedlikehold og "NÅ"-markøren oppdatert
+  setInterval(() => {
+    if (typeof updateClock === 'function') updateClock();
+    if (typeof updateDates === 'function') updateDates();
+    if (typeof renderSchedule === 'function') renderSchedule();
+  }, 1000);
+});

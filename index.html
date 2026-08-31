@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Klasserom Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
+   <link rel="icon" type="image/svg" href="logo.svg">
+   <link rel="apple-touch-icon" href="logo.svg">
+   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -18,14 +20,19 @@
       <p><strong>Været:</strong> <span id="weather">🌤️ 18°C, Delvis skyet</span></p>
     </div>
 
-    <!-- VERKTØY-KNAPPER -->
-    <div class="card">
-      <h3>Verktøy</h3>
-      <button class="btn-timer" onclick="openModal('timerModal')">⏱️ Åpne Tidsur</button>
-      <button class="btn-group" onclick="openModal('groupModal')">👥 Trekk Grupper</button>
-      <button class="btn-student" onclick="openModal('studentModal')">🎲 Trekk Elev</button>
-      <button onclick="openFilePickerModal()">📁 Åpne lokal fil på siden</button>
-    </div>
+<!-- VERKTØY-KNAPPER -->
+<div class="card">
+  <h3>Verktøy</h3>
+  <button class="btn-timer" onclick="openModal('timerModal')">⏱️ Åpne Tidsur</button>
+  <button class="btn-group" onclick="openModal('groupModal')">👥 Trekk Grupper</button>
+  <button class="btn-student" onclick="openModal('studentModal')">🎲 Trekk Elev</button>
+  <button onclick="openModal('samlingModal')" style="background-color: #8b5cf6; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; margin-bottom: 6px;">
+    📚 Samling
+  </button>
+  <button onclick="openFilePickerModal()" style="background-color: #0284c7; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center;">
+    📁 Åpne lokal fil / lenke
+  </button>
+</div>
 
 <!-- FASTLENKER -->
     <div class="card">
@@ -73,7 +80,6 @@
     </div>
   </aside>
 
-  <!-- MODALER / FLYTTBARE VINDUER -->
 
   <!-- MODAL FOR ENDRING AV LENKER -->
   <div class="floating-modal" id="linkModal">
@@ -87,7 +93,7 @@
     </div>
   </div>
 
-  <!-- MODAL FOR DAGSPLAN -->
+<!-- MODAL FOR DAGSPLAN -->
   <div class="floating-modal" id="planModal">
     <div class="modal-header" style="background: #9c27b0;">
       <span>✏️ Velg bilder for dagsplanen</span>
@@ -95,7 +101,16 @@
     </div>
     <div class="modal-body">
       <table class="plan-edit-table" id="planEditTable"></table>
-      <button onclick="saveSchedule()" style="background: #9c27b0; margin-top: 15px;">Lagre dagsplan</button>
+      
+      <!-- KNAPPER: LAGRE OG TØM -->
+      <div style="display: flex; gap: 8px; margin-top: 15px;">
+        <button onclick="saveSchedule()" style="flex: 2; background: #9c27b0; margin-top: 0;">
+          Lagre dagsplan
+        </button>
+        <button onclick="clearSchedule()" style="flex: 1; background: #ef4444; margin-top: 0; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+          🗑️ Tøm og tilbakestill
+        </button>
+      </div>
     </div>
   </div>
 
@@ -165,6 +180,7 @@
   </div>
 
 
+
 <!-- GRUPPEGENERATOR MODAL -->
 <div id="groupModal" class="floating-modal">
   <div class="modal-header">
@@ -183,16 +199,11 @@
       <div class="group-admin-grid">
         
         <div class="admin-col">
-          <label style="font-weight: bold; display: block; margin-bottom: 5px;">Lås opp interne lister (PIN):</label>
-          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
-            <input type="password" id="pinInput" placeholder="Skriv inn PIN" style="flex: 1;">
-            <button onclick="checkPin()" style="width: auto; background: #4f46e5;">Lås opp</button>
-          </div>
-
-          <div id="fileSelectBox" style="display: none; margin-bottom: 10px;">
+          <!-- Viser klassekvitter/velger direkte uten PIN -->
+          <div id="fileSelectBox" style="display: block; margin-bottom: 10px;">
             <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Velg klasse(r):</label>
             <div id="classCheckboxContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.85rem;">
-              </div>
+            </div>
           </div>
 
           <div style="margin-top: 10px; margin-bottom: 10px;">
@@ -234,21 +245,23 @@
 
       <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
         <div>
-          <label id="numberLabel" style="font-size: 13px;"><b>Antall personer per gruppe:</b></label>
+          <label id="numberLabel" style="font-size: 13px;"><b>Totalt antall grupper:</b></label>
           <input type="number" id="numberInput" value="3" min="1" style="width: 60px; margin-left: 5px;">
         </div>
         <div>
+          <!-- Standard: numGroups (Totalt antall grupper) -->
           <select id="modeSelect" onchange="toggleMode()">
+            <option value="numGroups" selected>Totalt antall grupper</option>
             <option value="perGroup">Elever per gruppe</option>
-            <option value="numGroups">Totalt antall grupper</option>
           </select>
         </div>
         <div>
+          <!-- Standard: animals (Dyr) -->
           <select id="namingSelect" onchange="toggleCustomNaming()">
+            <option value="animals" selected>🦁 Dyr</option>
             <option value="numbers">🔢 Nummerert (Gruppe 1, 2...)</option>
             <option value="letters">🔤 Bokstaver (Gruppe A, B...)</option>
             <option value="colors">🎨 Farger</option>
-            <option value="animals">🦁 Dyr</option>
             <option value="shapes">🔹 Former</option>
             <option value="custom">✏️ Egne navn...</option>
           </select>
@@ -266,14 +279,24 @@
   </div>
 </div>
 
+
+<!-- TREKKE ELEV GENERATOR MODAL -->
 <div class="floating-modal" id="studentModal">
   <div class="modal-header" style="background: #e91e63;">
     <span>🎲 Trekk Elev</span>
     <button class="close-btn" onclick="closeModal('studentModal')">&times;</button>
   </div>
   <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+    
+    <!-- Klaslevelger lagt til her -->
+    <div id="studentClassSelectBox" style="margin-bottom: 4px;">
+      <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Velg klasse(r):</label>
+      <div id="studentClassCheckboxContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.85rem;">
+      </div>
+    </div>
+
     <div>
-      <label style="font-weight: bold; font-size: 0.85rem;">Last opp elevliste (.txt) eller skriv inn:</label>
+      <label style="font-weight: bold; font-size: 0.85rem;">Eller last opp elevliste (.txt) / skriv inn:</label>
       <input type="file" accept=".txt" onchange="loadStudentFile(event)" style="margin-top: 4px; margin-bottom: 6px;">
       <textarea id="studentListInput" rows="5" placeholder="Skriv inn ett navn per linje..."></textarea>
     </div>
@@ -305,23 +328,85 @@
   </div>
 </div>
 
+<!-- MODAL FOR SAMLING -->
+<div id="samlingModal" class="floating-modal" style="display: none;">
+  <div class="modal-content" style="width: 360px; max-width: 90vw; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden;">
+    
+    <div class="modal-header" style="background: #8b5cf6; color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+      <h3 style="margin: 0; font-size: 16px; color: white;">📚 Samling per trinn</h3>
+      <button onclick="closeModal('samlingModal')" class="close-btn" style="border: none; background: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
+    </div>
 
-<!-- MODAL FOR FILOPPLASTING -->
-<div id="filePickerModal" class="floating-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000;">
-  <div class="modal-content" style="width: 400px; max-width: 90vw; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden;">
+    <div class="modal-body" style="padding: 1.2rem; display: flex; flex-direction: column; gap: 8px;">
+      
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1kMiYiCiV9O_EbaRw9nIZbGPQ3goT0kCwl4jnMmWxt5c/edit?usp=drive_link')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 1. trinn
+      </button>
+
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1hhScs8AB8WAEaDgbN4_3aBx6U1vNyTeC0MksfqtXaEs/edit?usp=drive_link')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 2. trinn
+      </button>
+
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1lC_EctV9RGm6_om51m3xqzXg6wK-M7DY5529GxUHFwM/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 3. trinn
+      </button>
+
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1nvYBTPL_b-mzfKdssngV5YqwRtFatVILJOnUT9ATudE/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 4. trinn
+      </button>
+
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1El8xVTyb7wk-9BrltC9wpSuONVRfS811jwTAuCbR6Uw/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 5. trinn
+      </button>
+
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1L5F1oGfWLfbyfnEWwuLwXV-XtaXKHZLUxZ2whypwP7c/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 6. trinn
+      </button>
+
+      <button onclick="openSamling('https://docs.google.com/presentation/d/1RfS39OMNGGxKscXWgJIVyDSOWnEpj5FCEPkeu4_59Dw/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+        📚 7. trinn
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- MODAL FOR FIL- OG LINKÅPNING -->
+<div id="filePickerModal" class="floating-modal" style="display: none;">
+  <div class="modal-content" style="width: 440px; max-width: 90vw; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden;">
     
     <div class="modal-header" style="background: #3b82f6; color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; cursor: move;">
-      <h3 style="margin: 0; font-size: 16px;">📁 Åpne fil eller lenke</h3>
+      <h3 style="margin: 0; font-size: 16px; color: white;">📁 Åpne fil eller Google-dokument</h3>
       <button onclick="closeFilePickerModal()" class="close-btn" style="border: none; background: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
     </div>
 
-    <div class="modal-body" style="padding: 1.2rem;">
-      <p style="font-size: 13px; color: #475569; margin-top: 0; margin-bottom: 1rem;">
-        Velg en fil fra maskinen din for å vise den direkte i hovedfeltet:
-      </p>
-      <input type="file" id="filePicker" accept=".pdf, image/*, .txt" onchange="loadFileAndCloseModal(event)" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
-    </div>
+    <div class="modal-body" style="padding: 1.2rem; display: flex; flex-direction: column; gap: 15px;">
+      
+      <!-- VALG 1: LOKAL FIL -->
+      <div>
+        <label style="font-size: 13px; font-weight: bold; color: #1e293b; display: block; margin-bottom: 6px;">
+          📄 Velg fil fra datamaskinen:
+        </label>
+        <input type="file" id="filePicker" accept=".pdf, image/*, .txt, .docx, .pptx, .xlsx" onchange="loadFileAndCloseModal(event)" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+      </div>
 
+      <div style="text-align: center; color: #94a3b8; font-size: 12px; font-weight: bold;">— ELLER —</div>
+
+      <!-- VALG 2: GOOGLE / NETTLENKE -->
+      <div>
+        <label style="font-size: 13px; font-weight: bold; color: #1e293b; display: block; margin-bottom: 6px;">
+          🔗 Lim inn Google-lenke (Docs, Sheets, Slides, Drive):
+        </label>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <input type="url" id="googleUrlInput" placeholder="https://docs.google.com/..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+          <button onclick="loadGoogleUrlAndClose()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer;">
+            Vis i midtfeltet
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

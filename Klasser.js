@@ -57,32 +57,139 @@ window.classLists["Klasse 1B"] = [
 ];
 
 // 2. TRINN
-window.classLists["Klasse 2A"] = [];
-window.classLists["Klasse 2B"] = [];
-window.classLists["Klasse 2C"] = [];
+window.classLists["Klasse 2A"] = [
+  "William",
+  "Cristiano",
+  "Ellie Synnøve",
+  "Isaac",
+  "Sindre",
+  "Iman",
+  "Isabel",
+  "Emmeli",
+  "Nikolai",
+  "Thale",
+  "Matheus",
+  "Samuel",
+  "Selma",
+  "Emma",
+  "Sander",
+  "Tomine",
+  "Linus",
+  "Vetle"
+];
+
+window.classLists["Klasse 2B"] = [
+  "Anna",
+  "Charlotte",
+  "Eira",
+  "Matheo",
+  "Raima",
+  "David",
+  "Luis",
+  "Magnus",
+  "Ola",
+  "Alma",
+  "Elida",
+  "Noah",
+  "Fride",
+  "Oliver",
+  "Eva",
+  "Ole",
+  "Sofia"
+];
+
+window.classLists["Klasse 2C"] = [
+  "Esther",
+  "Emmely",
+  "Camilla",
+  "Ada",
+  "Thorvald",
+  "Ferdinand",
+  "Daniel",
+  "Ingrid",
+  "Amanda",
+  "Thelion",
+  "Evelyn",
+  "Elvira",
+  "Ali",
+  "Vilma",
+  "Nasra",
+  "Markus",
+  "Georg",
+  "Aurora",
+  "Jens",
+  "Elise",
+  "Yalini",
+  "Iben"
+];
 
 // 3. TRINN
-window.classLists["Klasse 3A"] = [];
-window.classLists["Klasse 3B"] = [];
-window.classLists["Klasse 3C"] = [];
+window.classLists["Klasse 3A"] = [
+  "Kaiss",
+  "Sidra",
+  "Adm",
+  "Ariana",
+  "Vilhelm",
+  "Sara",
+  "Emil",
+  "Ivy",
+  "Lucas",
+  "Nova",
+  "Kian",
+  "Max",
+  "Melora",
+  "Elian",
+  "Konrad",
+  "Ruth",
+  "Kristian",
+  "Iman",
+  "Madeleine",
+  "Bjørn",
+  "Maksymilian"
+];
 
-// 4. TRINN
-window.classLists["Klasse 4A"] = [];
-window.classLists["Klasse 4B"] = [];
-window.classLists["Klasse 4C"] = [];
+window.classLists["Klasse 3B"] = [
+  "Noah",
+  "Emil",
+  "Lauritz",
+  "Theodor",
+  "Riley",
+  "Kirsti",
+  "Leander",
+  "Henrik",
+  "Othilie",
+  "Kevin",
+  "Kaja",
+  "Lilly",
+  "Olai",
+  "Sonja",
+  "Jett Paul",
+  "Aaron",
+  "Viktor",
+  "Gustav",
+  "Benas",
+  "Mats"
+];
 
-// 5. TRINN
-window.classLists["Klasse 5A"] = [];
-window.classLists["Klasse 5B"] = [];
-window.classLists["Klasse 5C"] = [];
-
-// 6. TRINN
-window.classLists["Klasse 6A"] = [];
-window.classLists["Klasse 6B"] = [];
-window.classLists["Klasse 6C"] = [];
-window.classLists["Klasse 6D"] = [];
-
-// 7. TRINN
-window.classLists["Klasse 7A"] = [];
-window.classLists["Klasse 7B"] = [];
-window.classLists["Klasse 7C"] = [];
+window.classLists["Klasse 3C"] = [
+  "Wudasie",
+  "Mathias",
+  "Danielius",
+  "Emilie",
+  "Mathias",
+  "Ellinor",
+  "Hanna",
+  "Hermine",
+  "Johannes",
+  "Sara",
+  "Alfred",
+  "Lavrans",
+  "Julia",
+  "Yosra",
+  "Leander",
+  "Ania",
+  "Simon",
+  "Yohan",
+  "Franki",
+  "Matheo"
+];
