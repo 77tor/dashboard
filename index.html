@@ -25,7 +25,7 @@
   <h3>Verktøy</h3>
   <button class="btn-timer" onclick="openModal('timerModal')">⏱️ Åpne Tidsur</button>
   <button class="btn-group" onclick="openModal('groupModal')">👥 Trekk Grupper</button>
-  <button class="btn-student" onclick="openModal('studentModal')">🎲 Trekk Elev</button>
+  <button onclick="openModal('bigWheelModal')">🎲 Trekk Elev</button>
   <button onclick="openModal('samlingModal')" style="background-color: #8b5cf6; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; margin-bottom: 6px;">
     📚 Samling
   </button>
@@ -358,56 +358,81 @@
 </div>
 
 
-<!-- TREKKE ELEV GENERATOR MODAL -->
-<div class="floating-modal" id="studentModal">
-  <div class="modal-header" style="background: #e91e63;">
-    <span>🎲 Trekk Elev</span>
-    <div style="display: flex; align-items: center;">
+
+<!-- TREKKE ELEV GENERATOR MODAL (MED SPINNERHJUL) -->
+<!-- STORT LYKKEHJUL MODAL FOR KLASSEROM (BRED VERSJON) -->
+<div class="floating-modal" id="bigWheelModal" style="width: 95vw; max-width: 950px; border-radius: 16px;">
+  <div class="modal-header" style="background: linear-gradient(135deg, #e91e63, #9c27b0); padding: 14px 20px;">
+    <span style="font-size: 1.2rem; font-weight: 800;">🎡 Lykkehjul — Hånes Skole</span>
+    <div style="display: flex; align-items: center; gap: 10px;">
       <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop()">👁️ Bakgrunn</button>
-      <button class="close-btn" onclick="closeModal('studentModal')">&times;</button>
+      <button class="close-btn" onclick="closeModal('bigWheelModal')" style="font-size: 1.8rem;">&times;</button>
     </div>
   </div>
-  <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
+
+  <div class="modal-body" style="display: grid; grid-template-columns: 460px 1fr; gap: 20px; padding: 20px; background: #f8fafc;">
     
-    <!-- Klaslevelger lagt til her -->
-    <div id="studentClassSelectBox" style="margin-bottom: 4px;">
-      <label style="font-size: 12px; font-weight: bold; display: block; margin-bottom: 4px;">Velg klasse(r):</label>
-      <div id="studentClassCheckboxContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.85rem;">
+    <!-- VENSTRE KOLONNE: HJULET OG KONTROLLER -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      
+      <!-- HJUL-CONTAINER -->
+      <div style="position: relative; width: 420px; height: 420px; margin-bottom: 15px;">
+        <!-- Stopper-pil øverst -->
+        <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 30px solid #e91e63; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));"></div>
+        <canvas id="bigWheelCanvas" width="420" height="420" style="border-radius: 50%; box-shadow: 0 10px 25px rgba(0,0,0,0.15);"></canvas>
+      </div>
+
+      <!-- SNURR-KNAPP OG INNSTILLINGER -->
+      <div style="display: flex; gap: 15px; align-items: center; width: 100%; justify-content: center;">
+        <button id="bigDrawBtn" onclick="spinWheel()" style="background: linear-gradient(135deg, #ec4899, #e91e63); color: white; border: none; font-size: 1.3rem; font-weight: 800; padding: 12px 28px; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 0 #be185d, 0 10px 15px rgba(0,0,0,0.1); transition: all 0.1s; width: 100%;">
+          🎰 SNURR HJULET!
+        </button>
+      </div>
+
+      <!-- VINNERBOKS I STOR SKRIFT -->
+      <div id="drawResult" style="display: none; margin-top: 12px; background: #f0fdf4; border: 3px dashed #22c55e; border-radius: 12px; padding: 10px 20px; text-align: center; width: 100%;">
+        <span style="color: #15803d; font-size: 0.85rem; font-weight: bold; text-transform: uppercase;">Trukket elev:</span>
+        <div id="winnerNames" style="font-size: 2rem; font-weight: 900; color: #052e16;"></div>
       </div>
     </div>
 
-    <div>
-      <label style="font-weight: bold; font-size: 0.85rem;">Eller last opp elevliste (.txt) / skriv inn:</label>
-      <input type="file" accept=".txt" onchange="loadStudentFile(event)" style="margin-top: 4px; margin-bottom: 6px;">
-      <textarea id="studentListInput" rows="5" placeholder="Skriv inn ett navn per linje..."></textarea>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #eee;">
-      <div>
-        <label style="font-weight: bold; font-size: 0.85rem;">Antall som skal trekkes:</label>
-        <input type="number" id="drawCount" value="1" min="1" max="30" style="width: 60px; padding: 4px; margin-left: 6px;">
+    <!-- HØYRE KOLONNE: KLASSEVALG OG HISTORIKK (LUFTIG OG BRED) -->
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      
+      <!-- KLASSE- OG ELEVAREAL -->
+      <div style="background: #ffffff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <label style="font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 6px;">Velg klasse(r) / Elevliste:</label>
+        
+        <!-- Endret til 3 kolonner for bedre utnyttelse av plassen -->
+        <div id="studentClassCheckboxContainer" style="max-height: 95px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 6px; background: #fff; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 0.85rem; margin-bottom: 8px;">
+        </div>
+        
+        <textarea id="studentListInput" rows="4" placeholder="Skriv inn navn (ett per linje)..." oninput="oppdaterHjul(true)" style="width: 100%; font-size: 0.85rem; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box;"></textarea>
+        
+        <label style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-top: 8px; font-weight: 600; color: #334155;">
+          <input type="checkbox" id="rememberDrawn" checked> Husk trukket (fjern fra hjulet)
+        </label>
       </div>
-      <label style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-        <input type="checkbox" id="rememberDrawn" checked style="width: auto;"> Husk trukket
-      </label>
-    </div>
 
-    <button onclick="drawStudents()" style="background: #e91e63; font-size: 1rem; padding: 10px;">🎲 Trekk nå!</button>
-
-    <div id="drawResult" style="display: none; background: #f0fdf4; border: 2px dashed #22c55e; border-radius: 8px; padding: 12px; text-align: center;">
-      <h4 style="color: #15803d; margin-bottom: 6px;">Vinner(e):</h4>
-      <div id="winnerNames" style="font-size: 1.3rem; font-weight: bold; color: #052e16;"></div>
-    </div>
-
-    <div id="drawnHistoryContainer" style="font-size: 0.8rem; color: #666; border-top: 1px solid #eee; padding-top: 8px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <strong>Tidligere trukket (<span id="drawnCount">0</span>):</strong>
-        <button onclick="resetDrawnHistory()" style="width: auto; padding: 2px 6px; font-size: 0.75rem; background: #757575;">Nullstill</button>
+      <!-- HISTORIKKVISNING AV TRUKKEDE ELEVER -->
+      <div style="background: #ffffff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; flex-grow: 1; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px;">
+          <strong style="font-size: 0.95rem; color: #334155;">Tidligere trukket (<span id="drawnCount">0</span>)</strong>
+          <button onclick="resetDrawnHistory()" style="padding: 4px 10px; font-size: 0.8rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Nullstill</button>
+        </div>
+        
+        <div id="drawnHistoryList" style="flex-grow: 1; max-height: 200px; overflow-y: auto; font-size: 0.9rem; color: #475569; display: flex; flex-direction: column; gap: 5px; padding-right: 4px;">
+          <span style="font-style: italic; color: #94a3b8;">Ingen elever trukket ennå.</span>
+        </div>
       </div>
-      <div id="drawnHistoryList" style="margin-top: 4px; font-style: italic; max-height: 60px; overflow-y: auto;">Ingen ennå</div>
+
     </div>
+
   </div>
 </div>
+
+
+
 
 <!-- MODAL FOR SAMLING -->
 <div id="samlingModal" class="floating-modal" style="display: none;">

@@ -1107,87 +1107,235 @@ function renderGroupsToContainer(containerId, groups) {
 }
 
 
-/* --- ELEVTREKKER LOGIKK --- */
-// Laster lagrede trukkede elever fra localStorage ved oppstart
+/* --- ELEVTREKKER LOGIKK MED RULETTEFFEKT --- */
+/* --- STORT SPINNERHJUL LOGIKK FOR SMARTTAVLE --- */
 let drawnStudents = loadState('drawnStudentsHistory', []);
+let currentAngle = 0;
+let isSpinning = false;
+let blinkInterval = null;
+let lastWinnerIndex = -1;
+let isBlinking = false;
+let activeWheelStudents = [];
 
-// Sørger for at historikkvisningen oppdateres når siden er ferdig lastet
-document.addEventListener('DOMContentLoaded', () => {
-  updateDrawnHistory();
-});
+const farger = ['#f43f5e', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#84cc16'];
 
-function loadStudentFile(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const el = document.getElementById('studentListInput');
-      if (el) el.value = e.target.result;
-    };
-    reader.readAsText(file);
-  }
-}
-
-function drawStudents() {
+function hentAktiveElever() {
   const inputEl = document.getElementById('studentListInput');
-  if (!inputEl) return;
-  
+  if (!inputEl) return [];
   const rawInput = inputEl.value;
   let allStudents = rawInput.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+  
+  const rememberCheckbox = document.getElementById('rememberDrawn');
+  const remember = rememberCheckbox ? rememberCheckbox.checked : false;
 
-  if (allStudents.length === 0) {
-    alert("Vennligst legg til noen elevnavn først!");
+  return remember ? allStudents.filter(name => !drawnStudents.includes(name)) : allStudents;
+}
+
+function stoppBlinking() {
+  if (blinkInterval) {
+    clearInterval(blinkInterval);
+    blinkInterval = null;
+  }
+  isBlinking = false;
+  lastWinnerIndex = -1;
+}
+
+function oppdaterHjul(skalLasteNyeElever = false) {
+  const canvas = document.getElementById('bigWheelCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  if (skalLasteNyeElever || activeWheelStudents.length === 0) {
+    activeWheelStudents = hentAktiveElever();
+  }
+  
+  const elever = activeWheelStudents;
+  const numSegments = elever.length;
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = canvas.width / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (numSegments === 0) {
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fill();
+    ctx.fillStyle = '#475569';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Alle elever er trukket! 🎉', centerX, centerY);
     return;
   }
 
-  const rememberCheckbox = document.getElementById('rememberDrawn');
-  const remember = rememberCheckbox ? rememberCheckbox.checked : false;
-  
-  let availableStudents = remember 
-    ? allStudents.filter(name => !drawnStudents.includes(name))
-    : [...allStudents];
+  const anglePerSegment = (2 * Math.PI) / numSegments;
 
-  if (availableStudents.length === 0) {
+  elever.forEach((elev, i) => {
+    const startAngle = currentAngle + i * anglePerSegment;
+    const endAngle = startAngle + anglePerSegment;
+
+    const erVinnerSegment = (i === lastWinnerIndex);
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.closePath();
+
+    if (erVinnerSegment && isBlinking) {
+      ctx.fillStyle = '#fbbf24'; // Gull/gul blinking på vinner
+    } else {
+      ctx.fillStyle = farger[i % farger.length];
+    }
+    
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = erVinnerSegment ? 6 : 3;
+    ctx.stroke();
+
+    // Tegn elevnavn med større skrifttype
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(startAngle + anglePerSegment / 2);
+    ctx.textAlign = 'right';
+    
+    if (erVinnerSegment && isBlinking) {
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '800 20px sans-serif';
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px sans-serif';
+    }
+    
+    ctx.fillText(elev.length > 15 ? elev.substring(0, 13) + '..' : elev, radius - 20, 6);
+    ctx.restore();
+  });
+
+  // Midtsirkel med Hånes-skole preg
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+}
+
+function spinWheel() {
+  if (isSpinning) return;
+
+  stoppBlinking();
+  oppdaterHjul(true); // Fjern forrige vinner før ny snurr
+
+  const elever = activeWheelStudents;
+
+  if (elever.length === 0) {
     alert("Alle elever på listen er allerede trukket! Nullstill historikken for å starte på nytt.");
     return;
   }
 
-  const countEl = document.getElementById('drawCount');
-  let count = parseInt(countEl ? countEl.value : 1) || 1;
-  count = Math.min(count, availableStudents.length);
+  isSpinning = true;
+  const drawBtn = document.getElementById('bigDrawBtn');
+  if (drawBtn) drawBtn.disabled = true;
 
-  let shuffled = [...availableStudents].sort(() => 0.5 - Math.random());
-  let winners = shuffled.slice(0, count);
+  const resultBox = document.getElementById('drawResult');
+  if (resultBox) resultBox.style.display = 'none';
 
-  if (remember) {
-    drawnStudents.push(...winners);
-    saveState('drawnStudentsHistory', drawnStudents); // Lagrer i nettleseren
+  const extraRounds = 5 + Math.random() * 4;
+  const totalRotation = extraRounds * 2 * Math.PI;
+  const startAngle = currentAngle;
+  const targetAngle = currentAngle + totalRotation;
+
+  const duration = 4500; // 4.5 sekunder spenning
+  const startTime = performance.now();
+
+  function animate(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    currentAngle = startAngle + (targetAngle - startAngle) * easeOut;
+
+    oppdaterHjul(false);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      isSpinning = false;
+      if (drawBtn) drawBtn.disabled = false;
+
+      const normalizedAngle = (2 * Math.PI - (currentAngle % (2 * Math.PI)) + (3 * Math.PI / 2)) % (2 * Math.PI);
+      const segmentAngle = (2 * Math.PI) / elever.length;
+      const winnerIndex = Math.floor(normalizedAngle / segmentAngle) % elever.length;
+      const winner = elever[winnerIndex];
+
+      startVinnerBlinking(winnerIndex, winner);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function startVinnerBlinking(winnerIndex, winner) {
+  lastWinnerIndex = winnerIndex;
+  
+  blinkInterval = setInterval(() => {
+    isBlinking = !isBlinking;
+    oppdaterHjul(false);
+  }, 350);
+
+  const rememberCheckbox = document.getElementById('rememberDrawn');
+  if (rememberCheckbox && rememberCheckbox.checked) {
+    drawnStudents.push(winner);
+    saveState('drawnStudentsHistory', drawnStudents);
     updateDrawnHistory();
   }
 
   const winnerEl = document.getElementById('winnerNames');
   const resultBox = document.getElementById('drawResult');
-  if (winnerEl) winnerEl.innerHTML = winners.join('<br>');
+  if (winnerEl) winnerEl.innerHTML = `🎉 ${winner} 🎉`;
   if (resultBox) resultBox.style.display = 'block';
+
+  if (typeof confetti === 'function') {
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+  }
 }
 
 function updateDrawnHistory() {
   const countBadge = document.getElementById('drawnCount');
   const historyList = document.getElementById('drawnHistoryList');
   if (countBadge) countBadge.innerText = drawnStudents.length;
+  
   if (historyList) {
-    historyList.innerText = drawnStudents.length > 0 ? drawnStudents.join(', ') : 'Ingen ennå';
+    if (drawnStudents.length === 0) {
+      historyList.innerHTML = '<span style="font-style: italic; color: #94a3b8;">Ingen elever trukket ennå.</span>';
+    } else {
+      // Viser trukkede elever som pene merkelapper i historikklisten
+      historyList.innerHTML = drawnStudents.map((name, index) => 
+        `<div style="background: #f1f5f9; padding: 6px 10px; border-radius: 6px; font-weight: 600; display: flex; justify-content: space-between;">
+           <span>${index + 1}. ${name}</span>
+           <span style="color: #22c55e;">✓</span>
+         </div>`
+      ).reverse().join('');
+    }
   }
 }
 
 function resetDrawnHistory() {
+  stoppBlinking();
   drawnStudents = [];
-  saveState('drawnStudentsHistory', []); // Sletter fra lagringen
+  saveState('drawnStudentsHistory', []);
   updateDrawnHistory();
+  oppdaterHjul(true);
   const resultBox = document.getElementById('drawResult');
   if (resultBox) resultBox.style.display = 'none';
 }
 
+// Initialiser historikk og hjul ved sidenoppstart
+document.addEventListener('DOMContentLoaded', () => {
+  updateDrawnHistory();
+  setTimeout(() => oppdaterHjul(true), 300);
+});
 
 /* --- TIDSUR LOGIKK --- */
 let timer = null;
