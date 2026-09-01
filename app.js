@@ -1,11 +1,15 @@
 /* --- DYNAMISKE LENKER --- */
-let customLinks = [
+// Standardlenker dersom brukeren ikke har lagret noe enda
+const defaultLinks = [
   { name: "Google", url: "https://www.google.no/index.html", external: true },
   { name: "Wikipedia", url: "https://www.wikipedia.org", external: false },
   { name: "Korartí", url: "https://www.korarti.no/", external: false },
   { name: "Salaby", url: "https://www.salaby.no/", external: false },
   { name: "Skoleregler", url: "https://sites.google.com/ikrs.no/regler", external: true }
 ];
+
+// Laster eksisterende lenker fra localStorage, ellers krasjer vi tilbake til standard
+let customLinks = loadState('customLinksData', defaultLinks);
 
 function renderLinks() {
   const container = document.getElementById('linksContainer');
@@ -18,10 +22,25 @@ function renderLinks() {
     
     a.onclick = (e) => {
       e.preventDefault();
+      
       if (link.external) {
+        // 1. Åpner den eksterne lenken i en ny fane
         window.open(link.url, '_blank');
+        
+        // 2. Tilbakestiller rammen i dashboardet til Hjem
+        setAndSaveIframeUrl('hjem.html');
       } else {
-        setAndSaveIframeUrl(link.url); // Lagrer i localStorage OG åpner i midtfeltet
+        // Åpner lenken direkte inne i dashboardets ramme
+        setAndSaveIframeUrl(link.url);
+
+        // VISER OG OPPDATERER "VISES IKKE SIDEN?"-FELTET
+        const notice = document.getElementById('iframeFallbackNotice');
+        const fallbackLink = document.getElementById('fallbackExternalLink');
+        
+        if (notice && fallbackLink) {
+          fallbackLink.href = link.url; // Setter "Klikk her"-lenken til samme URL
+          notice.style.display = 'grid'; // Viser det blå feltet
+        }
       }
     };
 
@@ -29,6 +48,7 @@ function renderLinks() {
     container.appendChild(a);
   });
 }
+
 
 /* --- HJELPEFUNKSJONER FOR LOCALSTORAGE --- */
 function saveState(key, value) {
@@ -43,6 +63,7 @@ function loadState(key, defaultValue = null) {
 function buildLinkEditor() {
   const table = document.getElementById('linkEditTable');
   if (!table) return;
+  
   table.innerHTML = `
     <tr style="font-weight:bold; background:#f0f4f8;">
       <td style="padding:6px;">Knappnavn</td>
@@ -50,6 +71,7 @@ function buildLinkEditor() {
       <td style="padding:6px; text-align:center;">Ny fane?</td>
     </tr>
   `;
+  
   customLinks.forEach((link, idx) => {
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -61,6 +83,16 @@ function buildLinkEditor() {
     `;
     table.appendChild(row);
   });
+
+  // Legger til info-tekst under tabellen hvis den ikke allerede finnes
+  let infoBox = document.getElementById('linkEditInfoText');
+  if (!infoBox) {
+    infoBox = document.createElement('div');
+    infoBox.id = 'linkEditInfoText';
+    infoBox.style.cssText = 'margin-top: 12px; margin-bottom: 8px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; font-size: 0.85rem; border-radius: 4px;';
+    infoBox.innerHTML = '⚠️ <strong>Merk:</strong> Enkelte nettsider tillater ikke å bli åpnet direkte inne i dashboardet. Dersom en side forbli blank, huke av for <strong>«Ny fane?»</strong>.';
+    table.parentNode.insertBefore(infoBox, table.nextSibling);
+  }
 }
 
 function saveLinks() {
@@ -74,6 +106,10 @@ function saveLinks() {
       link.external = extInput.checked;
     }
   });
+  
+  // Lagrer endringene permanent i nettleseren
+  saveState('customLinksData', customLinks);
+  
   renderLinks();
   closeModal('linkModal');
 }
@@ -322,6 +358,76 @@ function changeActiveDay(dayName) {
 }
 
 
+/* --- VISNINGSMODUSER --- */
+function toggleDisplayMode(modeClass) {
+  document.body.classList.toggle(modeClass);
+}
+
+function toggleHideMenu() {
+  const isHidden = document.body.classList.toggle('hide-menu');
+  const btn = document.getElementById('toggleMenuBtn');
+  
+  if (btn) {
+    btn.innerHTML = isHidden ? '👁️ Vis meny' : '👁️ Skjul meny';
+  }
+}
+
+// Åpne et verktøy med mørk bakgrunn som standard
+function openToolModal(modalId) {
+  const backdrop = document.getElementById('customModalBackdrop');
+  const modal = document.getElementById(modalId);
+
+  if (backdrop) {
+    backdrop.classList.remove('transparent-backdrop'); // Standard: mørk + uklar
+    backdrop.style.display = 'block';
+  }
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+}
+
+// Veksle mellom mørk bakgrunn og gjennomsiktig ("svevende oppå")
+function toggleModalBackdrop() {
+  const backdrop = document.getElementById('customModalBackdrop');
+  if (backdrop) {
+    backdrop.classList.toggle('transparent-backdrop');
+  }
+}
+
+
+/* --- ÅPNE OG LUKKE DAGSPLAN MED MØRK BAKGRUNN --- */
+function openScheduleModal() {
+  const originalList = document.getElementById('scheduleDisplay');
+  const bigContainer = document.getElementById('bigScheduleContainer');
+  
+  if (originalList && bigContainer) {
+    bigContainer.innerHTML = originalList.innerHTML;
+  }
+
+  // Oppretter eller viser den mørke bakgrunnen
+  let backdrop = document.getElementById('customModalBackdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'customModalBackdrop';
+    document.body.appendChild(backdrop);
+  }
+  backdrop.style.display = 'block';
+
+  // Viser modalen
+  const modal = document.getElementById('scheduleModal');
+  if (modal) {
+    modal.style.display = 'block';
+  }
+}
+
+function closeScheduleModal() {
+  const modal = document.getElementById('scheduleModal');
+  const backdrop = document.getElementById('customModalBackdrop');
+  
+  if (modal) modal.style.display = 'none';
+  if (backdrop) backdrop.style.display = 'none';
+}
+
 
 
 /* --- ÅPNE OG LAGRE IFRAME-LENKE --- */
@@ -335,7 +441,6 @@ function setAndSaveIframeUrl(url) {
 
   const iframe = document.getElementById('mainFrame');
   if (iframe) {
-    // Hvis det er en opplastet fil (data-url), gjør den om til Blob slik at nettleseren godtar visning
     if (embedUrl.startsWith('data:')) {
       fetch(embedUrl)
         .then(res => res.blob())
@@ -350,7 +455,25 @@ function setAndSaveIframeUrl(url) {
     }
   }
 
-  // Lagrer lenken/filen i localStorage
+  // SJEKK FOR HVA SOM REGNES SOM INTERNT INNHOLD (SOM IKKE SKAL HA HJELPELINJE)
+  const fallbackBox = document.getElementById('iframeFallbackNotice');
+  const fallbackLink = document.getElementById('fallbackExternalLink');
+  
+  if (fallbackBox && fallbackLink) {
+    // Skjuler linjen for: lokale filer (data:), Hjem-siden (.html), blanke sider, OG Google Docs/Slides
+    const isInternal = embedUrl.startsWith('data:') || 
+                       embedUrl.toLowerCase().includes('.html') || 
+                       embedUrl === 'about:blank' || 
+                       embedUrl.includes('docs.google.com');
+    
+    if (!isInternal) {
+      fallbackLink.href = embedUrl;
+      fallbackBox.style.display = 'grid'; // Vises KUN for eksterne nettsider (som TV2, NRK osv.)
+    } else {
+      fallbackBox.style.display = 'none'; // Skjules for Google Presentations, verktøy og Hjem
+    }
+  }
+
   try {
     saveState('activeIframeUrl', embedUrl);
   } catch (err) {
@@ -358,8 +481,16 @@ function setAndSaveIframeUrl(url) {
   }
 }
 
+
 /* --- ÅPNE SAMLING --- */
 function openSamling(url) {
+  // Sjekker om url finnes, og om den starter med http (gyldig lenke)
+  if (!url || url === '#' || !url.startsWith('http')) {
+    alert("🚀 Denne samlingen er ikke klar ennå. Lenke mangler for denne dagen/trinnet.");
+    return; // Avbryter funksjonen her
+  }
+
+  // Hvis lenken er gyldig, fortsett som før
   setAndSaveIframeUrl(url);
   closeModal('samlingModal');
 }
@@ -373,9 +504,17 @@ function bringToFront(element) {
   element.style.zIndex = highestZ;
 }
 
+
 function openModal(id) {
   if (id === 'planModal') buildPlanEditor();
   if (id === 'linkModal') buildLinkEditor();
+  
+  // Aktiver mørk/uklar bakgrunn
+  const backdrop = document.getElementById('customModalBackdrop');
+  if (backdrop) {
+    backdrop.classList.remove('transparent-backdrop');
+    backdrop.style.display = 'block';
+  }
   
   const el = document.getElementById(id);
   if (el) {
@@ -391,7 +530,21 @@ function openModal(id) {
 function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'none';
+
+  // Skjul bakgrunnen KUN hvis ingen andre modaler fortsatt er åpne
+  const openModals = document.querySelectorAll('.floating-modal[style*="display: flex"]');
+  if (openModals.length === 0) {
+    const backdrop = document.getElementById('customModalBackdrop');
+    if (backdrop) backdrop.style.display = 'none';
+  }
 }
+
+// Husk også å ha denne hjelpefunksjonen liggende i skriptet ditt:
+function toggleModalBackdrop() {
+  const backdrop = document.getElementById('customModalBackdrop');
+  if (backdrop) backdrop.classList.toggle('transparent-backdrop');
+}
+
 
 function setupDraggableModals() {
   document.querySelectorAll('.floating-modal').forEach(modal => {
@@ -917,8 +1070,15 @@ function renderGroupsToContainer(containerId, groups) {
   });
 }
 
+
 /* --- ELEVTREKKER LOGIKK --- */
-let drawnStudents = [];
+// Laster lagrede trukkede elever fra localStorage ved oppstart
+let drawnStudents = loadState('drawnStudentsHistory', []);
+
+// Sørger for at historikkvisningen oppdateres når siden er ferdig lastet
+document.addEventListener('DOMContentLoaded', () => {
+  updateDrawnHistory();
+});
 
 function loadStudentFile(event) {
   const file = event.target.files[0];
@@ -965,6 +1125,7 @@ function drawStudents() {
 
   if (remember) {
     drawnStudents.push(...winners);
+    saveState('drawnStudentsHistory', drawnStudents); // Lagrer i nettleseren
     updateDrawnHistory();
   }
 
@@ -985,43 +1146,66 @@ function updateDrawnHistory() {
 
 function resetDrawnHistory() {
   drawnStudents = [];
+  saveState('drawnStudentsHistory', []); // Sletter fra lagringen
   updateDrawnHistory();
   const resultBox = document.getElementById('drawResult');
   if (resultBox) resultBox.style.display = 'none';
 }
+
 
 /* --- TIDSUR LOGIKK --- */
 let timer = null;
 let totalSeconds = 300;
 let initialSeconds = 300;
 let isRunning = false;
-let currentAudio = null;
+let alarmInterval = null;
 let playCount = 0;
+
+// AudioContext for syntetisk lydgenerering
+let audioCtx = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
 
 function updateTimerDisplay() {
   const display = document.getElementById('timerDisplay');
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
-  if (display) display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  if (display) {
+    display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+}
+
+function applyInputTime() {
+  if (isRunning) return; // Ikke avbryt hvis den allerede kjører
+
+  const minInput = document.getElementById('min');
+  const secInput = document.getElementById('sec');
+  
+  const m = parseInt(minInput && minInput.value !== "" ? minInput.value : 0, 10);
+  const s = parseInt(secInput && secInput.value !== "" ? secInput.value : 0, 10);
+  
+  totalSeconds = (m * 60) + s;
+  initialSeconds = totalSeconds;
+  updateTimerDisplay();
 }
 
 function setPreset(minutes) {
-  pauseTimer();
   const minInput = document.getElementById('min');
   const secInput = document.getElementById('sec');
   if (minInput) minInput.value = minutes;
   if (secInput) secInput.value = 0;
-  applyInputTime();
-}
-
-function applyInputTime() {
-  const minInput = document.getElementById('min');
-  const secInput = document.getElementById('sec');
-  const m = parseInt(minInput ? minInput.value : 0) || 0;
-  const s = parseInt(secInput ? secInput.value : 0) || 0;
-  totalSeconds = m * 60 + s;
-  initialSeconds = totalSeconds;
-  updateTimerDisplay();
+  resetTimer();
 }
 
 function toggleTimer() {
@@ -1034,7 +1218,12 @@ function toggleTimer() {
 
 function startTimer() {
   const startBtn = document.getElementById('startBtn');
-  if (totalSeconds <= 0) applyInputTime();
+  
+  // Les inn fra boksene hvis den ikke er startet
+  if (!isRunning && totalSeconds === initialSeconds) {
+    applyInputTime();
+  }
+
   if (totalSeconds <= 0) return;
 
   isRunning = true;
@@ -1043,26 +1232,30 @@ function startTimer() {
     startBtn.style.backgroundColor = '#f39c12';
   }
 
+  if (timer) clearInterval(timer);
+
   timer = setInterval(() => {
     totalSeconds--;
     updateTimerDisplay();
 
     if (totalSeconds <= 0) {
-      clearInterval(timer);
-      isRunning = false;
-      if (startBtn) {
-        startBtn.textContent = 'Start';
-        startBtn.style.backgroundColor = '#2ecc71';
-      }
+      stopTimerProcess();
       triggerAlarm();
     }
   }, 1000);
 }
 
 function pauseTimer() {
-  const startBtn = document.getElementById('startBtn');
-  clearInterval(timer);
+  stopTimerProcess();
+}
+
+function stopTimerProcess() {
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
   isRunning = false;
+  const startBtn = document.getElementById('startBtn');
   if (startBtn) {
     startBtn.textContent = 'Start';
     startBtn.style.backgroundColor = '#2ecc71';
@@ -1070,17 +1263,178 @@ function pauseTimer() {
 }
 
 function resetTimer() {
-  pauseTimer();
-  totalSeconds = initialSeconds;
+  // 1. Stopp timeren og slå av alarmlyd/effekter
+  stopTimerProcess();
+  stopAlarmEffects();
+
+  // 2. Skjul alarm-modalen dersom den er åpen
+  const alarmModal = document.getElementById('alarmModal');
+  if (alarmModal) alarmModal.style.display = 'none';
+
+  // 3. Tilbakestill tid-feltene til 5 min og 0 sek
+  const minInput = document.getElementById('min');
+  const secInput = document.getElementById('sec');
+  if (minInput) minInput.value = 5;
+  if (secInput) secInput.value = 0;
+
+  // 4. Tilbakestill lyd-valgene til standard
+  const soundTypeSelect = document.getElementById('soundType');
+  const soundRepeatSelect = document.getElementById('soundRepeat');
+  if (soundTypeSelect) soundTypeSelect.value = 'chime';
+  if (soundRepeatSelect) soundRepeatSelect.value = 'loop';
+
+  // 5. Oppdater variabler og skjermvisningen til 05:00
+  totalSeconds = 300;
+  initialSeconds = 300;
   updateTimerDisplay();
 }
 
+
+/* --- SYNTETISK LYDGENERATOR --- */
+function playSynthSound(type) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  if (type === 'digital') {
+    // Pipe-toner (pip-pip-pip)
+    [0, 0.15, 0.3].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now + delay); // A5
+      gain.gain.setValueAtTime(0.3, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.1);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.1);
+    });
+  } else if (type === 'alarm') {
+    // Kraftig, gjennomtrengende staccato-alarm
+    [0, 0.2, 0.4].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(960, now + delay);
+      osc.frequency.setValueAtTime(1200, now + delay + 0.07);
+
+      gain.gain.setValueAtTime(0.5, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.15);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.15);
+    });
+  } else if (type === 'siren') {
+    // Rask, to-toners utrykningssirene
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(700, now);
+    osc.frequency.setValueAtTime(1050, now + 0.15);
+    osc.frequency.setValueAtTime(700, now + 0.3);
+    osc.frequency.setValueAtTime(1050, now + 0.45);
+
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.6);
+  } else if (type === 'shiphorn') {
+    // Dyp, kraftig og skjærende tåkelur/skipsfløyte
+    [130, 131, 260].forEach(freq => { // Flere svingninger gir fetere klang
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.8);
+    });
+  } else if (type === 'chime') {
+    // Varm akkord / marimba
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + (index * 0.08));
+      gain.gain.setValueAtTime(0.4, now + (index * 0.08));
+      gain.gain.exponentialRampToValueAtTime(0.001, now + (index * 0.08) + 1.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + (index * 0.08));
+      osc.stop(now + (index * 0.08) + 1.2);
+    });
+  } else if (type === 'fanfare') {
+    // Seiers-fanfare
+    const notes = [
+      { f: 523.25, t: 0, d: 0.15 },
+      { f: 659.25, t: 0.15, d: 0.15 },
+      { f: 783.99, t: 0.30, d: 0.15 },
+      { f: 1046.50, t: 0.45, d: 0.5 }
+    ];
+    notes.forEach(note => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(note.f, now + note.t);
+      gain.gain.setValueAtTime(0.15, now + note.t);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + note.t + note.d);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + note.t);
+      osc.stop(now + note.t + note.d);
+    });
+  } else if (type === 'pulse') {
+    // Lav puls
+    [0, 0.25].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(120, now + delay);
+      gain.gain.setValueAtTime(0.6, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.18);
+    });
+  } else if (type === 'gameover') {
+    // Synkende tone
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.6);
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.6);
+  }
+}
+
 function testSound() {
-  stopAudio();
   const soundTypeSelect = document.getElementById('soundType');
-  const soundFile = soundTypeSelect ? soundTypeSelect.value : '';
-  currentAudio = new Audio(soundFile);
-  currentAudio.play().catch(e => alert("Kunne ikke laste filen: " + soundFile + "\nSjekk at filen ligger i mappen 'Lyder'."));
+  const type = soundTypeSelect ? soundTypeSelect.value : 'digital';
+  playSynthSound(type);
 }
 
 function triggerAlarm() {
@@ -1096,32 +1450,37 @@ function playAlarmSound() {
   playCount = 0;
   const soundTypeSelect = document.getElementById('soundType');
   const soundRepeatSelect = document.getElementById('soundRepeat');
-  const soundFile = soundTypeSelect ? soundTypeSelect.value : '';
+  const type = soundTypeSelect ? soundTypeSelect.value : 'digital';
   const repeatVal = soundRepeatSelect ? soundRepeatSelect.value : '1';
 
-  currentAudio = new Audio(soundFile);
+  // Spill av første gang umiddelbart
+  playSynthSound(type);
+  playCount = 1;
 
   if (repeatVal === 'loop') {
-    currentAudio.loop = true;
+    alarmInterval = setInterval(() => {
+      playSynthSound(type);
+    }, 1500);
   } else {
     const maxRepeats = parseInt(repeatVal, 10);
-    currentAudio.addEventListener('ended', function() {
-      playCount++;
-      if (playCount < maxRepeats) {
-        this.currentTime = 0;
-        this.play();
-      }
-    });
+    if (maxRepeats > 1) {
+      alarmInterval = setInterval(() => {
+        if (playCount < maxRepeats) {
+          playSynthSound(type);
+          playCount++;
+        } else {
+          clearInterval(alarmInterval);
+          alarmInterval = null;
+        }
+      }, 1500);
+    }
   }
-
-  currentAudio.play().catch(e => console.log("Lyd-avspilling blokkert eller fil mangler."));
 }
 
 function stopAudio() {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
+  if (alarmInterval) {
+    clearInterval(alarmInterval);
+    alarmInterval = null;
   }
 }
 
@@ -1132,17 +1491,43 @@ function stopAlarmEffects() {
 }
 
 function closeAlarmModal() {
-  const alarmModal = document.getElementById('alarmModal');
+  // 1. Stopp lydeffekter og blinking
   stopAlarmEffects();
-  if (alarmModal) alarmModal.style.display = 'none';
-  resetTimer();
+
+  // 2. Skjul alarm-modalen
+  const alarmModal = document.getElementById('alarmModal');
+  if (alarmModal) {
+    alarmModal.style.display = 'none';
+  }
+
+  // 3. Stopp timerkjøringen
+  stopTimerProcess();
+
+  // 4. Sett tiden tilbake til det den var satt til, uten å starte nedtellingen
+  totalSeconds = initialSeconds;
+  updateTimerDisplay();
 }
 
 function restartSameTime() {
-  const alarmModal = document.getElementById('alarmModal');
+  // 1. Stopp lydeffekter og skjult alarm-modalen
   stopAlarmEffects();
-  if (alarmModal) alarmModal.style.display = 'none';
-  resetTimer();
+  const alarmModal = document.getElementById('alarmModal');
+  if (alarmModal) {
+    alarmModal.style.display = 'none';
+  }
+
+  // 2. Hent tiden du brukte sist (eller les fra input dersom initialSeconds mangler)
+  if (!initialSeconds || initialSeconds <= 0) {
+    const minInput = document.getElementById('min');
+    const secInput = document.getElementById('sec');
+    const m = parseInt(minInput ? minInput.value : 0, 10) || 0;
+    const s = parseInt(secInput ? secInput.value : 0, 10) || 0;
+    initialSeconds = (m * 60) + s;
+  }
+
+  // 3. Sett totalSeconds tilbake til startverdien og start timeren på nytt
+  totalSeconds = initialSeconds;
+  updateTimerDisplay();
   startTimer();
 }
 
@@ -1150,11 +1535,12 @@ function restartSameTime() {
 /* --- NAVIGASJON (HJEM) --- */
 function goHome() {
   const mainFrame = document.getElementById('mainFrame');
-  if (mainFrame) {
-    mainFrame.src = 'hjem.html';
-  }
-  
-  // Sletter den lagrede ramme-URL-en slik at Hjem-siden lastes ved neste oppstart/F5
+  if (mainFrame) mainFrame.src = 'hjem.html';
+
+  // Skjuler linjen
+  const notice = document.getElementById('iframeFallbackNotice');
+  if (notice) notice.style.display = 'none';
+
   localStorage.removeItem('activeIframeUrl');
 }
 

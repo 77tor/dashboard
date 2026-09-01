@@ -43,20 +43,31 @@
       <div class="links-grid" id="linksContainer"></div>
     </div>
 
-    <!-- EGEN RUTE FOR HJEM-KNAPP -->
-    <div class="card">
-      <button onclick="goHome()" style="width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        🏠 Hjem
-      </button>
-    </div>
-  </aside>
+<!-- EGEN RUTE FOR HJEM OG MODUS -->
+<div class="card card-keep-visible">
+  <button onclick="goHome()" style="width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+    🏠 Hjem
+  </button>
+  <div style="display: flex; gap: 6px;">
+    <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="flex: 1; padding: 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🌙 Nattmodus</button>
+    <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">👁️ Skjul meny</button>
+  </div>
+</div>
+</aside>
 
 <!-- MIDTFELT -->
 <main class="main-content">
-  <div class="top-bar" style="display: flex; align-items: center; justify-content: center; position: relative;">
-    <!-- Ny overskrift sentrert i topplinjen -->
+  <div class="top-bar" style="display: flex; align-items: center; justify-content: center;">
     <h1 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 700;">Dashboard - Hånes skole</h1>
   </div>
+
+<!-- ULTRA-KOMPAKT HJELPELINJE (GRID-STYRT) -->
+<div id="iframeFallbackNotice" style="display: none; grid-template-columns: 1fr auto; align-items: center; background: #e0f2fe; color: #0369a1; padding: 4px 10px; font-size: 0.8rem; border-bottom: 1px solid #bae6fd; width: 100%; box-sizing: border-box;">
+  <div style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+    Vises ikke siden? <a id="fallbackExternalLink" href="#" target="_blank" style="color: #2563eb; font-weight: bold; text-decoration: underline;">Klikk her for å åpne i ny fane ↗</a>
+  </div>
+  <button type="button" onclick="document.getElementById('iframeFallbackNotice').style.display='none'" style="background: transparent; border: none; color: #0369a1; font-weight: bold; font-size: 0.9rem; cursor: pointer; padding: 0 0 0 10px; line-height: 1; margin: 0;">✕</button>
+</div>
 
   <div class="frame-container" id="mainFrameContainer" style="position: relative;">
     <button id="fullscreenBtn" onclick="toggleMainFrameFullscreen()">
@@ -66,19 +77,36 @@
   </div>
 </main>
 
-  <!-- HØYRE SIDEBAR: Dato & Dagsplan -->
-  <aside class="sidebar sidebar-right">
-    <div class="card" style="text-align: center; padding: 6px 10px; flex-shrink: 0;">
-      <h2 id="currentDate" style="font-size: 1.2rem;">Laster dato...</h2>
-      <h4 id="currentYear" style="color: #666; font-weight: normal; font-size: 0.85rem;"></h4>
-    </div>
 
-    <div class="card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 8px;">
+
+<!-- HØYRE SIDEBAR: Dato & Dagsplan -->
+<aside class="sidebar sidebar-right">
+  <div class="card" style="text-align: center; padding: 6px 10px; flex-shrink: 0;">
+    <h2 id="currentDate" style="font-size: 1.2rem;">Laster dato...</h2>
+    <h4 id="currentYear" style="color: #666; font-weight: normal; font-size: 0.85rem;"></h4>
+  </div>
+
+  <div class="card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 8px;">
+    <div class="card-header-flex">
       <h3 style="margin-bottom: 4px;">Dagsplan</h3>
-      <div class="schedule-list" id="scheduleDisplay"></div>
-      <button class="btn-plan" onclick="openModal('planModal')">✏️ Endre dagsplan</button>
+      <!-- Forstørrelsesknapp -->
+      <button onclick="openScheduleModal()" class="btn-edit-icon" title="Forstørr dagsplan">🔍</button>
     </div>
-  </aside>
+    <div class="schedule-list" id="scheduleDisplay"></div>
+    <button class="btn-plan" onclick="openModal('planModal')">✏️ Endre dagsplan</button>
+  </div>
+</aside>
+
+<!-- MODAL FOR DAGSPLAN I STORSTØRRELSE -->
+<div id="scheduleModal" class="floating-modal" style="display: none; width: 98vw; max-width: 98vw; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+  <div class="modal-header" style="background: #2563eb; color: white;">
+    <h3 style="margin: 0; color: white;">📅 Dagsplan for klassen</h3>
+    <button onclick="closeScheduleModal()" class="close-btn">✕</button>
+  </div>
+  <div class="modal-body" style="padding: 20px; overflow-x: auto;">
+    <div id="bigScheduleContainer"></div>
+  </div>
+</div>
 
 
   <!-- MODAL FOR ENDRING AV LENKER -->
@@ -114,70 +142,80 @@
     </div>
   </div>
 
-  <!-- MODAL FOR TIDSUR -->
-  <div class="floating-modal" id="timerModal">
-    <div class="modal-header" style="background: #ff9800;">
-      <span>⏱️ Klasserom Tidsur</span>
+
+
+<!-- MODAL FOR TIDSUR -->
+<div class="floating-modal" id="timerModal">
+  <div class="modal-header" style="background: #ff9800;">
+    <span>⏱️ Klasserom Tidsur</span>
+    <div style="display: flex; align-items: center;">
+      <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop()">👁️ Bakgrunn</button>
       <button class="close-btn" onclick="closeModal('timerModal')">&times;</button>
     </div>
-    <div class="modal-body" id="timerModalBody">
-      <div class="timer-container">
-        <div class="preset-btns">
-          <button class="preset" onclick="setPreset(2)">2 min</button>
-          <button class="preset" onclick="setPreset(5)">5 min</button>
-          <button class="preset" onclick="setPreset(7)">7 min</button>
-          <button class="preset" onclick="setPreset(10)">10 min</button>
-        </div>
-
-        <div class="timer-inputs">
-          <input type="number" id="min" placeholder="Min" min="0" value="5">
-          <input type="number" id="sec" placeholder="Sek" min="0" max="59" value="0">
-        </div>
-
-        <div class="sound-select">
-          <label for="soundType"><strong>Lyd ved slutt:</strong></label>
-          <div class="sound-row">
-            <select id="soundType">
-              <option value="Lyder/01.mp3">🎬 Filmtrailer</option>
-              <option value="Lyder/02.mp3">⏳ Nedtelling</option>
-              <option value="Lyder/03.mp3">💓 Hjerteslag</option>
-              <option value="Lyder/04.mp3">👾 Game Over</option>
-              <option value="Lyder/05.mp3">🎺 Fanfare</option>
-              <option value="Lyder/06.mp3">📞 Telefon</option>
-            </select>
-            <button class="test-btn" onclick="testSound()">▶ Prøv</button>
-          </div>
-
-          <label for="soundRepeat" style="margin-top: 4px;"><strong>Hvor mange ganger:</strong></label>
-          <select id="soundRepeat" style="width: 100%;">
-            <option value="1">1 gang</option>
-            <option value="2">2 ganger</option>
-            <option value="3">3 ganger</option>
-            <option value="loop" selected>Til den slås av</option>
-          </select>
-        </div>
-
-        <div class="timer-display" id="timerDisplay">05:00</div>
-
-        <div class="controls">
-          <button class="start" id="startBtn" onclick="toggleTimer()">Start</button>
-          <button class="reset" onclick="resetTimer()">Nullstill</button>
-        </div>
+  </div>
+  
+  <div class="modal-body" id="timerModalBody" style="position: relative;">
+    <div class="timer-container">
+      <div class="preset-btns">
+        <button class="preset" onclick="setPreset(2)">2 min</button>
+        <button class="preset" onclick="setPreset(5)">5 min</button>
+        <button class="preset" onclick="setPreset(7)">7 min</button>
+        <button class="preset" onclick="setPreset(10)">10 min</button>
       </div>
 
-      <div class="modal-overlay" id="alarmModal">
-        <div class="modal-content-inner">
-          <h2 style="color: #e74c3c; margin-top: 0; font-size: 1.4rem;">⏰ Tiden er ute!</h2>
-          <p style="font-size: 0.85rem; margin: 8px 0;">Hva vil du gjøre nå?</p>
-          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
-            <button style="background: #f39c12; padding: 8px;" onclick="stopAlarmEffects()">🔕 Stopp alarm</button>
-            <button class="start" style="padding: 8px;" onclick="restartSameTime()">🔄 Kjør samme tid på nytt</button>
-            <button class="reset" style="padding: 8px;" onclick="closeAlarmModal()">✖ Lukk</button>
-          </div>
+      <!-- Endret: Lagt til oninput slik at tallene endres umiddelbart -->
+      <div class="timer-inputs">
+        <input type="number" id="min" placeholder="Min" min="0" value="5" oninput="applyInputTime()">
+        <input type="number" id="sec" placeholder="Sek" min="0" max="59" value="0" oninput="applyInputTime()">
+      </div>
+
+<div class="sound-select">
+  <label for="soundType"><strong>Lyd ved slutt:</strong></label>
+  <div class="sound-row">
+<select id="soundType">
+      <option value="alarm">🚨 Skarp Alarm</option>
+      <option value="siren">📢 Utrykningssirene</option>
+      <option value="shiphorn">🚢 Tåkelur / Skipsfløyte</option>
+      <option value="digital">⏰ Digital Alarm</option>
+      <option value="chime" selected>🔔 Skoleklokke / Marimba</option>
+      <option value="fanfare">🎺 Fanfare / Seier</option>
+      <option value="pulse">💓 Puls / Hjerteslag</option>
+      <option value="gameover">👾 Game Over</option>
+    </select>
+    <button type="button" class="test-btn" onclick="testSound()">▶ Prøv</button>
+  </div>
+
+  <label for="soundRepeat" style="margin-top: 4px;"><strong>Hvor mange ganger:</strong></label>
+  <select id="soundRepeat" style="width: 100%;">
+    <option value="1">1 gang</option>
+    <option value="2">2 ganger</option>
+    <option value="3">3 ganger</option>
+    <option value="loop" selected>Til den slås av</option>
+  </select>
+</div>
+
+      <div class="timer-display" id="timerDisplay">05:00</div>
+
+<div class="controls">
+  <button type="button" class="start" id="startBtn" onclick="toggleTimer()">Start</button>
+  <button type="button" class="reset" onclick="resetTimer()">Nullstill</button>
+</div>
+    </div>
+
+    <!-- Endret: style="display: none;" lagt til direkte her -->
+    <div class="modal-overlay" id="alarmModal" style="display: none;">
+      <div class="modal-content-inner">
+        <h2 style="color: #e74c3c; margin-top: 0; font-size: 1.4rem;">⏰ Tiden er ute!</h2>
+        <p style="font-size: 0.85rem; margin: 8px 0;">Hva vil du gjøre nå?</p>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
+          <button style="background: #f39c12; padding: 8px;" onclick="stopAlarmEffects()">🔕 Stopp alarm</button>
+          <button class="start" style="padding: 8px;" onclick="restartSameTime()">🔄 Kjør samme tid på nytt</button>
+          <button class="reset" style="padding: 8px;" onclick="closeAlarmModal()">✖ Lukk</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
 
 
@@ -185,7 +223,10 @@
 <div id="groupModal" class="floating-modal">
   <div class="modal-header">
     <h2>👥 Trekk Grupper</h2>
-    <button class="close-btn" onclick="closeModal('groupModal')">&times;</button>
+    <div style="display: flex; align-items: center;">
+      <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop()">👁️ Bakgrunn</button>
+      <button class="close-btn" onclick="closeModal('groupModal')">&times;</button>
+    </div>
   </div>
 
   <div class="modal-body">
@@ -284,7 +325,10 @@
 <div class="floating-modal" id="studentModal">
   <div class="modal-header" style="background: #e91e63;">
     <span>🎲 Trekk Elev</span>
-    <button class="close-btn" onclick="closeModal('studentModal')">&times;</button>
+    <div style="display: flex; align-items: center;">
+      <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop()">👁️ Bakgrunn</button>
+      <button class="close-btn" onclick="closeModal('studentModal')">&times;</button>
+    </div>
   </div>
   <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px;">
     
@@ -330,42 +374,98 @@
 
 <!-- MODAL FOR SAMLING -->
 <div id="samlingModal" class="floating-modal" style="display: none;">
-  <div class="modal-content" style="width: 360px; max-width: 90vw; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden;">
+  <div class="modal-content" style="width: 380px; max-width: 90vw; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden;">
     
     <div class="modal-header" style="background: #8b5cf6; color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; cursor: move;">
       <h3 style="margin: 0; font-size: 16px; color: white;">📚 Samling per trinn</h3>
       <button onclick="closeModal('samlingModal')" class="close-btn" style="border: none; background: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
     </div>
 
-    <div class="modal-body" style="padding: 1.2rem; display: flex; flex-direction: column; gap: 8px;">
+    <div class="modal-body" style="padding: 1rem; display: flex; flex-direction: column; gap: 8px; max-height: 75vh; overflow-y: auto;">
       
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1kMiYiCiV9O_EbaRw9nIZbGPQ3goT0kCwl4jnMmWxt5c/edit?usp=drive_link')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 1. trinn
-      </button>
+      <!-- 1. TRINN -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 1. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('#')">Mandag</button>
+          <button onclick="openSamling('#')">Tirsdag</button>
+          <button onclick="openSamling('#')">Onsdag</button>
+          <button onclick="openSamling('#')">Torsdag</button>
+          <button onclick="openSamling('#')">Fredag</button>
+        </div>
+      </details>
 
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1hhScs8AB8WAEaDgbN4_3aBx6U1vNyTeC0MksfqtXaEs/edit?usp=drive_link')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 2. trinn
-      </button>
+      <!-- 2. TRINN -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 2. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('#')">Mandag</button>
+          <button onclick="openSamling('#')">Tirsdag</button>
+          <button onclick="openSamling('#')">Onsdag</button>
+          <button onclick="openSamling('#')">Torsdag</button>
+          <button onclick="openSamling('#')">Fredag</button>
+        </div>
+      </details>
 
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1lC_EctV9RGm6_om51m3xqzXg6wK-M7DY5529GxUHFwM/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 3. trinn
-      </button>
+      <!-- 3. TRINN (MED DINE LENKER) -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 3. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('https://docs.google.com/presentation/d/12EAjlzb2sWPC6rkKZbHQyZWu2lYWuKnwbcK_Wx1XS2U/edit?usp=drive_link')">Mandag</button>
+          <button onclick="openSamling('https://docs.google.com/presentation/d/1tIHPcKI4a4685LptRjle1J7jM4l1bF5mfumV5A-cees/edit?usp=drive_link')">Tirsdag</button>
+          <button onclick="openSamling('https://docs.google.com/presentation/d/1aV7XODur3FQzBuVSbGnNzvMgkz82KGuzxvDDguQKugQ/edit?usp=drive_link')">Onsdag</button>
+          <button onclick="openSamling('https://docs.google.com/presentation/d/1ADecnP8d3IixO70cJuOfolP_WnBV5WgArCPEsiyli7Q/edit?usp=drive_link')">Torsdag</button>
+          <button onclick="openSamling('https://docs.google.com/presentation/d/1DU0XR0ofdetigTG-SBsk_yCMEg85VsSiLuB7eUB-tO4/edit?usp=drive_link')">Fredag</button>
+        </div>
+      </details>
 
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1nvYBTPL_b-mzfKdssngV5YqwRtFatVILJOnUT9ATudE/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 4. trinn
-      </button>
+      <!-- 4. TRINN -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 4. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('#')">Mandag</button>
+          <button onclick="openSamling('#')">Tirsdag</button>
+          <button onclick="openSamling('#')">Onsdag</button>
+          <button onclick="openSamling('#')">Torsdag</button>
+          <button onclick="openSamling('#')">Fredag</button>
+        </div>
+      </details>
 
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1El8xVTyb7wk-9BrltC9wpSuONVRfS811jwTAuCbR6Uw/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 5. trinn
-      </button>
+      <!-- 5. TRINN -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 5. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('#')">Mandag</button>
+          <button onclick="openSamling('#')">Tirsdag</button>
+          <button onclick="openSamling('#')">Onsdag</button>
+          <button onclick="openSamling('#')">Torsdag</button>
+          <button onclick="openSamling('#')">Fredag</button>
+        </div>
+      </details>
 
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1L5F1oGfWLfbyfnEWwuLwXV-XtaXKHZLUxZ2whypwP7c/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 6. trinn
-      </button>
+      <!-- 6. TRINN -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 6. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('#')">Mandag</button>
+          <button onclick="openSamling('#')">Tirsdag</button>
+          <button onclick="openSamling('#')">Onsdag</button>
+          <button onclick="openSamling('#')">Torsdag</button>
+          <button onclick="openSamling('#')">Fredag</button>
+        </div>
+      </details>
 
-      <button onclick="openSamling('https://docs.google.com/presentation/d/1RfS39OMNGGxKscXWgJIVyDSOWnEpj5FCEPkeu4_59Dw/edit?slide=id.p#slide=id.p')" style="padding: 10px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-        📚 7. trinn
-      </button>
+      <!-- 7. TRINN -->
+      <details class="trinn-accordion">
+        <summary class="trinn-summary">📚 7. trinn</summary>
+        <div class="day-buttons">
+          <button onclick="openSamling('#')">Mandag</button>
+          <button onclick="openSamling('#')">Tirsdag</button>
+          <button onclick="openSamling('#')">Onsdag</button>
+          <button onclick="openSamling('#')">Torsdag</button>
+          <button onclick="openSamling('#')">Fredag</button>
+        </div>
+      </details>
 
     </div>
 
@@ -409,6 +509,9 @@
     </div>
   </div>
 </div>
+
+<!-- MØRK/UKLAR BAKGRUNN (BACKDROP) -->
+<div id="customModalBackdrop" onclick="toggleModalBackdrop()"></div>
 
   <script src="Klasser.js"></script>
   <script src="app.js"></script>
