@@ -114,6 +114,42 @@ function saveLinks() {
   closeModal('linkModal');
 }
 
+
+/* --- LASTE NED OG VISE UKEPLANER --- */
+let ukeplanerData = {};
+
+async function lastUkeplaner() {
+  try {
+    const res = await fetch('https://77tor.github.io/haanes-ukeplaner/ukeplaner.json?t=' + new Date().getTime());
+    if (!res.ok) throw new Error("Fant ikke ukeplaner.json på GitHub");
+    
+    ukeplanerData = await res.json();
+    console.log("Ukeplaner lastet ned:", ukeplanerData);
+  } catch (err) {
+    console.error("Feil ved henting av ukeplaner:", err);
+    alert("Kunne ikke hente ferske ukeplaner fra nettet. Sjekk internettforbindelsen.");
+  }
+}
+
+function visTrinn(trinn) {
+  const data = ukeplanerData[trinn];
+
+  if (data && data.pdf_url) {
+    // Lagrer trinnet i localStorage dersom du vil bruke det senere
+    localStorage.setItem('sistValgteTrinn', trinn);
+
+    // Åpner PDF-en i hovedvisningen og lagrer lenken i localStorage
+    setAndSaveIframeUrl(data.pdf_url);
+    
+    // Lukker ukeplan-modalen
+    closeModal('ukeplanModal'); 
+  } else {
+    alert(`Ingen ukeplan funnet for ${trinn}. trinn denne uken.`);
+  }
+}
+
+
+
 /* --- DAGSPLAN LOGIKK M/ LOCALSTORAGE --- */
 const availableImages = [
   "Arbeidstime", "Bibliotek", "Engelsk", "Forestilling", "Friminutt", 

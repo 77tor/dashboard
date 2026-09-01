@@ -2,32 +2,205 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8">
-  <title>Hjem</title>
+  <title>Hjem - Hånes skole</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      margin: 0;
-      padding: 20px;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #fef3c7 100%);
+      color: #1e293b;
+      min-height: 100vh;
+      padding: 25px 20px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      min-height: 90vh;
-      background-color: #f8fafc;
     }
-    .home-container {
-      text-align: center;
+
+    .header-container { 
+      text-align: center; 
+      margin-bottom: 30px; 
+      cursor: pointer;
+      user-select: none;
     }
-    .home-img {
-      max-width: 50%;
-      height: auto;
+    
+    .school-logo { 
+      max-width: 210px; 
+      filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1));
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .school-logo:hover { 
+      transform: scale(1.08) rotate(-2deg); 
+    }
+
+    .welcome-title { 
+      font-size: 1.6rem; 
+      font-weight: 800;
+      color: #0f172a; 
+      margin-top: 10px;
+      background: linear-gradient(45deg, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 950px;
+    }
+
+    .resource-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 8px 0px var(--shadow-color), 0 15px 20px rgba(0,0,0,0.06);
+      border: 3px solid var(--border-color);
+    }
+
+    .resource-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 0px var(--shadow-color), 0 20px 25px rgba(0,0,0,0.1);
+    }
+
+    .resource-card:active {
+      transform: translateY(2px);
+      box-shadow: 0 4px 0px var(--shadow-color), 0 8px 10px rgba(0,0,0,0.1);
+    }
+
+    .card-img-wrapper { 
+      height: 80px; 
+      width: 100%;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .card-img { 
+      max-width: 90%; 
+      max-height: 100%; 
+      object-fit: contain; 
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+    }
+
+    .card-btn {
+      width: 100%;
+      padding: 8px 0;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: white;
+      background-color: var(--btn-bg);
+      text-align: center;
+      box-shadow: 0 4px 0px var(--btn-shadow);
+      margin-top: auto;
+    }
+
+    .card-nrk {
+      --border-color: #bae6fd;
+      --shadow-color: #38bdf8;
+      --btn-bg: #0284c7;
+      --btn-shadow: #0369a1;
+    }
+    
+    .card-salaby {
+      --border-color: #fef08a;
+      --shadow-color: #facc15;
+      --btn-bg: #eab308;
+      --btn-shadow: #ca8a04;
+    }
+
+    .card-korarti {
+      --border-color: #fbcfe8;
+      --shadow-color: #f472b6;
+      --btn-bg: #db2777;
+      --btn-shadow: #be185d;
+    }
+
+    .card-super {
+      --border-color: #bbf7d0;
+      --shadow-color: #4ade80;
+      --btn-bg: #16a34a;
+      --btn-shadow: #15803d;
+    }
+
+    .card-tv2 {
+      --border-color: #ddd6fe;
+      --shadow-color: #a78bfa;
+      --btn-bg: #7c3aed;
+      --btn-shadow: #6d28d9;
     }
   </style>
 </head>
 <body>
-  <div class="home-container">
-    <img src="haanes.png" alt="Hånes skole" class="home-img">
+
+  <!-- SKOLE-LOGO MED KONFETTI-FEIRING -->
+  <div class="header-container" onclick="fyrAvKonfetti()" title="Klikk for en overraskelse! 🎉">
+    <img src="haanes.png" alt="Hånes skole" class="school-logo">
+
   </div>
+
+<!-- RESSURSKORT SOM ÅPNER SIKKERT I NY FANE -->
+  <div class="grid-container">
+
+    <a href="https://tv.nrk.no/programmer/nrk-skole" target="_blank" class="resource-card card-nrk">
+      <div class="card-img-wrapper">
+        <img src="Bilder/nrkskole.png" alt="NRK Skole" class="card-img">
+      </div>
+      <div class="card-btn">NRK Skole 🎬</div>
+    </a>
+
+    <a href="https://skole.salaby.no/" target="_blank" class="resource-card card-salaby">
+      <div class="card-img-wrapper">
+        <img src="Bilder/salaby.png" alt="Salaby" class="card-img">
+      </div>
+      <div class="card-btn">Salaby 🐝</div>
+    </a>
+
+    <a href="https://www.korarti.no/" target="_blank" class="resource-card card-korarti">
+      <div class="card-img-wrapper">
+        <img src="Bilder/korarti.png" alt="Korarti" class="card-img">
+      </div>
+      <div class="card-btn">Korarti 🎵</div>
+    </a>
+
+    <a href="https://tv.nrk.no/nrksuper/" target="_blank" class="resource-card card-super">
+      <div class="card-img-wrapper">
+        <img src="Bilder/nrksuper.png" alt="NRK Super" class="card-img">
+      </div>
+      <div class="card-btn">NRK Super 🚀</div>
+    </a>
+
+    <a href="https://www.elevkanalen.no/" target="_blank" class="resource-card card-tv2">
+      <div class="card-img-wrapper">
+        <img src="Bilder/tv2skole.png" alt="Elevkanalen" class="card-img">
+      </div>
+      <div class="card-btn">Elevkanalen 📺</div>
+    </a>
+
+  </div>
+
+  <script>
+    function fyrAvKonfetti() {
+      if (typeof confetti === 'function') {
+        confetti({ 
+          particleCount: 100, 
+          spread: 70, 
+          origin: { y: 0.3 } 
+        });
+      }
+    }
+  </script>
 </body>
 </html>

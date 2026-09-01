@@ -29,6 +29,9 @@
   <button onclick="openModal('samlingModal')" style="background-color: #8b5cf6; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; margin-bottom: 6px;">
     📚 Samling
   </button>
+<button class="tool-btn" onclick="lastUkeplaner(); openModal('ukeplanModal');" style="background-color: #0284c7; color: white;">
+  📑 Ukeplaner
+</button>
   <button onclick="openFilePickerModal()" style="background-color: #0284c7; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center;">
     📁 Åpne lokal fil / lenke
   </button>
@@ -105,6 +108,40 @@
   </div>
   <div class="modal-body" style="padding: 20px; overflow-x: auto;">
     <div id="bigScheduleContainer"></div>
+  </div>
+</div>
+
+
+<!-- UKEPLAN MODAL -->
+<div id="ukeplanModal" class="floating-modal" style="display: none; width: 420px;">
+  <div class="modal-header">
+    <span>📑 Velg Ukeplan</span>
+    <div>
+      <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop(event)">👁️ Bakgrunn</button>
+      <button type="button" class="close-btn" onclick="closeModal('ukeplanModal')">✕</button>
+    </div>
+  </div>
+  
+  <div class="modal-body" style="padding: 20px; background: white; text-align: center;">
+    <p style="margin-bottom: 15px; font-weight: bold; color: #334155;">Velg trinn for å åpne ukeplanen:</p>
+    
+    <!-- Kolonneoppsett for 1.-3. trinn og 4.-7. trinn -->
+    <div style="display: flex; gap: 15px;">
+      <!-- Venstre kolonne: Småtrinnet -->
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+        <button class="nav-btn" onclick="visTrinn('1')">1. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('2')">2. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('3')">3. trinn</button>
+      </div>
+
+      <!-- Høyre kolonne: Mellomtrinnet -->
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+        <button class="nav-btn" onclick="visTrinn('4')">4. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('5')">5. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('6')">6. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('7')">7. trinn</button>
+      </div>
+    </div>
   </div>
 </div>
 
