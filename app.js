@@ -114,6 +114,69 @@ function saveLinks() {
   closeModal('linkModal');
 }
 
+/* --- APNE OG LUKKE MODALER --- */
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  const backdrop = document.getElementById('customModalBackdrop');
+  
+  if (modal) {
+    modal.style.display = 'block';
+  }
+  if (backdrop) {
+    backdrop.style.display = 'block';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  const backdrop = document.getElementById('customModalBackdrop');
+  
+  if (modal) {
+    modal.style.display = 'none';
+  }
+  if (backdrop) {
+    backdrop.style.display = 'none';
+  }
+}
+
+/* --- TØM LAGREDE DATA --- */
+/* --- SJEKK PIN OG TØM DATA --- */
+function utfoerFullNullstilling() {
+  const pinInput = document.getElementById('resetPinInput');
+  const errorMsg = document.getElementById('resetPinError');
+  const RIKTIG_KODE = "4635";
+
+  if (pinInput.value === RIKTIG_KODE) {
+    // Koden er riktig - tøm alt!
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload();
+  } else {
+    // Feil kode - vis rød advarsel
+    errorMsg.style.display = 'block';
+    pinInput.style.borderColor = '#ef4444';
+    pinInput.value = '';
+    pinInput.focus();
+  }
+}
+
+/* --- OVERSTYR ÅPNING FOR Å TØMME GAMLE TASTETRYKK --- */
+const originalOpenModal = window.openModal;
+window.openModal = function(modalId) {
+  if (modalId === 'resetConfirmModal') {
+    const pinInput = document.getElementById('resetPinInput');
+    const errorMsg = document.getElementById('resetPinError');
+    if (pinInput) pinInput.value = '';
+    if (pinInput) pinInput.style.borderColor = '#cbd5e1';
+    if (errorMsg) errorMsg.style.display = 'none';
+  }
+  
+  // Kjører din vanlige openModal-funksjon
+  const modal = document.getElementById(modalId);
+  const backdrop = document.getElementById('customModalBackdrop');
+  if (modal) modal.style.display = 'block';
+  if (backdrop) backdrop.style.display = 'block';
+};
 
 /* --- LASTE NED OG VISE UKEPLANER --- */
 let ukeplanerData = {};
@@ -218,18 +281,6 @@ function updateDates() {
   const yearEl = document.getElementById('currentYear');
   if (dateEl) dateEl.innerText = now.toLocaleDateString('no-NO', options);
   if (yearEl) yearEl.innerText = now.getFullYear();
-
-  // 3. Teller dager i året og dager til nyttår
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff = now - start;
-  const oneDay = 1000 * 60 * 60 * 24;
-  
-  const dayOfYearEl = document.getElementById('dayOfYear');
-  const daysToNYEl = document.getElementById('daysToNY');
-  if (dayOfYearEl) dayOfYearEl.innerText = Math.floor(diff / oneDay);
-
-  const nextYear = new Date(now.getFullYear() + 1, 0, 1);
-  if (daysToNYEl) daysToNYEl.innerText = Math.ceil((nextYear - now) / oneDay);
 }
 
 function isTimeActive(startStr, endStr) {

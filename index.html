@@ -20,6 +20,8 @@
       <p><strong>Været:</strong> <span id="weather">🌤️ 18°C, Delvis skyet</span></p>
     </div>
 
+
+
 <!-- VERKTØY-KNAPPER -->
 <div class="card">
   <h3>Verktøy</h3>
@@ -54,6 +56,13 @@
   <div style="display: flex; gap: 6px;">
     <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="flex: 1; padding: 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🌙 Nattmodus</button>
     <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">👁️ Skjul meny</button>
+  </div>
+
+  <!-- TILBAKESTILL-KNAPP -->
+  <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #e2e8f0; text-align: center;">
+    <button type="button" onclick="openModal('resetConfirmModal')" style="background: transparent; color: #94a3b8; border: 1px solid #cbd5e1; font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; cursor: pointer; width: 100%; transition: all 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+      ⚙️ Tilbakestill alt data...
+    </button>
   </div>
 </div>
 </aside>
@@ -575,6 +584,48 @@
 <!-- MØRK/UKLAR BAKGRUNN (BACKDROP) -->
 <div id="customModalBackdrop" onclick="toggleModalBackdrop()"></div>
 
+
+<!-- MODAL FOR BEKREFTELSE AV NULLSTILLING MED PIN OG ADVARSEL -->
+<div class="floating-modal" id="resetConfirmModal" style="display: none; width: 90vw; max-width: 440px; border-radius: 16px; border: 2px solid #ef4444; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
+  
+  <div class="modal-header" style="background: #ef4444; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+      🔒 Krev Sikkerhetskode
+    </span>
+    <button class="close-btn" onclick="closeModal('resetConfirmModal')" style="font-size: 1.8rem; color: white; background: none; border: none; cursor: pointer;">&times;</button>
+  </div>
+
+  <div class="modal-body" style="padding: 24px; background: #ffffff; text-align: center;">
+    <div style="font-size: 2.8rem; margin-bottom: 8px;">🗑️</div>
+    
+    <h3 style="margin: 0 0 8px 0; color: #0f172a; font-size: 1.2rem;">Er du helt sikker?</h3>
+    
+    <p style="color: #64748b; font-size: 0.88rem; line-height: 1.4; margin-bottom: 16px;">
+      Dette vil <strong>slette alle lagrede innstillinger</strong>, inkludert dagsplaner, egne lenker, elevlister og trukket-historikk.<br><br>
+      <span style="color: #dc2626; font-weight: bold;">⚠️ Handlingen kan ikke angres!</span>
+    </p>
+
+    <!-- ROVUST/BREDERE INPUT-FELT FOR PIN -->
+    <div style="margin-bottom: 20px;">
+      <input type="password" id="resetPinInput" placeholder="Skriv kode..." style="width: 220px; padding: 10px 14px; font-size: 1rem; text-align: center; border: 2px solid #cbd5e1; border-radius: 8px; outline: none; box-sizing: border-box;" maxlength="4" />
+      <div id="resetPinError" style="color: #ef4444; font-size: 0.8rem; font-weight: bold; margin-top: 6px; display: none;">Feil kode! Prøv igjen.</div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button type="button" onclick="closeModal('resetConfirmModal')" style="flex: 1; padding: 10px 16px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; cursor: pointer;">
+        Avbryt
+      </button>
+      
+      <button type="button" onclick="utfoerFullNullstilling()" style="flex: 1; padding: 10px 16px; background: #ef4444; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);">
+        Ja, slett alt!
+      </button>
+    </div>
+  </div>
+
+</div>
+
+  <script src="navnedag.js"></script>
+  <script src="vaer.js"></script>
   <script src="Klasser.js"></script>
   <script src="app.js"></script>
 </body>
