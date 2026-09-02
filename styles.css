@@ -28,6 +28,9 @@ button:hover { background: #1557b0; }
 .btn-toggle-backdrop:hover { background: rgba(255, 255, 255, 0.35); }
 select, input[type="text"], input[type="url"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; outline: none; }
 select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
+#infoCard { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease; position: relative; }
+#infoCard:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); border-color: #3b82f6; background-color: #f8fafc; }
+#infoCard:active { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); }
 
 /* --- 4. FASTLENKER --- */
 .links-grid { display: grid; gap: 5px; }
@@ -55,38 +58,42 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 .active-now .schedule-img { transform: scale(1.05); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
 .schedule-empty { font-size: 0.75rem; color: #cbd5e1; font-style: italic; }
 
-#bigScheduleContainer { display: flex !important; flex-direction: row !important; gap: 12px !important; align-items: stretch !important; padding: 10px 5px !important; overflow-x: auto !important; width: 100% !important; }
-#bigScheduleContainer .schedule-card { flex: 1 1 0 !important; min-width: 140px !important; flex-direction: column !important; justify-content: flex-start !important; align-items: center !important; text-align: center !important; padding: 14px 10px !important; position: relative !important; background: #ffffff !important; border: 2px solid #e2e8f0 !important; border-radius: 12px !important; opacity: 1 !important; filter: none !important; }
+#bigScheduleContainer { display: flex !important; flex-direction: row !important; gap: 12px !important; align-items: stretch !important; padding: 10px 5px !important; overflow-x: auto !important; width: 100% !important; height: 100% !important; }
+#bigScheduleContainer .schedule-card { flex: 1 1 0 !important; min-width: 140px !important; display: flex !important; flex-direction: column !important; justify-content: flex-end !important; align-items: center !important; text-align: center !important; padding: 16px 10px !important; position: relative !important; background: #ffffff !important; border: 2px solid #e2e8f0 !important; border-radius: 12px !important; opacity: 1 !important; filter: none !important; }
 #bigScheduleContainer .schedule-card *, #bigScheduleContainer .schedule-img, #bigScheduleContainer .schedule-label, #bigScheduleContainer .schedule-clock { opacity: 1 !important; filter: none !important; color: #1e293b !important; }
-#bigScheduleContainer .schedule-img-container { width: 100% !important; height: 90px !important; display: flex !important; justify-content: center !important; align-items: center !important; margin-bottom: 10px !important; order: 1 !important; }
-#bigScheduleContainer .schedule-img { max-height: 85px !important; max-width: 100% !important; object-fit: contain !important; }
-#bigScheduleContainer .schedule-time { width: 100% !important; align-items: center !important; order: 2 !important; }
+#bigScheduleContainer .schedule-img-container { width: 100% !important; height: 160px !important; display: flex !important; justify-content: center !important; align-items: flex-end !important; margin-bottom: 12px !important; margin-top: auto !important; order: 1 !important; }
+#bigScheduleContainer .schedule-img { max-height: 100% !important; max-width: 100% !important; object-fit: contain !important; }
+#bigScheduleContainer .schedule-time { width: 100% !important; align-items: center !important; order: 2 !important; flex-shrink: 0 !important; min-height: 70px !important; display: flex !important; flex-direction: column !important; justify-content: flex-end !important; }
 #bigScheduleContainer .schedule-subject { font-size: 1.25rem !important; font-weight: bold !important; color: #0f172a !important; word-break: break-word !important; }
-#bigScheduleContainer .active-now { border: 3px solid #22c55e !important; background-color: #f0fdf4 !important; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3) !important; transform: scale(1.03) !important; z-index: 2 !important; }
+#bigScheduleContainer .active-now { border: 3px solid #22c55e !important; background-color: #f0fdf4 !important; box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3) !important; transform: scale(1.02) !important; z-index: 2 !important; }
 #bigScheduleContainer .active-now .schedule-subject { color: #15803d !important; font-size: 1.4rem !important; }
 
 /* --- 6. FLYTTBARE VINDUER (MODALER) & BACKDROP --- */
-#customModalBackdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.75) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; z-index: 1000000 !important; transition: all 0.2s ease; }
-#customModalBackdrop.transparent-backdrop { background-color: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; pointer-events: none; }
-.floating-modal { display: none; position: fixed !important; z-index: 1000001 !important; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1; pointer-events: auto !important; }
+#customModalBackdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.75) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; z-index: 1000000 !important; transition: all 0.2s ease; pointer-events: auto; }
+#customModalBackdrop.transparent-backdrop { background-color: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; pointer-events: none !important; }
+.floating-modal { display: none; position: fixed !important; z-index: 1000001 !important; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1; transform: none !important; }
 .modal-header { background: #2563eb; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; cursor: move; user-select: none; }
 .close-btn { background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: auto; margin: 0; padding: 0 4px; line-height: 1; opacity: 0.8; }
 .close-btn:hover { opacity: 1; }
-.modal-body { flex: 1; padding: 20px; overflow-y: auto; position: relative; background: #fff; }
-
+.modal-body { flex: 1; padding: 20px; overflow-y: auto; position: relative; background: #fff; display: flex; flex-direction: column; min-height: 0; }
 #timerModal { width: 360px; height: auto; top: 15vh; left: 35vw; }
 #groupModal { width: 850px; max-height: 85vh; top: 8vh; left: 20vw; }
-#planModal { width: 680px; max-height: 85vh; top: 10vh; left: 25vw; }
+#planModal { width: 480px !important; height: auto !important; max-height: 90vh !important; top: 10vh; left: 30vw; }
+#planEditTable { width: 100%; border-collapse: collapse; margin-top: 10px; }
+#planEditTable td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-size: 0.88rem; }
+#planEditTable select, #planEditTable input[type="text"] { width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; }
+#planDayNavContainer { display: flex; gap: 6px; margin-bottom: 12px; }
+#planDayNavContainer button { flex: 1; padding: 8px 4px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; margin-top: 0; }
+#planDayNavContainer button.active-day { background: #8b5cf6 !important; color: white !important; border-color: #7c3aed !important; }
 #linkModal { width: 700px; max-height: 85vh; top: 10vh; left: 25vw; }
-#studentModal { width: 550px; max-height: 85vh; top: 10vh; left: 25vw; }
+#studentModal, #lykkehjulModal { width: 780px; max-width: 95vw; max-height: 85vh; top: 10vh; left: 20vw; }
 #samlingModal { width: 380px; max-height: 85vh; top: 10vh; left: 30vw; }
-#scheduleModal.floating-modal { position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; z-index: 1000001 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important; background: #ffffff !important; border-radius: 12px !important; overflow: hidden !important; }
-
-.plan-edit-table { width: 100%; border-collapse: collapse; }
-.plan-edit-table td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; font-size: 0.88rem; }
+#scheduleModal.floating-modal { width: 92vw !important; height: auto !important; max-height: 85vh !important; position: fixed !important; top: 12vh; left: 4vw; transform: none !important; z-index: 1000001 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important; background: #ffffff !important; border-radius: 12px !important; overflow: hidden !important; }
+.plan-edit-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+.plan-edit-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; font-size: 0.88rem; vertical-align: middle; }
 .plan-edit-table label { font-weight: bold; font-size: 0.85rem; color: #475569; }
 
-/* --- 7. VERKTØY: GRUPPER, SAMLING & TIMER --- */
+/* --- 7. VERKTØY: GRUPPER, SAMLING, TIMER & ALARM --- */
 #tabAdminBtn, #tabStudentBtn { padding: 10px 16px; font-size: 0.9rem; border-radius: 8px; }
 #tabAdminBtn.active, #tabStudentBtn.active { background-color: #2563eb !important; color: white !important; font-weight: bold; }
 #tabAdminBtn:not(.active), #tabStudentBtn:not(.active) { background-color: #f1f5f9 !important; color: #64748b !important; }
@@ -96,7 +103,6 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 .group-card ul { list-style: none; padding: 0; margin: 0; font-size: 0.88rem; }
 .group-card li { padding: 4px 0; border-bottom: 1px dashed #e2e8f0; color: #334155; }
 .group-card li:last-child { border-bottom: none; }
-
 .timer-container { text-align: center; }
 .timer-display { font-size: 3.2rem; font-weight: bold; margin: 0.6rem 0; font-family: monospace; color: #1e293b; }
 .timer-inputs { display: flex; justify-content: center; gap: 6px; margin-bottom: 0.8rem; }
@@ -105,116 +111,20 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 .sound-row { display: flex; gap: 6px; width: 100%; justify-content: center; }
 .preset-btns, .controls { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 0.8rem; }
 .timer-container button { padding: 7px 12px; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; background-color: #3b82f6; color: white; width: auto; margin-top: 0; }
-.timer-container button.start { background-color: #22c55e; font-size: 0.95rem; padding: 8px 18px; }
-.timer-container button.start:hover { background-color: #16a34a; }
-.timer-container button.reset { background-color: #ef4444; font-size: 0.95rem; padding: 8px 18px; }
-.timer-container button.reset:hover { background-color: #dc2626; }
-.timer-container button.preset { background-color: #8b5cf6; }
-.timer-container button.preset:hover { background-color: #7c3aed; }
-.timer-container button.test-btn { background-color: #64748b; padding: 6px 10px; font-size: 0.8rem; }
-.timer-container button.test-btn:hover { background-color: #475569; }
-
-/* Alarm overlay inne i tidsuret */
-#alarmModal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0 0 8px 8px;
-  z-index: 10;
-}
-
-.modal-content-inner {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  max-width: 85%;
-  border: 2px solid #ef4444;
-}
-
-/* 1. Pulsing på selve oppsprettsboksen */
-@keyframes popupAlarmAlert {
-  0% {
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-    border-color: #ef4444;
-  }
-  50% {
-    background-color: #fee2e2;
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.9);
-    border-color: #b91c1c;
-  }
-  100% {
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-    border-color: #ef4444;
-  }
-}
-
-/* 2. Rød bakgrunnspuls som lyser opp HELE skjermen */
-@keyframes backdropFlash {
-  0% {
-    background-color: rgba(15, 23, 42, 0.75) !important;
-  }
-  50% {
-    background-color: rgba(185, 28, 28, 0.65) !important;
-  }
-  100% {
-    background-color: rgba(15, 23, 42, 0.75) !important;
-  }
-}
-
-/* 3. Glødende rød ramme rundt hele timervinduet */
-@keyframes modalGlow {
-  0% {
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
-  }
-}
-
-/* Kobler animasjonene til klassen .alarm-active */
-.alarm-active #customModalBackdrop {
-  animation: backdropFlash 1s infinite ease-in-out !important;
-}
-
-.alarm-active #timerModal {
-  animation: modalGlow 1s infinite ease-in-out !important;
-  border: 2px solid #ef4444 !important;
-}
-
-#alarmModal .modal-content-inner {
-  animation: popupAlarmAlert 0.8s infinite ease-in-out;
-}
-
-/* Ekstra synlig STOPP-knapp */
-#alarmModal button {
-  background: #dc2626 !important;
-  font-size: 1.05rem !important;
-  padding: 10px 16px !important;
-  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
-}
-#alarmModal button:hover {
-  background: #b91c1c !important;
-}
-
-#alarmModal h3 {
-  color: #dc2626;
-  font-size: 1.3rem;
-  margin-bottom: 8px;
-}
-
+.timer-container button.start { background-color: #22c55e; font-size: 0.95rem; padding: 8px 18px; } .timer-container button.start:hover { background-color: #16a34a; }
+.timer-container button.reset { background-color: #ef4444; font-size: 0.95rem; padding: 8px 18px; } .timer-container button.reset:hover { background-color: #dc2626; }
+.timer-container button.preset { background-color: #8b5cf6; } .timer-container button.preset:hover { background-color: #7c3aed; }
+.timer-container button.test-btn { background-color: #64748b; padding: 6px 10px; font-size: 0.8rem; } .timer-container button.test-btn:hover { background-color: #475569; }
+#alarmModal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; border-radius: 0 0 8px 8px; z-index: 10; }
+.modal-content-inner { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 85%; border: 2px solid #ef4444; }
+@keyframes popupAlarmAlert { 0% { background-color: #ffffff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); border-color: #ef4444; } 50% { background-color: #fee2e2; box-shadow: 0 0 25px rgba(239, 68, 68, 0.9); border-color: #b91c1c; } 100% { background-color: #ffffff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); border-color: #ef4444; } }
+@keyframes backdropFlash { 0% { background-color: rgba(15, 23, 42, 0.75) !important; } 50% { background-color: rgba(185, 28, 28, 0.65) !important; } 100% { background-color: rgba(15, 23, 42, 0.75) !important; } }
+@keyframes modalGlow { 0% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); } 50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.8); } 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); } }
+.alarm-active #customModalBackdrop { animation: backdropFlash 1s infinite ease-in-out !important; }
+.alarm-active #timerModal { animation: modalGlow 1s infinite ease-in-out !important; border: 2px solid #ef4444 !important; }
+#alarmModal .modal-content-inner { animation: popupAlarmAlert 0.8s infinite ease-in-out; }
+#alarmModal button { background: #dc2626 !important; font-size: 1.05rem !important; padding: 10px 16px !important; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4); } #alarmModal button:hover { background: #b91c1c !important; }
+#alarmModal h3 { color: #dc2626; font-size: 1.3rem; margin-bottom: 8px; }
 .trinn-accordion { border: 1px solid #cbd5e1; border-radius: 6px; background: #f1f5f9; overflow: hidden; margin-bottom: 6px; }
 .trinn-summary { padding: 10px 14px; font-weight: bold; color: #0f172a; font-size: 14px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none; }
 .trinn-summary::-webkit-details-marker { display: none; }
@@ -224,11 +134,10 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 .day-buttons button { padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; text-align: left; margin-top: 0; width: 100%; transition: all 0.15s ease; }
 .day-buttons button:hover { background: #f3e8ff; border-color: #c084fc; color: #7e22ce; }
 
-/* --- 8. FULLSKJERM & SPESIALVISNINGER --- */
+/* --- 8. FULLSKJERM & MODUSETTINGER --- */
 #fullscreenBtn { position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 100000; padding: 3px 12px; background: rgba(15, 23, 42, 0.85); color: #fff; border: none; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; backdrop-filter: blur(4px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: opacity 0.2s ease; }
 #fullscreenBtn:hover { background: rgba(15, 23, 42, 0.98); }
 .frame-container.is-fullscreen { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 999999 !important; background: #000; }
-
 body.hide-menu { background-color: #000000 !important; }
 body.hide-menu .sidebar, body.hide-menu .sidebar-right, body.hide-menu .top-bar { background: transparent !important; border: none !important; box-shadow: none !important; }
 body.hide-menu .sidebar > *, body.hide-menu .sidebar-right > *, body.hide-menu .top-bar > * { opacity: 0 !important; pointer-events: none !important; }
@@ -237,9 +146,45 @@ body.hide-menu .card-keep-visible > * { display: none !important; }
 body.hide-menu .card-keep-visible > div { display: flex !important; }
 body.hide-menu .card-keep-visible .btn-mode:not(#toggleMenuBtn) { display: none !important; }
 body.hide-menu #toggleMenuBtn { display: block !important; opacity: 1 !important; pointer-events: auto !important; background: #2563eb !important; color: #ffffff !important; width: 100% !important; padding: 10px !important; font-weight: bold !important; border-radius: 6px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important; }
-
 body.dark-mode { background-color: #0f172a !important; color: #f8fafc !important; }
 body.dark-mode .sidebar, body.dark-mode .sidebar-right, body.dark-mode .top-bar { background-color: #18181b !important; border-color: #27272a !important; color: #f8fafc !important; }
 body.dark-mode .card, body.dark-mode .schedule-card { background-color: #27272a !important; border-color: #3f3f46 !important; color: #f8fafc !important; }
 body.dark-mode .card h3, body.dark-mode .schedule-subject { color: #60a5fa !important; }
 body.dark-mode .links-grid a { background-color: #3f3f46 !important; color: #fff !important; border-color: #52525b !important; }
+
+/* Styling for Skjul Meny */
+.sidebar.hidden {
+  display: none !important;
+}
+
+/* Enkel styling for Nattmodus */
+body.dark-mode {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .card {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* --- 9. INFORMASJON-MODAL & ÅRSHJUL --- */
+#dashboardInfoModal { width: 1000px !important; max-width: 90vw !important; max-height: 90vh !important; position: fixed !important; top: 8vh; left: 15vw; border-radius: 20px !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important; overflow: hidden; }
+#dashboardInfoModal .modal-header { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899) !important; padding: 14px 20px !important; border: none !important; cursor: move; user-select: none; }
+.date-badge { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: inline-block; width: fit-content; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.info-grid-fun { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fun-card { border-radius: 18px; padding: 14px; display: flex; align-items: center; gap: 12px; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: default; position: relative; overflow: hidden; }
+.fun-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.15); }
+.card-pink { background: #fdf2f8; border: 2px solid #fbcfe8; }
+.card-purple { background: #faf5ff; border: 2px solid #e9d5ff; }
+.card-amber { background: #fffbeb; border: 2px solid #fde68a; }
+.card-blue { background: #f0f9ff; border: 2px solid #bae6fd; }
+.fun-icon-wrapper { font-size: 1.8rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 14px; box-shadow: 0 6px 12px rgba(0,0,0,0.06); flex-shrink: 0; transition: transform 0.3s ease; }
+.fun-card:hover .fun-icon-wrapper { transform: scale(1.15) rotate(8deg); }
+.fun-data { display: flex; flex-direction: column; }
+.fun-label { font-size: 0.72rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.fun-value { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-top: 2px; }
+.season-container { margin-top: 0; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 20px; text-align: center; }
+.wheel-wrapper { position: relative; width: 300px; height: 300px; margin: 0 auto; }
+#seasonPointer { position: absolute; top: 50%; left: 50%; font-size: 1.6rem; width: 32px; height: 32px; line-height: 32px; margin-top: -16px; margin-left: -16px; transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3)); }

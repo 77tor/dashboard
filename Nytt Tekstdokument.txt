@@ -1,0 +1,49 @@
+npx electron-packager . MinDagsplan --platform=win32 --arch=x64
+
+
+C:\Users\Lærer\Documents\Dashboard>npx electron-packager . MinDagsplan --platform=win32 --arch=x64
+Could not locate a package.json file in "C:\Users\Lærer\Documents\Dashboard" or its parent directories for an Electron app with the following fields: version, dependencies.electron,devDependencies.electron,dependencies.electron-nightly,devDependencies.electron-nightly,dependencies.electron-prebuilt-compile,devDependencies.electron-prebuilt-compile,dependencies.electron-prebuilt,devDependencies.electron-prebuilt, author
+
+C:\Users\Lærer\Documents\Dashboard>
+
+
+
+
+
+
+[Setup]
+AppName=Dashboard
+AppVersion=1.0
+DefaultDirName=C:\Dashboard
+DisableDirPage=yes
+DefaultGroupName=Dashboard
+UninstallDisplayIcon={app}\index.html
+OutputBaseFilename=Dashboard_Setup
+OutputDir=.
+
+[Dirs]
+Name: "{app}"
+
+[Files]
+; Kopiér alle filer og undermapper fra Dashboard-mappen din til C:\Dashboard
+Source: "*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Code]
+// Sletter alt i C:\Dashboard før nye filer legges inn
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  InstallPath: String;
+begin
+  if CurStep = ssInstall then
+  begin
+    InstallPath := ExpandConstant('{app}');
+    if DirExists(InstallPath) then
+    begin
+      DelTree(InstallPath, True, True, True);
+    end;
+  end;
+end;
+
+[Icons]
+; Lagre snarvei på skrivebordet som åpner index.html i standard nettleser
+Name: "{userdesktop}\Dashboard"; Filename: "{app}\index.html"
