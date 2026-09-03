@@ -40,13 +40,13 @@
 </div>
 
 <!-- FASTLENKER -->
-    <div class="card">
-      <div class="card-header-flex">
-        <h3>Lenker</h3>
-        <button class="btn-edit-icon" onclick="openModal('linkModal')" title="Endre lenker">⚙️ Rediger</button>
-      </div>
-      <div class="links-grid" id="linksContainer"></div>
-    </div>
+<div class="card">
+  <div class="card-header-flex">
+    <h3>Lenker</h3>
+    <button class="btn-edit-icon" onclick="buildLinkEditor(); openModal('linkModal');" title="Endre lenker">⚙️ Rediger</button>
+  </div>
+  <div class="links-grid" id="linksContainer"></div>
+</div>
 
 
 <!-- EGEN RUTE FOR HJEM OG MODUS -->
@@ -56,17 +56,22 @@
   </button>
   
   <div style="display: flex; flex-direction: column; gap: 6px;">
-    <!-- NATTMODUS ØVERST (FULL BREDDE, LAV HØYDE) -->
-    <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="width: 100%; padding: 6px 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500;">
-      🌙 Nattmodus
-    </button>
-    
-    <!-- MENY OG DAGSPLAN VED SIDEN AV HVERANDRE -->
+    <!-- NATTMODUS OG EKTE FULLSKJERM VED SIDEN AV HVERANDRE -->
     <div style="display: flex; gap: 6px;">
-      <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 6px 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; white-space: nowrap;">
+      <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
+        🌙 Nattmodus
+      </button>
+      <button onclick="togglePageFullscreen()" id="pageFullscreenBtn" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
+        🖥️ Fullskjerm
+      </button>
+    </div>
+    
+    <!-- SKJUL MENY OG SKJUL DAGSPLAN VED SIDEN AV HVERANDRE -->
+    <div style="display: flex; gap: 6px;">
+      <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
         👁️ Skjul meny
       </button>
-      <button onclick="toggleHideSchedule()" id="toggleScheduleBtn" class="btn-mode" style="flex: 1; padding: 6px 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; white-space: nowrap;">
+      <button onclick="toggleHideSchedule()" id="toggleScheduleBtn" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
         📅 Skjul dagsplan
       </button>
     </div>
@@ -134,9 +139,9 @@
 
 <!-- HØYRE SIDEBAR: Dato & Dagsplan -->
 <aside class="sidebar sidebar-right">
-  <div class="card" style="text-align: center; padding: 6px 10px; flex-shrink: 0;">
-    <h2 id="currentDate" style="font-size: 1.2rem;">Laster dato...</h2>
-    <h4 id="currentYear" style="color: #666; font-weight: normal; font-size: 0.85rem;"></h4>
+  <div class="card" style="text-align: center; padding: 10px; flex-shrink: 0;">
+    <h2 id="currentDate" style="font-size: 1.4rem; font-weight: 800; margin: 0; line-height: 1.2; color: #0f172a;">Laster dag...</h2>
+    <h4 id="currentYear" style="color: #64748b; font-weight: 500; font-size: 0.85rem; margin: 2px 0 0 0;"></h4>
   </div>
 
   <div class="card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 8px;">
@@ -735,44 +740,50 @@
 
         </div>
 
-        <!-- 2. INFOKORTENE -->
-        <div class="info-grid-fun" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+<!-- 2. INFOKORTENE: NÅ SOM TRE BOKSER I FULL BREDDE -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
           
-          <div class="fun-card card-pink" style="padding: 12px;">
-            <div class="fun-icon-wrapper">🚀</div>
-            <div class="fun-data">
-              <span class="fun-label">Dag i året</span>
-              <span class="fun-value" id="modalDayOfYear">-</span>
+          <!-- BOKS 1: DAG I ÅRET OG DAGER TIL NYTTÅR (SAMMEN) -->
+          <div class="fun-card card-pink" style="padding: 10px 14px; display: flex; justify-content: space-around; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="fun-icon-wrapper" style="font-size: 1.2rem;">🚀</div>
+              <div class="fun-data">
+                <span class="fun-label">Dag i året</span>
+                <span class="fun-value" id="modalDayOfYear">-</span>
+              </div>
+            </div>
+
+            <div style="height: 28px; width: 1px; background: rgba(0,0,0,0.15);"></div> <!-- Skillelinje -->
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="fun-icon-wrapper" style="font-size: 1.2rem;">⏳</div>
+              <div class="fun-data">
+                <span class="fun-label">Dager til nyttår</span>
+                <span class="fun-value" id="modalDaysToNY">-</span>
+              </div>
             </div>
           </div>
 
-          <div class="fun-card card-purple" style="padding: 12px;">
-            <div class="fun-icon-wrapper">⏳</div>
-            <div class="fun-data">
-              <span class="fun-label">Dager til nyttår</span>
-              <span class="fun-value" id="modalDaysToNY">-</span>
-            </div>
-          </div>
-
-          <div class="fun-card card-amber" style="padding: 12px;">
-            <div class="fun-icon-wrapper">🎉</div>
-            <div class="fun-data">
+          <!-- BOKS 2: DAGENS NAVNEDAG -->
+          <div class="fun-card card-amber" style="padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+            <div class="fun-icon-wrapper" style="font-size: 1.2rem;">🎉</div>
+            <div class="fun-data" style="flex: 1;">
               <span class="fun-label">Dagens Navnedag</span>
               <span class="fun-value" id="modalNameDay">-</span>
             </div>
           </div>
 
-          <div class="fun-card card-blue" style="padding: 12px;">
-            <div class="fun-icon-wrapper">🌤️</div>
-            <div class="fun-data">
+          <!-- BOKS 3: VÆRET -->
+          <div class="fun-card card-blue" style="padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+            <div class="fun-icon-wrapper" style="font-size: 1.2rem;">🌤️</div>
+            <div class="fun-data" style="flex: 1;">
               <span class="fun-label">Været på Hånes skole</span>
               <span class="fun-value" id="modalWeather">-</span>
             </div>
           </div>
-
+         </div>
         </div>
 
-      </div>
 
       <!-- HØYRE KOLONNE: ÅRSHJUL -->
       <div class="season-container" style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 24px; padding: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%; height: 100%; min-height: 480px; box-sizing: border-box;">

@@ -1,15 +1,20 @@
 /* --- DYNAMISKE LENKER --- */
 // Standardlenker dersom brukeren ikke har lagret noe enda
 const defaultLinks = [
-  { name: "Google", url: "https://www.google.no/index.html", external: true },
+  { name: "Google", url: "https://www.google.no", external: true },
   { name: "Wikipedia", url: "https://www.wikipedia.org", external: false },
   { name: "Korartí", url: "https://www.korarti.no/", external: false },
   { name: "Salaby", url: "https://www.salaby.no/", external: false },
   { name: "Skoleregler", url: "https://sites.google.com/ikrs.no/regler", external: true }
 ];
 
-// Laster eksisterende lenker fra localStorage, ellers krasjer vi tilbake til standard
+// Laster fra localStorage eller bruker defaultLinks
 let customLinks = loadState('customLinksData', defaultLinks);
+
+// Hvis customLinks av en eller annen grunn er tom eller ugyldig:
+if (!Array.isArray(customLinks) || customLinks.length === 0) {
+  customLinks = defaultLinks;
+}
 
 function renderLinks() {
   const container = document.getElementById('linksContainer');
@@ -71,36 +76,54 @@ function loadState(key, fallback = null) {
   }
 }
 
+
 /* --- LENKEREDIGERING --- */
 function buildLinkEditor() {
   const table = document.getElementById('linkEditTable');
   if (!table) return;
-  
-  table.innerHTML = `
-    <tr style="font-weight:bold; background:#f0f4f8;">
-      <td style="padding:6px;">Knappnavn</td>
-      <td style="padding:6px;">URL (Nettadresse)</td>
-      <td style="padding:6px; text-align:center;">Ny fane?</td>
-    </tr>
+
+  // Sjekk om customLinks er tom, sett standard hvis nødvendig
+  if (!Array.isArray(customLinks) || customLinks.length === 0) {
+    customLinks = [...defaultLinks];
+  }
+
+  // Generer tabellstrukturen på nytt hver gang den åpnes
+  let html = `
+    <thead>
+      <tr style="font-weight:bold; background:#f0f4f8; text-align:left;">
+        <th style="padding:8px; border-bottom:1px solid #cbd5e1;">Knappnavn</th>
+        <th style="padding:8px; border-bottom:1px solid #cbd5e1;">URL (Nettadresse)</th>
+        <th style="padding:8px; border-bottom:1px solid #cbd5e1; text-align:center;">Ny fane?</th>
+      </tr>
+    </thead>
+    <tbody id="linkEditTbody">
   `;
-  
+
   customLinks.forEach((link, idx) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td style="width: 30%;"><input type="text" id="linkName_${idx}" value="${link.name}"></td>
-      <td style="width: 55%;"><input type="url" id="linkUrl_${idx}" value="${link.url}"></td>
-      <td style="width: 15%; text-align:center;">
-        <input type="checkbox" id="linkExt_${idx}" ${link.external ? 'checked' : ''} style="width: auto; transform: scale(1.3); cursor: pointer;">
-      </td>
+    html += `
+      <tr>
+        <td style="padding:6px; border-bottom:1px solid #f1f5f9;">
+          <input type="text" id="linkName_${idx}" value="${link.name || ''}" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
+        </td>
+        <td style="padding:6px; border-bottom:1px solid #f1f5f9;">
+          <input type="url" id="linkUrl_${idx}" value="${link.url || ''}" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
+        </td>
+        <td style="padding:6px; text-align:center; border-bottom:1px solid #f1f5f9;">
+          <input type="checkbox" id="linkExt_${idx}" ${link.external ? 'checked' : ''} style="transform: scale(1.3); cursor: pointer;">
+        </td>
+      </tr>
     `;
-    table.appendChild(row);
   });
 
+  html += `</tbody>`;
+  table.innerHTML = html;
+
+  // Legg til infoboksen under tabellen dersom den ikke finnes
   let infoBox = document.getElementById('linkEditInfoText');
   if (!infoBox) {
     infoBox = document.createElement('div');
     infoBox.id = 'linkEditInfoText';
-    infoBox.style.cssText = 'margin-top: 12px; margin-bottom: 8px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; font-size: 0.85rem; border-radius: 4px;';
+    infoBox.style.cssText = 'margin-top: 12px; padding: 8px 12px; background-color: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; font-size: 0.85rem; border-radius: 4px;';
     infoBox.innerHTML = '⚠️ <strong>Merk:</strong> Enkelte nettsider tillater ikke å bli åpnet direkte inne i dashboardet. Dersom en side forblir blank, huke av for <strong>«Ny fane?»</strong>.';
     table.parentNode.insertBefore(infoBox, table.nextSibling);
   }
@@ -123,6 +146,7 @@ function saveLinks() {
   closeModal('linkModal');
 }
 
+
 /* --- ÅPNE MODAL-LOGIKK --- */
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
@@ -137,10 +161,15 @@ function openModal(modalId) {
     modal.style.display = 'flex';
   }
 
-  // Tvinger bygging av tabellen HVER GANG Dagsplan-modalen åpnes
+  // Tvinger bygging av tabellen for Dagsplan
   if (modalId === 'planModal') {
-    editingDay = getCurrentDayName();
-    buildPlanEditor();
+    if (typeof getCurrentDayName === 'function') editingDay = getCurrentDayName();
+    if (typeof buildPlanEditor === 'function') buildPlanEditor();
+  }
+
+  // DENNE MANGLET: Tvinger bygging av tabellen for Lenker
+  if (modalId === 'linkModal') {
+    buildLinkEditor();
   }
 }
 
@@ -338,11 +367,23 @@ function updateDates() {
   }
 
   // 2. Oppdater dato-tekstene i toppen
-  const options = { weekday: 'long', day: 'numeric', month: 'long' };
   const dateEl = document.getElementById('currentDate');
   const yearEl = document.getElementById('currentYear');
-  if (dateEl) dateEl.innerText = now.toLocaleDateString('no-NO', options);
-  if (yearEl) yearEl.innerText = now.getFullYear();
+
+  if (dateEl && yearEl) {
+    // Henter ukedag med stor for-bokstav (f.eks. "Torsdag")
+    const rawDay = now.toLocaleDateString('nb-NO', { weekday: 'long' });
+    const dayName = rawDay.charAt(0).toUpperCase() + rawDay.slice(1);
+
+    // Henter dato og måned (f.eks. "3. september")
+    const dayNum = now.getDate();
+    const monthName = now.toLocaleDateString('nb-NO', { month: 'long' });
+    const year = now.getFullYear();
+
+    // Sett ukedag i overskriften og dato + årstallet i linjen under
+    dateEl.innerText = dayName;
+    yearEl.innerText = `${dayNum}. ${monthName} ${year}`;
+  }
 }
 
 function isTimeActive(startStr, endStr) {
@@ -789,26 +830,19 @@ function setAndSaveIframeUrl(url) {
 
   const iframe = document.getElementById('mainFrame');
   if (iframe) {
-    if (embedUrl.startsWith('data:')) {
-      fetch(embedUrl)
-        .then(res => res.blob())
-        .then(blob => {
-          iframe.src = URL.createObjectURL(blob);
-        })
-        .catch(() => {
-          iframe.src = embedUrl;
-        });
-    } else {
+    try {
+      // Endrer kun src direkte – unngår å lese contentWindow/contentDocument
       iframe.src = embedUrl;
+    } catch (e) {
+      console.warn("Blokkert av file:// sikkerhetspolicy:", e);
     }
   }
 
-  // SJEKK FOR HVA SOM REGNES SOM INTERNT INNHOLD (SOM IKKE SKAL HA HJELPELINJE)
+  // Håndtering av hjelpelinje for eksterne lenker
   const fallbackBox = document.getElementById('iframeFallbackNotice');
   const fallbackLink = document.getElementById('fallbackExternalLink');
   
   if (fallbackBox && fallbackLink) {
-    // Skjuler linjen for: lokale filer (data:), Hjem-siden (.html), blanke sider, OG Google Docs/Slides
     const isInternal = embedUrl.startsWith('data:') || 
                        embedUrl.toLowerCase().includes('.html') || 
                        embedUrl === 'about:blank' || 
@@ -816,16 +850,16 @@ function setAndSaveIframeUrl(url) {
     
     if (!isInternal) {
       fallbackLink.href = embedUrl;
-      fallbackBox.style.display = 'grid'; // Vises KUN for eksterne nettsider (som TV2, NRK osv.)
+      fallbackBox.style.display = 'grid';
     } else {
-      fallbackBox.style.display = 'none'; // Skjules for Google Presentations, verktøy og Hjem
+      fallbackBox.style.display = 'none';
     }
   }
 
   try {
     saveState('activeIframeUrl', embedUrl);
   } catch (err) {
-    console.warn("Innholdet var for stort til å lagres i minnet:", err);
+    console.warn("Lagring mislyktes:", err);
   }
 }
 
@@ -880,6 +914,12 @@ function closeModal(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'none';
 
+  // Tømmer lenketabellen slik at den kan bygges på nytt ved neste åpning
+  if (id === 'linkModal') {
+    const table = document.getElementById('linkEditTable');
+    if (table) table.innerHTML = '';
+  }
+
   // Skjul bakgrunnen KUN hvis ingen andre modaler fortsatt er åpne
   const openModals = document.querySelectorAll('.floating-modal[style*="display: flex"]');
   if (openModals.length === 0) {
@@ -888,7 +928,6 @@ function closeModal(id) {
   }
 }
 
-// Husk også å ha denne hjelpefunksjonen liggende i skriptet ditt:
 function toggleModalBackdrop() {
   const backdrop = document.getElementById('customModalBackdrop');
   if (backdrop) backdrop.classList.toggle('transparent-backdrop');
@@ -1137,7 +1176,43 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+/* --- EKTE FULLSKJERM FOR HELE NETTSIDEN (F11-EFFEKT) --- */
+function togglePageFullscreen() {
+  if (!document.fullscreenElement) {
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen();
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+    } else if (docEl.msRequestFullscreen) {
+      docEl.msRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+  }
+}
 
+// Oppdaterer teksten på knappen automatisk
+document.addEventListener('fullscreenchange', updatePageFullscreenBtn);
+document.addEventListener('webkitfullscreenchange', updatePageFullscreenBtn);
+document.addEventListener('msfullscreenchange', updatePageFullscreenBtn);
+
+function updatePageFullscreenBtn() {
+  const btn = document.getElementById('pageFullscreenBtn');
+  if (!btn) return;
+
+  if (document.fullscreenElement) {
+    btn.innerHTML = '🗗 Avslutt';
+  } else {
+    btn.innerHTML = '🖥️ Fullskjerm';
+  }
+}
 
 /* --- GRUPPEGENERATOR DEFINISJONER --- */
 const groupRules = [];
@@ -2191,6 +2266,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const header = document.getElementById('planModalHeader');
   if (modal && header) {
     makeElementDraggable(modal, header);
+  }
+});
+
+/* --- AUTO-BYGG MODAL NÅR DEN VISES --- */
+document.addEventListener('DOMContentLoaded', () => {
+  const linkModal = document.getElementById('linkModal');
+  
+  if (linkModal) {
+    // Fanger opp når modalen endrer style (f.eks. fra display:none til display:flex)
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'style') {
+          const isVisible = window.getComputedStyle(linkModal).display !== 'none';
+          if (isVisible) {
+            buildLinkEditor();
+          }
+        }
+      });
+    });
   }
 });
 
