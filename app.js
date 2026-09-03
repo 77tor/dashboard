@@ -194,9 +194,21 @@ function toggleDisplayMode(modeClass) {
   // Legger til eller fjerner 'dark-mode'-klassen på <body>
   document.body.classList.toggle(modeClass);
   
-  // Valgfritt: Lagre valget i localStorage så det huskes ved oppdatering
   const isDarkMode = document.body.classList.contains('dark-mode');
   localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+
+  // Sender beskjed til iframe dersom den inneholder en lokal side
+  const iframe = document.getElementById('mainFrame');
+  if (iframe && iframe.contentWindow) {
+    try {
+      iframe.contentWindow.postMessage({ 
+        type: 'SET_THEME', 
+        theme: isDarkMode ? 'dark' : 'light' 
+      }, '*');
+    } catch (e) {
+      // Ignorerer sikkerhetsbegrensninger dersom det er en ekstern nettside
+    }
+  }
 }
 
 // --- TOGGLE SKJUL MENY ---
@@ -212,6 +224,22 @@ function toggleHideMenu() {
     if (showBtn) showBtn.style.display = 'block';
   } else {
     if (showBtn) showBtn.style.display = 'none';
+  }
+}
+
+// --- TOGGLE SKJUL DAGSPLAN ---
+function toggleHideSchedule() {
+  const rightSidebar = document.querySelector('.sidebar-right');
+  const showScheduleBtn = document.getElementById('showScheduleBtn');
+  
+  if (!rightSidebar) return;
+
+  rightSidebar.classList.toggle('hidden');
+
+  if (rightSidebar.classList.contains('hidden')) {
+    if (showScheduleBtn) showScheduleBtn.style.display = 'block';
+  } else {
+    if (showScheduleBtn) showScheduleBtn.style.display = 'none';
   }
 }
 

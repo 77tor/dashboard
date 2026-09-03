@@ -48,19 +48,33 @@
       <div class="links-grid" id="linksContainer"></div>
     </div>
 
+
 <!-- EGEN RUTE FOR HJEM OG MODUS -->
 <div class="card card-keep-visible">
   <button onclick="goHome()" style="width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
     🏠 Hjem
   </button>
-  <div style="display: flex; gap: 6px;">
-    <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="flex: 1; padding: 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🌙 Nattmodus</button>
-    <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">👁️ Skjul meny</button>
+  
+  <div style="display: flex; flex-direction: column; gap: 6px;">
+    <!-- NATTMODUS ØVERST (FULL BREDDE, LAV HØYDE) -->
+    <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="width: 100%; padding: 6px 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500;">
+      🌙 Nattmodus
+    </button>
+    
+    <!-- MENY OG DAGSPLAN VED SIDEN AV HVERANDRE -->
+    <div style="display: flex; gap: 6px;">
+      <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 6px 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; white-space: nowrap;">
+        👁️ Skjul meny
+      </button>
+      <button onclick="toggleHideSchedule()" id="toggleScheduleBtn" class="btn-mode" style="flex: 1; padding: 6px 8px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500; white-space: nowrap;">
+        📅 Skjul dagsplan
+      </button>
+    </div>
   </div>
 
   <!-- TILBAKESTILL-KNAPP -->
-  <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #e2e8f0; text-align: center;">
-    <button type="button" onclick="openModal('resetConfirmModal')" style="background: transparent; color: #94a3b8; border: 1px solid #cbd5e1; font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; cursor: pointer; width: 100%; transition: all 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+  <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; text-align: center;">
+    <button type="button" onclick="openModal('resetConfirmModal')" style="background: transparent; color: #94a3b8; border: 1px solid #cbd5e1; font-size: 0.75rem; padding: 5px 8px; border-radius: 6px; cursor: pointer; width: 100%; transition: all 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
       ⚙️ Tilbakestill alt data...
     </button>
   </div>
@@ -91,7 +105,7 @@
   left: auto !important;
   bottom: auto !important;
   transform: none !important;
-  z-index: 9999 !important; 
+  z-index: 100 !important; 
   width: auto !important; 
   height: auto !important;
   max-width: fit-content !important; 
@@ -639,7 +653,7 @@
 
 
 <!-- MODAL FOR BEKREFTELSE AV NULLSTILLING MED PIN OG ADVARSEL -->
-<div class="floating-modal" id="resetConfirmModal" style="display: none; width: 90vw; max-width: 440px; border-radius: 16px; border: 2px solid #ef4444; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
+<div class="floating-modal" id="resetConfirmModal" style="display: none; width: 90vw; max-width: 440px; border-radius: 16px; border: 2px solid #ef4444; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; margin: 0 !important; z-index: 10000 !important; background: #ffffff !important; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
   
   <div class="modal-header" style="background: #ef4444; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
     <span style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
@@ -819,10 +833,58 @@
 </div>
 
 <!-- Liten flytende knapp som kun vises når menyen er skjult -->
-<button id="showMenuBtn" onclick="toggleHideMenu()" style="display: none; position: fixed; bottom: 12px; left: 12px; z-index: 9999; padding: 6px 12px; background: rgba(30, 41, 59, 0.4); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; font-size: 0.75rem; cursor: pointer; backdrop-filter: blur(4px); transition: opacity 0.2s;" onmouseover="this.style.background='rgba(30, 41, 59, 0.8)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.4)'">
+<button id="showMenuBtn" onclick="toggleHideMenu()" style="
+  display: none; 
+  position: fixed !important; 
+  bottom: 12px !important; 
+  left: 12px !important; 
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: 9999 !important; 
+  width: auto !important; 
+  max-width: fit-content !important; 
+  margin: 0 !important; 
+  padding: 6px 12px !important; 
+  background: rgba(30, 41, 59, 0.7) !important; 
+  color: #ffffff !important; 
+  border: 1px solid rgba(255, 255, 255, 0.3) !important; 
+  border-radius: 8px !important; 
+  font-size: 0.75rem !important; 
+  line-height: 1 !important;
+  cursor: pointer !important; 
+  backdrop-filter: blur(4px) !important; 
+  transition: all 0.2s ease !important;
+" onmouseover="this.style.background='rgba(30, 41, 59, 0.95)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.7)'">
   👁️ Vis meny
 </button>
 
+<!-- FLYTENDE KNAPP NÅR DAGSPLAN ER SKJULT -->
+<button id="showScheduleBtn" onclick="toggleHideSchedule()" style="
+  display: none; 
+  position: fixed !important; 
+  bottom: 12px !important; 
+  right: 12px !important; 
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: 9999 !important; 
+  width: auto !important; 
+  max-width: fit-content !important; 
+  margin: 0 !important; 
+  padding: 6px 12px !important; 
+  background: rgba(30, 41, 59, 0.7) !important; 
+  color: #ffffff !important; 
+  border: 1px solid rgba(255, 255, 255, 0.3) !important; 
+  border-radius: 8px !important; 
+  font-size: 0.75rem !important; 
+  line-height: 1 !important;
+  cursor: pointer !important; 
+  backdrop-filter: blur(4px) !important; 
+  transition: all 0.2s ease !important;
+" onmouseover="this.style.background='rgba(30, 41, 59, 0.95)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.7)'">
+  📅 Vis dagsplan
+</button>
 
   <script src="navnedag.js"></script>
   <script src="vaer.js"></script>
