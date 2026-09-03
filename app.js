@@ -366,25 +366,37 @@ function updateDates() {
     renderSchedule();
   }
 
-  // 2. Oppdater dato-tekstene i toppen
+  // 2. Oppdater dato- og klokke-tekstene i toppen
   const dateEl = document.getElementById('currentDate');
   const yearEl = document.getElementById('currentYear');
+  const timeEl = document.getElementById('currentTime');
 
   if (dateEl && yearEl) {
     // Henter ukedag med stor for-bokstav (f.eks. "Torsdag")
     const rawDay = now.toLocaleDateString('nb-NO', { weekday: 'long' });
     const dayName = rawDay.charAt(0).toUpperCase() + rawDay.slice(1);
 
-    // Henter dato og måned (f.eks. "3. september")
+    // Henter dato og måned (f.eks. "3. september 2026")
     const dayNum = now.getDate();
     const monthName = now.toLocaleDateString('nb-NO', { month: 'long' });
     const year = now.getFullYear();
 
-    // Sett ukedag i overskriften og dato + årstallet i linjen under
+    // Henter kun timer og minutter (f.eks. "12:48")
+    const timeString = now.toLocaleTimeString('nb-NO', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
     dateEl.innerText = dayName;
     yearEl.innerText = `${dayNum}. ${monthName} ${year}`;
+    if (timeEl) {
+      timeEl.innerText = timeString;
+    }
   }
 }
+
+// Kjør oppdatering hvert sekund for å fange opp minuttendringer presist
+setInterval(updateDates, 1000);
 
 function isTimeActive(startStr, endStr) {
   const now = new Date();
@@ -928,9 +940,17 @@ function closeModal(id) {
   }
 }
 
-function toggleModalBackdrop() {
-  const backdrop = document.getElementById('customModalBackdrop');
-  if (backdrop) backdrop.classList.toggle('transparent-backdrop');
+function toggleModalBackdrop(modalId) {
+  // Sjekker først om det er sendt med en ID, ellers henger den på selve modalen eller backdrop
+  const modal = modalId ? document.getElementById(modalId) : null;
+  const backdrop = document.getElementById('customModalBackdrop') || document.querySelector('.modal-backdrop');
+
+  if (modal) {
+    modal.classList.toggle('hide-backdrop');
+  }
+  if (backdrop) {
+    backdrop.classList.toggle('transparent-backdrop');
+  }
 }
 
 
@@ -1959,6 +1979,25 @@ function resetTimer() {
   updateTimerDisplay();
 }
 
+function closeTimerModal() {
+  const modal = document.getElementById('timerModal'); // Legg merke til 'r' i timerModal
+  const backdrop = document.getElementById('customModalBackdrop') || document.querySelector('.modal-backdrop');
+
+  // Stopp timerkjøring og alarmer
+  if (typeof stopTimerProcess === 'function') stopTimerProcess();
+  if (typeof stopAlarmEffects === 'function') stopAlarmEffects();
+
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
+
+  if (backdrop) {
+    backdrop.style.display = 'none';
+    backdrop.classList.remove('active', 'transparent-backdrop');
+  }
+}
+
 
 /* --- SYNTETISK LYDGENERATOR --- */
 function playSynthSound(type) {
@@ -2209,7 +2248,27 @@ function escapeHtml(str) {
   });
 }
 
+function closeTimeModal() {
+  // 1. Stopp timeren og slå av alarmer
+  stopTimerProcess();
+  stopAlarmEffects();
 
+  // 2. Hent inn elementene
+  const modal = document.getElementById('timerModal');
+  const backdrop = document.getElementById('customModalBackdrop');
+
+  // 3. Skjul selve tidsur-vinduet
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  }
+
+  // 4. Skjul den mørke bakgrunnen
+  if (backdrop) {
+    backdrop.classList.remove('active');
+    backdrop.style.display = 'none';
+  }
+}
 
 /* --- NAVIGASJON (HJEM) --- */
 function goHome() {
@@ -2288,6 +2347,213 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+
+/* --- TID - KLOKKEMODAL --- */
+let timeModalInterval = null;
+
+function openTimeModal() {
+  const modal = document.getElementById('timeModal');
+  const backdrop = document.getElementById('customModalBackdrop') || document.querySelector('.modal-backdrop');
+  const header = document.getElementById('timeModalHeader') || modal?.querySelector('.info-modal-header') || modal?.querySelector('.modal-header');
+
+  if (modal) {
+    // 1. Vis modal og plasser sentrert
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+    modal.style.top = '8vh';
+    modal.style.left = 'calc(50vw - 500px)';
+
+    // 2. Vis mørk bakgrunn
+    if (backdrop) {
+      backdrop.style.display = 'block';
+      backdrop.classList.add('active');
+      backdrop.classList.remove('transparent-backdrop');
+    }
+
+    // 3. Start klokke
+    updateTimeModalDetails();
+    if (timeModalInterval) clearInterval(timeModalInterval);
+    timeModalInterval = setInterval(updateTimeModalDetails, 1000);
+
+    // 4. Aktiver dragging på selve modalen
+    if (header) {
+      makeElementDraggable(modal, header);
+    }
+  }
+}
+
+function closeTimeModal(e) {
+  const modal = document.getElementById('timeModal');
+  const backdrop = document.getElementById('customModalBackdrop') || document.querySelector('.modal-backdrop');
+
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
+
+  if (backdrop) {
+    backdrop.style.display = 'none';
+    backdrop.classList.remove('active', 'transparent-backdrop');
+  }
+
+  if (timeModalInterval) {
+    clearInterval(timeModalInterval);
+  }
+}
+
+function toggleModalBackdrop() {
+  const backdrop = document.getElementById('customModalBackdrop') || document.querySelector('.modal-backdrop');
+  if (backdrop) {
+    backdrop.classList.toggle('transparent-backdrop');
+  }
+}
+
+function updateTimeModalDetails() {
+  const now = new Date();
+
+  // 1. Ukedag, Dato og Ukenummer
+  const rawDay = now.toLocaleDateString('nb-NO', { weekday: 'long' });
+  const dayName = rawDay.charAt(0).toUpperCase() + rawDay.slice(1);
+  const fullDate = `${now.getDate()}. ${now.toLocaleDateString('nb-NO', { month: 'long' })} ${now.getFullYear()}`;
+  const weekNum = typeof getWeekNumber === 'function' ? getWeekNumber(now) : '';
+
+  const dayEl = document.getElementById('modalDayName');
+  if (dayEl) dayEl.innerText = dayName;
+
+  const dateEl = document.getElementById('modalFullDate');
+  if (dateEl) dateEl.innerText = fullDate;
+
+  const weekEl = document.getElementById('modalWeekNumber');
+  if (weekEl) weekEl.innerText = `Uke ${weekNum}`;
+
+  const headerSub = document.getElementById('modalHeaderSub');
+  if (headerSub) headerSub.innerText = `${dayName} ${fullDate} • Uke ${weekNum}`;
+
+  // 2. Digital Klokke med sekunder
+  const digitalClock = document.getElementById('modalDigitalClock');
+  if (digitalClock) digitalClock.innerText = now.toLocaleTimeString('nb-NO');
+
+  // 3. Viser på Analog Klokke
+  const seconds = now.getSeconds();
+  const minutes = now.getMinutes();
+  const hours = now.getHours();
+
+  const secDeg = (seconds / 60) * 360;
+  const minDeg = ((minutes + seconds / 60) / 60) * 360;
+  const hourDeg = (((hours % 12) + minutes / 60) / 12) * 360;
+
+  const secEl = document.getElementById('clockSecond');
+  const minEl = document.getElementById('clockMinute');
+  const hourEl = document.getElementById('clockHour');
+
+  if (secEl) secEl.style.transform = `rotate(${secDeg}deg)`;
+  if (minEl) minEl.style.transform = `rotate(${minDeg}deg)`;
+  if (hourEl) hourEl.style.transform = `rotate(${hourDeg}deg)`;
+
+  // 4. Astronomi-info
+  const sunriseEl = document.getElementById('modalSunrise');
+  const sunsetEl = document.getElementById('modalSunset');
+  if (sunriseEl) sunriseEl.innerText = "06:32";
+  if (sunsetEl) sunsetEl.innerText = "20:15";
+
+  if (typeof updateMoonPhaseSvg === 'function') {
+    updateMoonPhaseSvg(now);
+  }
+}
+
+// Beregner ukenummer (ISO-8601)
+function getWeekNumber(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
+// Dynamisk SVG-tegning for månefasen
+function updateMoonPhaseSvg(date) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const c = Math.floor(365.25 * year) + Math.floor(365.25 * month) + day;
+  const phase = (c - 2451549.5) % 29.53;
+  const normalizedPhase = phase < 0 ? phase + 29.53 : phase;
+
+  const path = document.getElementById('moonPhasePath');
+  const textEl = document.getElementById('modalMoonPhaseText');
+  if (!path || !textEl) return;
+
+  const phaseRatio = normalizedPhase / 29.53;
+  const illum = 0.5 * (1 - Math.cos(2 * Math.PI * phaseRatio));
+  const r = 14;
+
+  let d = "";
+  if (phaseRatio <= 0.5) {
+    const rx = Math.abs(r * (1 - 2 * illum));
+    const sweep = illum < 0.5 ? 0 : 1;
+    d = `M 16 2 A 14 14 0 0 1 16 30 A ${rx} 14 0 0 ${sweep} 16 2`;
+  } else {
+    const rx = Math.abs(r * (1 - 2 * illum));
+    const sweep = illum > 0.5 ? 1 : 0;
+    d = `M 16 2 A ${rx} 14 0 0 ${sweep} 16 30 A 14 14 0 0 1 16 2`;
+  }
+
+  path.setAttribute('d', d);
+
+  if (normalizedPhase < 1.84) textEl.innerText = "Nymåne";
+  else if (normalizedPhase < 5.53) textEl.innerText = "Voksende sigd";
+  else if (normalizedPhase < 9.22) textEl.innerText = "Halvmåne (1. kvarter)";
+  else if (normalizedPhase < 12.91) textEl.innerText = "Voksende måneskinn";
+  else if (normalizedPhase < 16.61) textEl.innerText = "Fullmåne";
+  else if (normalizedPhase < 20.30) textEl.innerText = "Minkende måneskinn";
+  else if (normalizedPhase < 23.99) textEl.innerText = "Halvmåne (siste kvarter)";
+  else if (normalizedPhase < 27.68) textEl.innerText = "Minkende sigd";
+  else textEl.innerText = "Nymåne";
+}
+
+// Gjør modalen flyttbar fra headeren
+function makeElementDraggable(elmnt, header) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+  if (header) {
+    header.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    elmnt.style.position = 'fixed';
+    elmnt.style.margin = '0';
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+
+
 /* --- SAMLET OPPSTARTSLOGIKK --- */
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof renderLinks === 'function') renderLinks();
@@ -2296,20 +2562,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Oppdaterer dato og setter riktig dag fra kalenderen ved start
   if (typeof updateDates === 'function') updateDates();
   if (typeof renderSchedule === 'function') renderSchedule();
-  if (typeof setupDraggableModals === 'function') setupDraggableModals();
 
-  if (typeof loadState === 'function') {
-    const lastUrl = loadState('activeIframeUrl');
-    if (lastUrl) {
-      const iframe = document.getElementById('mainFrame');
-      if (iframe) iframe.src = lastUrl;
+  // Trygg kjøring av modal-oppsett for å forhindre stopp i skriptet lokalt
+  if (typeof setupDraggableModals === 'function') {
+    try {
+      setupDraggableModals();
+    } catch (err) {
+      console.warn("Kunne ikke initiere modal-drag lokalt:", err);
     }
+  }
+
+  // Henting av lagret URL med feilhåndtering for file://
+  try {
+    if (typeof loadState === 'function') {
+      const lastUrl = loadState('activeIframeUrl');
+      if (lastUrl) {
+        const iframe = document.getElementById('mainFrame');
+        if (iframe) iframe.src = lastUrl;
+      }
+    }
+  } catch (err) {
+    console.warn("Lese fra localStorage mislyktes lokalt:", err);
   }
 
   const minInput = document.getElementById('min');
   const secInput = document.getElementById('sec');
-  if (minInput) minInput.addEventListener('change', applyInputTime);
-  if (secInput) secInput.addEventListener('change', applyInputTime);
+  if (minInput && typeof applyInputTime === 'function') minInput.addEventListener('change', applyInputTime);
+  if (secInput && typeof applyInputTime === 'function') secInput.addEventListener('change', applyInputTime);
 
   // Kjører hvert sekund for å holde klokken, datovedlikehold og "NÅ"-markøren oppdatert
   setInterval(() => {

@@ -7,20 +7,20 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #fef3c7 100%);
-      color: #1e293b;
-      min-height: 100vh;
-      padding: 25px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 50%, #fef3c7 100%);
+  color: #1e293b;
+  height: 100vh;
+  margin: 0;
+  padding: 20px 20px 80px; /* Litt padding i bunnen for å holde avstand til bokormen */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Dytter alt opp mot toppen */
+  position: relative;
+  overflow: hidden;
+}
 
 /* --- BIEN SOM KRASJER OG KRABBER BORT --- */
     .bee-container {
@@ -38,10 +38,16 @@
       width: 45px;
       height: 45px;
       position: absolute;
-      top: -100px;
-      left: -100px;
-      /* Totalt 78s = ~18s animasjon + 60s pause */
-      animation: crashAndCrawl 78s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      top: 25px;
+      left: -80px;
+      opacity: 0; /* Usynlig frem til animasjonen starter */
+      /* Venter 60 sekunder (1 min) før FØRSTE tur. */
+      animation-delay: 60s; 
+      /* Totalt 318 sekunder = ~18s animasjon + 300s (5 min) pause */
+      animation-name: crashAndCrawl;
+      animation-duration: 318s;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+      animation-iteration-count: infinite;
     }
 
     /* Vinger som blafrer raskt */
@@ -54,9 +60,10 @@
       0% { transform: scaleY(1) rotate(0deg); }
       100% { transform: scaleY(0.3) rotate(-15deg); }
     }
-/* Animasjonsforløp: Rett inn -> KRASJ -> Sakte fall -> Krabber ut -> USYNLIG RETUR */
+
+    /* Animasjonsforløp: Rett inn -> KRASJ -> Sakte fall -> Krabber ut -> 5 MIN PAUSE */
     @keyframes crashAndCrawl {
-      /* 1. Startposisjon */
+      /* 1. Startposisjon (Blir synlig i det animasjonen setter i gang) */
       0% {
         top: 25px;
         left: -80px;
@@ -65,7 +72,7 @@
       }
       
       /* 2. Flyr rett mot logoen og KRASJER BRÅTT (~1 sekund) */
-      2.5% {
+      0.3% {
         left: calc(50% - 10px);
         top: 40px;
         transform: scaleX(1) rotate(45deg);
@@ -73,70 +80,70 @@
       }
       
       /* 3. Reaksjon og risting rett etter krasjen */
-      2.8% {
+      0.4% {
         left: 50%;
         top: 35px;
         transform: scaleX(1) rotate(-35deg);
       }
-      3.1% {
+      0.5% {
         left: calc(50% - 15px);
         top: 45px;
         transform: scaleX(1) rotate(180deg);
       }
 
       /* 4. SAKTE OG LETT FALL NEDOVER */
-      8% {
+      1.8% {
         left: calc(50% - 8px);
         top: calc(100% - 65px);
         transform: scaleX(1) rotate(110deg);
       }
 
-      /* 5. Lander mykt på bakken og reiser seg upp */
-      9.5% {
+      /* 5. Lander mykt på bakken og reiser seg opp */
+      2.2% {
         left: calc(50% - 5px);
         top: calc(100% - 55px);
         transform: scaleX(1) rotate(90deg);
       }
-      11% {
+      2.5% {
         left: 50%;
         top: calc(100% - 50px);
         transform: scaleX(1) rotate(0deg);
       }
 
       /* 6. Krabber helt ut av skjermen til høyre */
-      14% {
+      3.2% {
         left: calc(50% + 50px);
         top: calc(100% - 50px);
         transform: scaleX(1) rotate(-5deg);
       }
-      17% {
+      4.2% {
         left: calc(50% + 200px);
         top: calc(100% - 50px);
         transform: scaleX(1) rotate(5deg);
       }
-      19.9% {
+      5.5% {
         left: calc(100% + 80px);
         top: calc(100% - 50px);
         transform: scaleX(1) rotate(0deg);
-        opacity: 1; /* Synlig helt til kanten er passert */
+        opacity: 1;
       }
       
-      /* 7. Blir usynlig NØYAKTIG i det den har gått ut til høyre */
-      20% {
+      /* 7. Blir usynlig i det den passerer kanten */
+      5.6% {
         left: calc(100% + 80px);
         top: calc(100% - 50px);
-        opacity: 0; /* NÅ er den usynlig */
+        opacity: 0;
       }
 
-      /* 8. Teleporterer usynlig tilbake til startposisjonen i venstre hjørne */
-      20.1% {
+      /* 8. Teleporterer usynlig tilbake til start i venstre hjørne */
+      5.7% {
         top: 25px;
         left: -80px;
-        opacity: 0; /* Fortsatt usynlig under flyttingen */
+        opacity: 0;
       }
 
-      /* 9. PAUSE I 1 MINUTT (Holdes helt usynlig til ny runde) */
-      20.2%, 99.9% {
+      /* 9. PAUSE I 5 MINUTTER (Holdes helt usynlig fra 5.8% til 100%) */
+      5.8%, 99.9% {
         top: 25px;
         left: -80px;
         opacity: 0;
@@ -144,29 +151,26 @@
       100% {
         top: 25px;
         left: -80px;
-        opacity: 1; /* Blir synlig igjen akkurat i det animasjonen starter på nytt */
+        opacity: 1;
       }
     }
 
 
-    .header-container { 
-      text-align: center; 
-      margin-bottom: 30px; 
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      z-index: 10;
-    }
+
+.header-container { 
+  text-align: center; 
+  margin-bottom: 15px;    /* Redusert fra 30px for å spare vertikal plass */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  z-index: 10;
+}
     
-    .school-logo { 
-      max-width: 210px; 
-      filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1));
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    
-    .school-logo:hover { 
-      transform: scale(1.08) rotate(-2deg); 
-    }
+.school-logo { 
+  max-width: 210px;       /* Justert fra 210px for å gi rom i høyden */
+  filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
     .welcome-title { 
       font-size: 1.6rem; 
