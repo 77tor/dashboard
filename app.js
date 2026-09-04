@@ -398,6 +398,7 @@ function updateDates() {
 // Kjør oppdatering hvert sekund for å fange opp minuttendringer presist
 setInterval(updateDates, 1000);
 
+
 function isTimeActive(startStr, endStr) {
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -2421,7 +2422,8 @@ function updateTimeModalDetails() {
   const dayEl = document.getElementById('modalDayName');
   if (dayEl) dayEl.innerText = dayName;
 
-  const dateEl = document.getElementById('modalFullDate');
+  // REPARATION: Endret ID fra 'modalFullDate' til 'timeModalFullDate'
+  const dateEl = document.getElementById('timeModalFullDate');
   if (dateEl) dateEl.innerText = fullDate;
 
   const weekEl = document.getElementById('modalWeekNumber');
