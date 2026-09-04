@@ -217,3 +217,17 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
   opacity: 0;
   pointer-events: none;
 }
+
+
+/* --- AUTOMATISK SKROLL PÅ MODALER NÅR SKJERMEN ER FOR LITEN --- */
+.floating-modal,
+#dashboardInfoModal, 
+#timeModal {
+  max-height: 90vh !important; /* Stopper modalen fra å gå utenfor skjermen */
+}
+
+.modal-body,
+.info-modal-body {
+  max-height: calc(90vh - 60px) !important; /* Låser innholdet til modalens høyde */
+  overflow-y: auto !important; /* Legger BARE til skroll hvis innholdet er for høyt */
+}
