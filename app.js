@@ -159,6 +159,18 @@ function openModal(modalId) {
 
   if (modal) {
     modal.style.display = 'flex';
+
+    // Tilbakestiller posisjonen til midten og gjør modalen flyttbar
+    if (modalId === 'aktivitetModal') {
+      modal.style.top = '50%';
+      modal.style.left = '50%';
+      modal.style.transform = 'translate(-50%, -50%)';
+
+      const header = document.getElementById('aktivitetModalHeader');
+      if (header && typeof makeModalDraggable === 'function') {
+        makeModalDraggable(modal, header);
+      }
+    }
   }
 
   // Tvinger bygging av tabellen for Dagsplan
@@ -167,9 +179,14 @@ function openModal(modalId) {
     if (typeof buildPlanEditor === 'function') buildPlanEditor();
   }
 
-  // DENNE MANGLET: Tvinger bygging av tabellen for Lenker
+  // Tvinger bygging av tabellen for Lenker
   if (modalId === 'linkModal') {
-    buildLinkEditor();
+    if (typeof buildLinkEditor === 'function') buildLinkEditor();
+  }
+
+  // Tvinger generering av kortene for Aktivitet
+  if (modalId === 'aktivitetModal') {
+    if (typeof genererAktiviteter === 'function') genererAktiviteter();
   }
 }
 
@@ -832,9 +849,15 @@ function closeScheduleModal() {
 
 
 
+
 /* --- ÅPNE OG LAGRE IFRAME-LENKE --- */
 function setAndSaveIframeUrl(url) {
   if (!url) return;
+
+  // Skjuler aktivitetsvisningen dersom den er aktiv
+  if (typeof nullstillAktivitetsVisning === 'function') {
+    nullstillAktivitetsVisning();
+  }
   
   let embedUrl = url;
   if (embedUrl.includes('docs.google.com') && embedUrl.includes('/edit')) {
