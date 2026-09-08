@@ -1314,13 +1314,31 @@ function switchGroupTab(tab) {
   if (tab === 'admin') {
     if (adminTab) adminTab.style.display = 'block';
     if (studentTab) studentTab.style.display = 'none';
-    if (adminBtn) adminBtn.classList.add('active');
-    if (studentBtn) studentBtn.classList.remove('active');
+    
+    if (adminBtn) {
+      adminBtn.classList.add('active');
+      adminBtn.style.setProperty('background-color', '#4CAF50', 'important');
+      adminBtn.style.setProperty('color', '#ffffff', 'important');
+    }
+    if (studentBtn) {
+      studentBtn.classList.remove('active');
+      studentBtn.style.removeProperty('background-color');
+      studentBtn.style.removeProperty('color');
+    }
   } else {
     if (adminTab) adminTab.style.display = 'none';
     if (studentTab) studentTab.style.display = 'block';
-    if (studentBtn) studentBtn.classList.add('active');
-    if (adminBtn) adminBtn.classList.remove('active');
+    
+    if (studentBtn) {
+      studentBtn.classList.add('active');
+      studentBtn.style.setProperty('background-color', '#4CAF50', 'important');
+      studentBtn.style.setProperty('color', '#ffffff', 'important');
+    }
+    if (adminBtn) {
+      adminBtn.classList.remove('active');
+      adminBtn.style.removeProperty('background-color');
+      adminBtn.style.removeProperty('color');
+    }
   }
 }
 
@@ -2577,6 +2595,62 @@ function makeElementDraggable(elmnt, header) {
   }
 }
 
+
+
+// --- INNSTILLINGER & FONTSTYRING ---
+
+// Åpne modalen og husk nåværende fontvalg som backup
+function aepneInnstillinger() {
+  const fontSelect = document.getElementById('fontSelect');
+  if (fontSelect) {
+    fontSelect.value = localStorage.getItem('valgtFont') || 'standard';
+  }
+  openModal('innstillingerModal');
+}
+
+// Utfør fontbytte direkte på skjermen
+function brukerByttFont(fontValg) {
+  if (fontValg === 'trykkskrift') {
+    document.body.classList.add('bruker-trykkskrift');
+  } else {
+    document.body.classList.remove('bruker-trykkskrift');
+  }
+}
+
+// Knappen "OK": Lagrer og lukker
+function lagreInnstillinger() {
+  const fontValg = document.getElementById('fontSelect').value;
+  brukerByttFont(fontValg);
+  localStorage.setItem('valgtFont', fontValg);
+  closeModal('innstillingerModal');
+}
+
+// Knappen "Avbryt": Forkaster endringer i nedtrekksmenyen
+function avbrytInnstillinger() {
+  const lagretFont = localStorage.getItem('valgtFont') || 'standard';
+  brukerByttFont(lagretFont);
+  closeModal('innstillingerModal');
+}
+
+// Oppstartssjekk
+document.addEventListener('DOMContentLoaded', () => {
+  const lagretFont = localStorage.getItem('valgtFont') || 'standard';
+  brukerByttFont(lagretFont);
+
+  const lagretTema = localStorage.getItem('theme');
+  if (lagretTema === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+});
+
+// Skjuler bildeboksen for aktivitet og viser iFramen igjen
+function skjulAktivitetDisplay() {
+  const display = document.getElementById('aktivitetDisplay');
+  const frame = document.getElementById('mainFrame');
+  
+  if (display) display.style.display = 'none';
+  if (frame) frame.style.display = 'block';
+}
 
 
 /* --- SAMLET OPPSTARTSLOGIKK --- */

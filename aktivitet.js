@@ -49,8 +49,17 @@ function visAktivitetiIframe(item, lagre = true) {
   const displayBox = document.getElementById('aktivitetDisplay');
   const bildeElem = document.getElementById('aktivitetBilde');
   const tekstElem = document.getElementById('aktivitetTekst');
+  const customInput = document.getElementById('customAktivitetTekst');
 
   if (!displayBox || !bildeElem || !tekstElem) return;
+
+  // Sjekk om det er skrevet inn en tilpasset tittel i input-feltet
+  let tittelSomSkalVises = item.tittel;
+  if (lagre && customInput && customInput.value.trim() !== '') {
+    tittelSomSkalVises = customInput.value.trim();
+  } else if (item.customTittel) {
+    tittelSomSkalVises = item.customTittel;
+  }
 
   // Skjul iframe og vis aktivitet-diven
   if (iframe) iframe.style.display = 'none';
@@ -59,19 +68,50 @@ function visAktivitetiIframe(item, lagre = true) {
   // Nullstill eventuell tidligere skjuling av bildet
   bildeElem.style.display = 'block';
 
-  // Hvis bildet mangler, skjul kun bilde-taggen slik at teksten vises pent
   bildeElem.onerror = function() {
     this.style.display = 'none';
   };
 
-  // Sett bilde og tekst
+  // Sett bilde og den valgte teksten
   bildeElem.src = item.bilde;
-  bildeElem.alt = item.tittel;
-  tekstElem.innerText = item.tittel;
+  bildeElem.alt = tittelSomSkalVises;
+  tekstElem.innerText = tittelSomSkalVises;
 
-  // Lagre i localStorage dersom dette er et aktivt brukerklikk
+  // Objekt for lagring i localStorage
+  const objektTilLagring = {
+    bilde: item.bilde,
+    tittel: item.tittel,
+    customTittel: tittelSomSkalVises
+  };
+
   if (lagre) {
-    localStorage.setItem('aktivValgtAktivitet', JSON.stringify(item));
+    localStorage.setItem('aktivValgtAktivitet', JSON.stringify(objektTilLagring));
+    if (customInput) customInput.value = ''; // Tøm feltet etter valg
+  }
+}
+
+// Funksjon for å endre teksten direkte på hovedskjermen med blyant-knappen
+function endreAktivitetTekstEtterpaa() {
+  const tekstElem = document.getElementById('aktivitetTekst');
+  if (!tekstElem) return;
+
+  const naavaerendeTekst = tekstElem.innerText;
+  const nyTekst = prompt("Endre teksten for aktiviteten:", naavaerendeTekst);
+
+  if (nyTekst !== null && nyTekst.trim() !== "") {
+    tekstElem.innerText = nyTekst.trim();
+
+    // Oppdater i localStorage slik at den nye teksten huskes ved F5
+    const lagretData = localStorage.getItem('aktivValgtAktivitet');
+    if (lagretData) {
+      try {
+        let item = JSON.parse(lagretData);
+        item.customTittel = nyTekst.trim();
+        localStorage.setItem('aktivValgtAktivitet', JSON.stringify(item));
+      } catch (e) {
+        console.error("Kunne ikke oppdatere lagret tekst", e);
+      }
+    }
   }
 }
 

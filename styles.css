@@ -231,3 +231,58 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
   max-height: calc(90vh - 60px) !important; /* Låser innholdet til modalens høyde */
   overflow-y: auto !important; /* Legger BARE til skroll hvis innholdet er for høyt */
 }
+
+/* --- 10. INNSTILLINGER & TRYKKSKRIFT --- */
+
+/* Deklarering av trykkskriften (.otf på rot) */
+@font-face {
+  font-family: 'FUNtasticTrykkskrift';
+  src: url('trykkskrift.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Tvinger fonten på ALT innhold når klassen er aktiv */
+body.bruker-trykkskrift,
+body.bruker-trykkskrift *,
+body.bruker-trykkskrift button,
+body.bruker-trykkskrift input,
+body.bruker-trykkskrift select,
+body.bruker-trykkskrift textarea {
+  font-family: 'FUNtasticTrykkskrift', 'Segoe UI', sans-serif !important;
+}
+
+/* Størrelsesjustering for innstillinger-modalen */
+#innstillingerModal {
+  width: 450px;
+  max-width: 90vw;
+  top: 15vh;
+  left: calc(50vw - 225px);
+}
+
+/* Design for toggle-knapper inne i innstillinger */
+.settings-option-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.88rem;
+  transition: background 0.2s ease;
+}
+
+.settings-option-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Rød variant for tilbakestilling/sletting */
+.settings-option-btn.btn-danger {
+  background: #ef4444;
+}
+
+.settings-option-btn.btn-danger:hover {
+  background: #dc2626;
+}
