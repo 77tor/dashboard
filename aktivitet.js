@@ -50,6 +50,7 @@ function visAktivitetiIframe(item, lagre = true) {
   const bildeElem = document.getElementById('aktivitetBilde');
   const tekstElem = document.getElementById('aktivitetTekst');
   const customInput = document.getElementById('customAktivitetTekst');
+  const fontSelect = document.getElementById('customAktivitetFont');
 
   if (!displayBox || !bildeElem || !tekstElem) return;
 
@@ -59,6 +60,14 @@ function visAktivitetiIframe(item, lagre = true) {
     tittelSomSkalVises = customInput.value.trim();
   } else if (item.customTittel) {
     tittelSomSkalVises = item.customTittel;
+  }
+
+  // Sjekk valgt font
+  let valgtFont = 'standard';
+  if (lagre && fontSelect) {
+    valgtFont = fontSelect.value;
+  } else if (item.font) {
+    valgtFont = item.font;
   }
 
   // Skjul iframe og vis aktivitet-diven
@@ -75,13 +84,25 @@ function visAktivitetiIframe(item, lagre = true) {
   // Sett bilde og den valgte teksten
   bildeElem.src = item.bilde;
   bildeElem.alt = tittelSomSkalVises;
+  
+  tekstElem.style.textTransform = 'none';
   tekstElem.innerText = tittelSomSkalVises;
+
+  // Håndtering av font og størrelse:
+  if (valgtFont === 'trykkskrift') {
+    tekstElem.style.fontFamily = "'FUNtasticTrykkskrift', 'Segoe UI', sans-serif";
+    tekstElem.style.fontSize = "4.5rem"; // Trykkskriftstørrelse
+  } else {
+    tekstElem.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+    tekstElem.style.fontSize = "3.5rem"; // Økt størrelse for Standard font
+  }
 
   // Objekt for lagring i localStorage
   const objektTilLagring = {
     bilde: item.bilde,
     tittel: item.tittel,
-    customTittel: tittelSomSkalVises
+    customTittel: tittelSomSkalVises,
+    font: valgtFont
   };
 
   if (lagre) {
@@ -99,6 +120,7 @@ function endreAktivitetTekstEtterpaa() {
   const nyTekst = prompt("Endre teksten for aktiviteten:", naavaerendeTekst);
 
   if (nyTekst !== null && nyTekst.trim() !== "") {
+    tekstElem.style.textTransform = 'none';
     tekstElem.innerText = nyTekst.trim();
 
     // Oppdater i localStorage slik at den nye teksten huskes ved F5
@@ -142,7 +164,7 @@ function genererAktiviteter() {
     
     card.innerHTML = `
       <img src="${item.bilde}" alt="${item.tittel}" style="height: 60px; max-width: 100%; object-fit: contain; margin-bottom: 8px;" onerror="this.style.display='none';">
-      <div style="font-weight: 700; font-size: 0.85rem; color: #1e293b; line-height: 1.2;">${item.tittel}</div>
+      <div style="font-weight: 700; font-size: 0.85rem; color: #1e293b; line-height: 1.2; text-transform: none;">${item.tittel}</div>
     `;
 
     card.onclick = () => {

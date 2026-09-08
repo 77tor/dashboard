@@ -1252,7 +1252,7 @@ function updatePageFullscreenBtn() {
   if (!btn) return;
 
   if (document.fullscreenElement) {
-    btn.innerHTML = '🗗 Avslutt';
+    btn.innerHTML = '🗗 Avslutt fullskjerm';
   } else {
     btn.innerHTML = '🖥️ Fullskjerm';
   }
@@ -1315,29 +1315,33 @@ function switchGroupTab(tab) {
     if (adminTab) adminTab.style.display = 'block';
     if (studentTab) studentTab.style.display = 'none';
     
+    // Aktiv knapp (Admin) -> Grønn
     if (adminBtn) {
       adminBtn.classList.add('active');
       adminBtn.style.setProperty('background-color', '#4CAF50', 'important');
       adminBtn.style.setProperty('color', '#ffffff', 'important');
     }
+    // Inaktiv knapp (Visning) -> Nøytral grå
     if (studentBtn) {
       studentBtn.classList.remove('active');
-      studentBtn.style.removeProperty('background-color');
-      studentBtn.style.removeProperty('color');
+      studentBtn.style.setProperty('background-color', '#f1f5f9', 'important');
+      studentBtn.style.setProperty('color', '#475569', 'important');
     }
   } else {
     if (adminTab) adminTab.style.display = 'none';
     if (studentTab) studentTab.style.display = 'block';
     
+    // Aktiv knapp (Visning) -> Grønn
     if (studentBtn) {
       studentBtn.classList.add('active');
       studentBtn.style.setProperty('background-color', '#4CAF50', 'important');
       studentBtn.style.setProperty('color', '#ffffff', 'important');
     }
+    // Inaktiv knapp (Admin) -> Nøytral grå
     if (adminBtn) {
       adminBtn.classList.remove('active');
-      adminBtn.style.removeProperty('background-color');
-      adminBtn.style.removeProperty('color');
+      adminBtn.style.setProperty('background-color', '#f1f5f9', 'important');
+      adminBtn.style.setProperty('color', '#475569', 'important');
     }
   }
 }
@@ -2597,18 +2601,9 @@ function makeElementDraggable(elmnt, header) {
 
 
 
-// --- INNSTILLINGER & FONTSTYRING ---
+// --- INNSTILLINGER, FONT & VISNINGSSTYRING ---
 
-// Åpne modalen og husk nåværende fontvalg som backup
-function aepneInnstillinger() {
-  const fontSelect = document.getElementById('fontSelect');
-  if (fontSelect) {
-    fontSelect.value = localStorage.getItem('valgtFont') || 'standard';
-  }
-  openModal('innstillingerModal');
-}
-
-// Utfør fontbytte direkte på skjermen
+// 1. Font- og størrelsesfunksjoner
 function brukerByttFont(fontValg) {
   if (fontValg === 'trykkskrift') {
     document.body.classList.add('bruker-trykkskrift');
@@ -2617,31 +2612,83 @@ function brukerByttFont(fontValg) {
   }
 }
 
-// Knappen "OK": Lagrer og lukker
-function lagreInnstillinger() {
-  const fontValg = document.getElementById('fontSelect').value;
-  brukerByttFont(fontValg);
-  localStorage.setItem('valgtFont', fontValg);
-  closeModal('innstillingerModal');
+function brukerByttFontSize(sizeValg) {
+  document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+  document.body.classList.add('font-size-' + sizeValg);
 }
 
-// Knappen "Avbryt": Forkaster endringer i nedtrekksmenyen
-function avbrytInnstillinger() {
-  const lagretFont = localStorage.getItem('valgtFont') || 'standard';
-  brukerByttFont(lagretFont);
-  closeModal('innstillingerModal');
-}
+// 2. Åpne innstillinger-modal og les ut nåværende status
+function aepneInnstillinger() {
+  const fontSelect = document.getElementById('fontSelect');
+  const fontSizeSelect = document.getElementById('fontSizeSelect');
+  
+  if (fontSelect) fontSelect.value = localStorage.getItem('valgtFont') || 'standard';
+  if (fontSizeSelect) fontSizeSelect.value = localStorage.getItem('valgtFontSize') || 'medium';
 
-// Oppstartssjekk
-document.addEventListener('DOMContentLoaded', () => {
-  const lagretFont = localStorage.getItem('valgtFont') || 'standard';
-  brukerByttFont(lagretFont);
-
-  const lagretTema = localStorage.getItem('theme');
-  if (lagretTema === 'dark') {
-    document.body.classList.add('dark-mode');
+  // Nattmodus status
+  const darkInput = document.getElementById('toggleDarkMode');
+  if (darkInput) {
+    darkInput.checked = document.body.classList.contains('dark-mode');
   }
-});
+  
+  // Dagsplan status (.sidebar-right)
+  const scheduleInput = document.getElementById('toggleSchedule');
+  const rightSidebar = document.querySelector('.sidebar-right');
+  if (scheduleInput && rightSidebar) {
+    scheduleInput.checked = !rightSidebar.classList.contains('hidden');
+  }
+
+  // Venstremeny status (.sidebar)
+  const sidebarInput = document.getElementById('toggleSidebar');
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebarInput && sidebar) {
+    sidebarInput.checked = !sidebar.classList.contains('hidden');
+  }
+
+  openModal('innstillingerModal');
+}
+
+// 3. Lagre innstillinger (Gjenbruker eksisterende toggle-funksjoner)
+function lagreInnstillinger() {
+  // Font og størrelse
+  const fontValg = document.getElementById('fontSelect').value;
+  const sizeValg = document.getElementById('fontSizeSelect').value;
+  brukerByttFont(fontValg);
+  brukerByttFontSize(sizeValg);
+  localStorage.setItem('valgtFont', fontValg);
+  localStorage.setItem('valgtFontSize', sizeValg);
+
+  // A. Nattmodus
+  const wantDark = document.getElementById('toggleDarkMode')?.checked;
+  const isDark = document.body.classList.contains('dark-mode');
+  if (wantDark !== isDark) {
+    toggleDisplayMode('dark-mode');
+  }
+
+  // B. Dagsplan (.sidebar-right)
+  const wantSchedule = document.getElementById('toggleSchedule')?.checked;
+  const rightSidebar = document.querySelector('.sidebar-right');
+  const isScheduleVisible = rightSidebar && !rightSidebar.classList.contains('hidden');
+  if (wantSchedule !== isScheduleVisible) {
+    toggleHideSchedule();
+  }
+
+  // C. Venstremeny (.sidebar)
+  const wantSidebar = document.getElementById('toggleSidebar')?.checked;
+  const sidebar = document.querySelector('.sidebar');
+  const isSidebarVisible = sidebar && !sidebar.classList.contains('hidden');
+  if (wantSidebar !== isSidebarVisible) {
+    toggleHideMenu();
+  }
+
+  closeModal('innstillingerModal');
+}
+
+// 4. Avbryt innstillinger
+function avbrytInnstillinger() {
+  closeModal('innstillingerModal');
+}
+
 
 // Skjuler bildeboksen for aktivitet og viser iFramen igjen
 function skjulAktivitetDisplay() {
@@ -2651,6 +2698,7 @@ function skjulAktivitetDisplay() {
   if (display) display.style.display = 'none';
   if (frame) frame.style.display = 'block';
 }
+
 
 
 /* --- SAMLET OPPSTARTSLOGIKK --- */

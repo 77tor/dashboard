@@ -1,6 +1,8 @@
-/* --- 1. RESET & BASE --- */
+/* --- 1. RESET, BASE & TRYKKSKRIFT --- */
+@font-face { font-family: 'FUNtasticTrykkskrift'; src: url('trykkskrift.otf') format('opentype'); font-weight: normal; font-style: normal; font-display: swap; }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden; color: #333; position: relative; }
+body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift button, body.bruker-trykkskrift input, body.bruker-trykkskrift select, body.bruker-trykkskrift textarea { font-family: 'FUNtasticTrykkskrift', 'Segoe UI', sans-serif !important; }
 
 /* --- 2. LAYOUT & RAMMER --- */
 .sidebar { width: 300px; background: #ffffff; border-right: 1px solid #e0e0e0; padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
@@ -12,14 +14,19 @@ body { display: flex; height: 100vh; background-color: #f0f2f5; overflow: hidden
 .top-bar { background: #fff; padding: 8px 12px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-radius: 8px; font-size: 0.9rem; }
 .top-bar input { margin: 0; width: 60%; }
 
-/* --- 3. KORT & KNAPPER --- */
+/* --- 3. KORT, SKJEMA & KNAPPER --- */
 .card { background: #f8f9fa; border: 1px solid #dcdcdc; border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .card h3 { font-size: 0.85rem; color: #1a73e8; margin-bottom: 0; text-transform: uppercase; letter-spacing: 0.5px; }
-.btn-edit-icon { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #666; padding: 2px 4px; width: auto; margin: 0; }
-.btn-edit-icon:hover { color: #1a73e8; background: #e8f0fe; border-radius: 4px; }
+#infoCard { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease; position: relative; }
+#infoCard:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); border-color: #3b82f6; background-color: #f8fafc; }
+#infoCard:active { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); }
+select, input[type="text"], input[type="url"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; outline: none; }
+select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
 button { background: #1a73e8; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 4px; font-size: 0.85rem; transition: background 0.2s ease; }
 button:hover { background: #1557b0; }
+.btn-edit-icon { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #666; padding: 2px 4px; width: auto; margin: 0; }
+.btn-edit-icon:hover { color: #1a73e8; background: #e8f0fe; border-radius: 4px; }
 .btn-timer { background: #ff9800; } .btn-timer:hover { background: #e68a00; }
 .btn-group { background: #4caf50; } .btn-group:hover { background: #388e3c; }
 .btn-student { background: #e91e63; } .btn-student:hover { background: #c2185b; }
@@ -27,11 +34,6 @@ button:hover { background: #1557b0; }
 .btn-mode { background: #64748b; font-size: 0.8rem; padding: 6px 8px; } .btn-mode:hover { background: #475569; }
 .btn-toggle-backdrop { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; margin-right: 8px; width: auto; }
 .btn-toggle-backdrop:hover { background: rgba(255, 255, 255, 0.35); }
-select, input[type="text"], input[type="url"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.88rem; outline: none; }
-select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); }
-#infoCard { cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease; position: relative; }
-#infoCard:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); border-color: #3b82f6; background-color: #f8fafc; }
-#infoCard:active { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08); }
 
 /* --- 4. FASTLENKER --- */
 .links-grid { display: grid; gap: 5px; }
@@ -62,7 +64,6 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 .schedule-img { height: 100%; max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.1)); transition: transform 0.3s ease; }
 .active-now .schedule-img { transform: scale(1.05); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
 .schedule-empty { font-size: 0.75rem; color: #cbd5e1; font-style: italic; }
-
 #bigScheduleContainer { display: flex !important; flex-direction: row !important; gap: 12px !important; align-items: stretch !important; padding: 10px 5px !important; overflow-x: auto !important; width: 100% !important; height: 100% !important; }
 #bigScheduleContainer .schedule-card { flex: 1 1 0 !important; min-width: 140px !important; display: flex !important; flex-direction: column !important; justify-content: flex-end !important; align-items: center !important; text-align: center !important; padding: 16px 10px !important; position: relative !important; background: #ffffff !important; border: 2px solid #e2e8f0 !important; border-radius: 12px !important; opacity: 1 !important; filter: none !important; }
 #bigScheduleContainer .schedule-card *, #bigScheduleContainer .schedule-img, #bigScheduleContainer .schedule-label, #bigScheduleContainer .schedule-clock { opacity: 1 !important; filter: none !important; color: #1e293b !important; }
@@ -74,15 +75,16 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 #bigScheduleContainer .active-now .schedule-subject { color: #15803d !important; font-size: 1.4rem !important; }
 
 /* --- 6. FLYTTBARE VINDUER (MODALER) & BACKDROP --- */
-#customModalBackdrop, .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.75) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; z-index: 9998 !important; transition: background-color 0.2s ease, backdrop-filter 0.2s ease; }
+#customModalBackdrop, .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.75) !important; backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; z-index: 99998 !important; transition: background-color 0.2s ease, backdrop-filter 0.2s ease; }
 #customModalBackdrop.active, .modal-backdrop.active { display: block !important; }
-#customModalBackdrop.transparent-backdrop, .modal-backdrop.transparent-backdrop, .modal-backdrop.no-backdrop { background-color: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; pointer-events: none; }
+#customModalBackdrop.transparent-backdrop, .modal-backdrop.transparent-backdrop, .modal-backdrop.no-backdrop { background-color: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; pointer-events: none; opacity: 0; }
 .floating-modal { display: none; position: fixed; z-index: 1000001 !important; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1; }
 .floating-modal.active { display: flex !important; }
+.floating-modal, #dashboardInfoModal, #timeModal { max-height: 90vh !important; }
 .modal-header, .info-modal-header { background: #2563eb; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; cursor: move; user-select: none; }
 .close-btn, .modal-close-btn { background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; width: auto; margin: 0; padding: 0 4px; line-height: 1; opacity: 0.8; }
 .close-btn:hover, .modal-close-btn:hover { opacity: 1; }
-.modal-body { flex: 1; padding: 20px; overflow-y: auto; position: relative; background: #fff; display: flex; flex-direction: column; min-height: 0; }
+.modal-body { flex: 1; padding: 20px; overflow-y: auto !important; position: relative; background: #fff; display: flex; flex-direction: column; min-height: 0; max-height: calc(90vh - 60px) !important; }
 #timerModal { width: 360px; height: auto; top: 15vh; left: 35vw; }
 #groupModal { width: 850px; max-height: 85vh; top: 8vh; left: 20vw; }
 #planModal { width: 480px; height: auto; max-height: 90vh; top: 10vh; left: 30vw; }
@@ -100,7 +102,7 @@ select:focus, input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0
 
 /* --- 7. VERKTØY: GRUPPER, SAMLING, TIMER & ALARM --- */
 #tabAdminBtn, #tabStudentBtn { padding: 10px 16px; font-size: 0.9rem; border-radius: 8px; }
-#tabAdminBtn.active, #tabStudentBtn.active { background-color: #2563eb !important; color: white !important; font-weight: bold; }
+#tabAdminBtn.active, #tabStudentBtn.active { background-color: #4CAF50 !important; color: white !important; font-weight: bold; }
 #tabAdminBtn:not(.active), #tabStudentBtn:not(.active) { background-color: #f1f5f9 !important; color: #64748b !important; }
 .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 14px; }
 .group-card { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
@@ -158,8 +160,8 @@ body.dark-mode .card h3, body.dark-mode .schedule-subject { color: #60a5fa !impo
 body.dark-mode .links-grid a { background-color: #3f3f46 !important; color: #fff !important; border-color: #52525b !important; }
 body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.85) contrast(1.1); background-color: #0f172a; }
 
-/* --- 9. INFORMASJON-MODAL & TID/DATO MODAL --- */
-#dashboardInfoModal, #timeModal { width: 1000px !important; max-width: 90vw !important; max-height: 90vh !important; position: fixed; top: 8vh; left: calc(50vw - 500px); border-radius: 20px !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important; overflow: hidden !important; }
+/* --- 9. INFORMASJON, DATO & TID (KLOKKE) --- */
+#dashboardInfoModal, #timeModal { width: 1000px !important; max-width: 90vw !important; position: fixed; top: 8vh; left: calc(50vw - 500px); border-radius: 20px !important; border: 1px solid #cbd5e1 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important; overflow: hidden !important; }
 #dashboardInfoModal .modal-header, #timeModal .info-modal-header { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899) !important; padding: 14px 20px !important; border: none !important; cursor: move; user-select: none; }
 .date-badge { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: inline-block; width: fit-content; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 .info-grid-fun { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -181,7 +183,7 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
 .info-modal-title h2 { margin: 0; font-size: 1.3rem; font-weight: 800; color: #ffffff; }
 .info-modal-title p { margin: 0; font-size: 0.85rem; opacity: 0.9; color: #f1f5f9; }
 .info-icon { font-size: 1.8rem; }
-.info-modal-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; }
+.info-modal-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; max-height: calc(90vh - 60px) !important; overflow-y: auto !important; }
 .info-left-col { display: flex; flex-direction: column; gap: 12px; }
 .dashed-container { background: #ffffff; border: 2px dashed #cbd5e1; border-radius: 14px; display: flex; justify-content: center; align-items: center; padding: 20px; }
 .info-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); }
@@ -196,93 +198,32 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
 .second-hand { width: 3px; height: 130px; margin-left: -1.5px; background: #ef4444; z-index: 11; }
 .clock-center { width: 16px; height: 16px; background: #ef4444; border: 3px solid #ffffff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 12; }
 
-#customModalBackdrop {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 99998;
-}
-
-#customModalBackdrop.active {
-  display: block;
-}
-
-#customModalBackdrop.transparent-backdrop {
-  opacity: 0;
-  pointer-events: none;
-}
-
-
-/* --- AUTOMATISK SKROLL PÅ MODALER NÅR SKJERMEN ER FOR LITEN --- */
-.floating-modal,
-#dashboardInfoModal, 
-#timeModal {
-  max-height: 90vh !important; /* Stopper modalen fra å gå utenfor skjermen */
-}
-
-.modal-body,
-.info-modal-body {
-  max-height: calc(90vh - 60px) !important; /* Låser innholdet til modalens høyde */
-  overflow-y: auto !important; /* Legger BARE til skroll hvis innholdet er for høyt */
-}
-
-/* --- 10. INNSTILLINGER & TRYKKSKRIFT --- */
-
-/* Deklarering av trykkskriften (.otf på rot) */
-@font-face {
-  font-family: 'FUNtasticTrykkskrift';
-  src: url('trykkskrift.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Tvinger fonten på ALT innhold når klassen er aktiv */
-body.bruker-trykkskrift,
-body.bruker-trykkskrift *,
-body.bruker-trykkskrift button,
-body.bruker-trykkskrift input,
-body.bruker-trykkskrift select,
-body.bruker-trykkskrift textarea {
-  font-family: 'FUNtasticTrykkskrift', 'Segoe UI', sans-serif !important;
-}
-
-/* Størrelsesjustering for innstillinger-modalen */
-#innstillingerModal {
-  width: 450px;
-  max-width: 90vw;
-  top: 15vh;
-  left: calc(50vw - 225px);
-}
-
-/* Design for toggle-knapper inne i innstillinger */
-.settings-option-btn {
-  background: #2563eb;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 0.88rem;
-  transition: background 0.2s ease;
-}
-
-.settings-option-btn:hover {
-  background: #1d4ed8;
-}
-
-/* Rød variant for tilbakestilling/sletting */
-.settings-option-btn.btn-danger {
-  background: #ef4444;
-}
-
-.settings-option-btn.btn-danger:hover {
-  background: #dc2626;
-}
+/* --- 10. INNSTILLINGER, TOGGLES & SKRIFTSTØRRELSER --- */
+#innstillingerModal { width: 450px; max-width: 90vw; top: 15vh; left: calc(50vw - 225px); }
+.settings-option-btn { background: #2563eb; color: white; border: none; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.88rem; transition: background 0.2s ease; }
+.settings-option-btn:hover { background: #1d4ed8; }
+.settings-option-btn.btn-danger { background: #ef4444; }
+.settings-option-btn.btn-danger:hover { background: #dc2626; }
+.setting-toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; font-weight: 600; color: #334155; }
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+input:checked + .slider { background-color: #22c55e; }
+input:checked + .slider:before { transform: translateX(20px); }
+body.font-size-small, body.font-size-small * { font-size: 0.85rem !important; }
+body.font-size-small h1 { font-size: 1.3rem !important; }
+body.font-size-small h2 { font-size: 1.15rem !important; }
+body.font-size-small h3 { font-size: 0.95rem !important; }
+body.font-size-small .timer-display { font-size: 2.5rem !important; }
+body.font-size-medium, body.font-size-medium * { font-size: 0.98rem !important; }
+body.font-size-medium h1 { font-size: 1.6rem !important; }
+body.font-size-medium h2 { font-size: 1.35rem !important; }
+body.font-size-medium h3 { font-size: 1.1rem !important; }
+body.font-size-medium .timer-display { font-size: 3.2rem !important; }
+body.font-size-large, body.font-size-large * { font-size: 1.12rem !important; }
+body.font-size-large h1 { font-size: 1.95rem !important; }
+body.font-size-large h2 { font-size: 1.6rem !important; }
+body.font-size-large h3 { font-size: 1.3rem !important; }
+body.font-size-large .timer-display { font-size: 3.8rem !important; }
+.hidden { display: none !important; }

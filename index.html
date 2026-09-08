@@ -58,36 +58,16 @@
 </div>
 
 
-<!-- EGEN RUTE FOR HJEM OG MODUS -->
+
+<!-- EGEN RUTE FOR HJEM OG FULLSKJERM -->
 <div class="card card-keep-visible">
-  <button onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); goHome();" style="width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+  <button onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); goHome();" style="width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
     🏠 Hjem
   </button>
   
-  <div style="display: flex; flex-direction: column; gap: 6px;">
-    <!-- NATTMODUS OG EKTE FULLSKJERM VED SIDEN AV HVERANDRE -->
-    <div style="display: flex; gap: 6px;">
-      <button onclick="toggleDisplayMode('dark-mode')" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
-        🌙 Nattmodus
-      </button>
-      <button onclick="togglePageFullscreen()" id="pageFullscreenBtn" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
-        🖥️ Fullskjerm
-      </button>
-    </div>
-    
-    <!-- SKJUL MENY OG SKJUL DAGSPLAN VED SIDEN AV HVERANDRE -->
-    <div style="display: flex; gap: 6px;">
-      <button onclick="toggleHideMenu()" id="toggleMenuBtn" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
-        👁️ Skjul meny
-      </button>
-      <button onclick="toggleHideSchedule()" id="toggleScheduleBtn" class="btn-mode" style="flex: 1; padding: 6px 4px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 500; white-space: nowrap;">
-        📅 Skjul dagsplan
-      </button>
-    </div>
-  </div>
-
-  <!-- TILBAKESTILL-KNAPP -->
-
+  <button onclick="togglePageFullscreen()" id="pageFullscreenBtn" class="btn-mode" style="width: 100%; padding: 6px 10px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    🖥️ Fullskjerm
+  </button>
 </div>
 </aside>
 
@@ -299,15 +279,18 @@
 
 
 <!-- UKEPLAN MODAL -->
-<div id="ukeplanModal" class="floating-modal" style="display: none; width: 420px;">
-  <div class="modal-header">
+<div id="ukeplanModal" class="floating-modal" style="display: none; position: fixed; top: 15vh; left: calc(50vw - 210px); width: 420px; max-width: 90vw; z-index: 1000001; background: #ffffff; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); overflow: hidden; border: 1px solid #cbd5e1;">
+  
+  <!-- Header med ny farge #0ACCCC -->
+  <div class="modal-header" style="background-color: #0ACCCC; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1rem;">
     <span>📑 Velg Ukeplan</span>
-    <div>
-      <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop(event)">👁️ Bakgrunn</button>
-      <button type="button" class="close-btn" onclick="closeModal('ukeplanModal')">✕</button>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop(event)" style="background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.4); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">👁️ Bakgrunn</button>
+      <button type="button" class="close-btn" onclick="closeModal('ukeplanModal')" style="background: transparent; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 0 4px; line-height: 1;">✕</button>
     </div>
   </div>
   
+  <!-- Body -->
   <div class="modal-body" style="padding: 20px; background: white; text-align: center;">
     <p style="margin-bottom: 15px; font-weight: bold; color: #334155;">Velg trinn for å åpne ukeplanen:</p>
     
@@ -315,17 +298,17 @@
     <div style="display: flex; gap: 15px;">
       <!-- Venstre kolonne: Småtrinnet -->
       <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-        <button class="nav-btn" onclick="visTrinn('1')">1. trinn</button>
-        <button class="nav-btn" onclick="visTrinn('2')">2. trinn</button>
-        <button class="nav-btn" onclick="visTrinn('3')">3. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('1')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">1. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('2')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">2. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('3')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">3. trinn</button>
       </div>
 
       <!-- Høyre kolonne: Mellomtrinnet -->
       <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-        <button class="nav-btn" onclick="visTrinn('4')">4. trinn</button>
-        <button class="nav-btn" onclick="visTrinn('5')">5. trinn</button>
-        <button class="nav-btn" onclick="visTrinn('6')">6. trinn</button>
-        <button class="nav-btn" onclick="visTrinn('7')">7. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('4')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">4. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('5')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">5. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('6')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">6. trinn</button>
+        <button class="nav-btn" onclick="visTrinn('7')" style="background-color: #0ACCCC; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">7. trinn</button>
       </div>
     </div>
   </div>
@@ -477,11 +460,11 @@
 
   <div class="modal-body">
     
-    <!-- Tab-knapper der den aktive knappen er grønn -->
-    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-      <button id="tabAdminBtn" class="active" onclick="switchGroupTab('admin')" style="flex: 1; background-color: #4CAF50; color: white;">⚙️ Admin (Oppsett & Regler)</button>
-      <button id="tabStudentBtn" onclick="switchGroupTab('student')" style="flex: 1;">📺 Visning (Trekning)</button>
-    </div>
+<!-- Tab-knapper der den aktive knappen er grønn -->
+<div style="display: flex; gap: 10px; margin-bottom: 15px;">
+  <button id="tabAdminBtn" class="active" onclick="switchGroupTab('admin')" style="flex: 1; background-color: #4CAF50; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">⚙️ Admin (Oppsett & Regler)</button>
+  <button id="tabStudentBtn" onclick="switchGroupTab('student')" style="flex: 1; background-color: #f1f5f9; color: #475569; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">📺 Visning (Trekning)</button>
+</div>
 
     <div id="adminGroupView">
       <div class="group-admin-grid">
@@ -1068,14 +1051,27 @@
     ">&times;</button>
   </div>
 
-  <!-- LEGG TIL DENNE: Tekstfelt for tilpasset tittel -->
-  <div style="padding: 12px 20px 5px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-    <label style="font-size: 0.85rem; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">
-      Valgfri egendefinert tekst (la stå tom for standard tittel):
-    </label>
-    <input type="text" id="customAktivitetTekst" placeholder="Skriv inn egen tekst her..." style="
-      width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box;
-    ">
+  <!-- Oppdatert: Tekstfelt OG Skrifttype-velger side om side -->
+  <div style="padding: 12px 20px 10px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 12px; align-items: flex-end;">
+    <div style="flex: 1;">
+      <label style="font-size: 0.85rem; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">
+        Valgfri egendefinert tekst (la stå tom for standard tittel):
+      </label>
+      <input type="text" id="customAktivitetTekst" placeholder="Skriv inn egen tekst her..." style="
+        width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box;
+      ">
+    </div>
+    <div style="width: 180px; flex-shrink: 0;">
+      <label style="font-size: 0.85rem; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">
+        Skrifttype:
+      </label>
+      <select id="customAktivitetFont" style="
+        width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; background: #ffffff; cursor: pointer;
+      ">
+        <option value="standard">Standard font</option>
+        <option value="trykkskrift">Trykkskrift</option>
+      </select>
+    </div>
   </div>
 
   <!-- Innhold med bredt rutenett -->
@@ -1091,8 +1087,9 @@
 </div>
 
 
+
 <!-- INNSTILLINGER MODAL -->
-<div id="innstillingerModal" class="floating-modal" style="display: none; position: fixed; top: 15vh; left: calc(50vw - 225px); width: 450px; max-width: 90vw; z-index: 1000001; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1;">
+<div id="innstillingerModal" class="floating-modal" style="display: none; position: fixed; top: 12vh; left: calc(50vw - 225px); width: 450px; max-width: 90vw; z-index: 1000001; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1;">
   
   <!-- Header -->
   <div class="modal-header" style="background: #2563eb; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem;">
@@ -1112,25 +1109,61 @@
       </select>
     </div>
 
-    <!-- Valg 2: Visningsmodus -->
+    <!-- Valg 2: Skriftstørrelse -->
     <div>
-      <label style="font-weight: bold; display: block; margin-bottom: 6px; color: #334155; font-size: 0.9rem;">Tema:</label>
-      <button type="button" onclick="toggleDisplayMode('dark-mode')" style="width: 100%; padding: 10px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">
-        🌙 / ☀️ Bytt Dag-/Nattmodus
-      </button>
+      <label style="font-weight: bold; display: block; margin-bottom: 6px; color: #334155; font-size: 0.9rem;">Skriftstørrelse:</label>
+      <select id="fontSizeSelect" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem; background: #fff; color: #333;">
+        <option value="small">Liten (Standard)</option>
+        <option value="medium">Middels</option>
+        <option value="large">Stor</option>
+      </select>
     </div>
 
-    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 4px 0;">
+    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 2px 0;">
 
-    <!-- Valg 3: Tilbakestilling -->
+    <!-- Valg 3: Visning og Funksjoner (Sliders) -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <label style="font-weight: bold; display: block; color: #334155; font-size: 0.9rem;">Visning & Meny:</label>
+
+      <!-- Nattmodus Switch (Standard: Av) -->
+      <div class="setting-toggle-row">
+        <span>🌙 Nattmodus</span>
+        <label class="switch">
+          <input type="checkbox" id="toggleDarkMode">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Dagsplan Switch (Standard: På) -->
+      <div class="setting-toggle-row">
+        <span>📅 Vis Dagsplan</span>
+        <label class="switch">
+          <input type="checkbox" id="toggleSchedule" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Venstremeny Switch (Standard: På) -->
+      <div class="setting-toggle-row">
+        <span>👁️ Vis Venstremeny</span>
+        <label class="switch">
+          <input type="checkbox" id="toggleSidebar" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 2px 0;">
+
+    <!-- Valg 4: Tilbakestilling -->
     <div>
-      <button type="button" onclick="closeModal('innstillingerModal'); openModal('resetConfirmModal');" style="width: 100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);">
+      <button type="button" onclick="closeModal('innstillingerModal'); openModal('resetConfirmModal');" class="settings-option-btn btn-danger" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);">
         ⚠️ Tilbakestill alt av data
       </button>
     </div>
 
-    <!-- OK og Avbryt-knapper nederst -->
-    <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end;">
+    <!-- OK og Avbryt-knapper -->
+    <div style="display: flex; gap: 10px; margin-top: 6px; justify-content: flex-end;">
       <button type="button" onclick="avbrytInnstillinger()" style="padding: 8px 16px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; cursor: pointer; width: auto; margin: 0;">
         Avbryt
       </button>
