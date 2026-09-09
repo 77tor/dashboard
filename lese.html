@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leseoppgaver - Ordsøk</title>
+    <style>
+        :root {
+            --bg-color: #f0fdf4;
+            --card-bg: #ffffff;
+            --primary-color: #166534;
+            --accent-color: #22c55e;
+            --selected-color: #fef08a;
+            --found-color: #86efac;
+            --border-color: #cbd5e1;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #1e293b;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Meny for valg av filtre */
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        select, input[type="text"] {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .custom-words-container {
+            width: 100%;
+            display: flex;
+            gap: 6px;
+        }
+
+        .custom-words-container input {
+            flex: 1;
+        }
+
+        /* Rutenett */
+        .grid-container {
+            display: grid;
+            gap: 4px;
+            background: var(--card-bg);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 2px solid var(--accent-color);
+            margin-bottom: 12px;
+            touch-action: none;
+        }
+
+        .cell {
+            width: 36px;
+            height: 36px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .cell.selected { 
+            background: var(--selected-color); 
+            border-color: #eab308; 
+        }
+
+        .cell.found { 
+            background: var(--found-color); 
+            border-color: #16a34a; 
+            color: #14532d;
+        }
+
+        /* Ordliste */
+        .word-list-container {
+            text-align: center;
+            background: var(--card-bg);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .word-item {
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .word-item.found {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #86efac;
+            text-decoration: line-through;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover {
+            background-color: #16a34a;
+        }
+
+        .btn-reset {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+        }
+    </style>
+    <!-- Importer den eksterne js-filen -->
+    <script src="ord_lese.js"></script>
+</head>
+<body>
+
+    <h1>🔍 Finn ordene!</h1>
+
+    <div class="controls">
+        <select id="select-kategori" onchange="initGame()">
+            <option value="alle">Alle kategorier</option>
+            
+            <optgroup label="Bolk 1: Vokaler og Diftanger">
+                <option value="Enkel vokal">Enkel vokal (a, e, i, o, u, y, æ, ø, å)</option>
+                <option value="Diftanger">Diftanger (ai, au, ei, øy)</option>
+            </optgroup>
+
+            <optgroup label="Bolk 2: Dobbeltkonsonant">
+                <option value="Enkel vs dobbeltkonsonanter">Enkel vs dobbeltkonsonanter</option>
+                <option value="Standard dobbeltkonsonanter">Standard dobbeltkonsonanter</option>
+            </optgroup>
+
+            <optgroup label="Bolk 3: Spesielle sammensetninger">
+                <option value="Sammensatte lyder">Sammensatte lyder (ng, nk, sj, skj, kj)</option>
+            </optgroup>
+
+            <optgroup label="Bolk 4: Konsonantlyder">
+                <option value="kj-lyd">kj-lyd</option>
+                <option value="sj-lyd">sj-lyd</option>
+                <option value="j-lyd">j-lyd</option>
+                <option value="ki/ky-lyd">ki/ky-lyd</option>
+                <option value="ski/sky-lyd">ski/sky-lyd</option>
+            </optgroup>
+
+            <optgroup label="Bolk 5: Blandede lyder og forvekslinger">
+                <option value="gi/gy/ki/ky/ski/sky">gi/gy/ki/ky/ski/sky</option>
+                <option value="Forveksling p/b/d">Forveksling p/b/d</option>
+                <option value="Forveksling k/g">Forveksling k/g</option>
+                <option value="Forveksling f/v">Forveksling f/v</option>
+                <option value="Forveksling t/d">Forveksling t/d</option>
+            </optgroup>
+
+            <optgroup label="Bolk 6: Stumme bokstaver">
+                <option value="Stum h">Stum h</option>
+                <option value="Stum g">Stum g</option>
+                <option value="Stum d">Stum d</option>
+                <option value="gn-ord">gn-ord</option>
+                <option value="nk/ng-ord">nk/ng-ord</option>
+            </optgroup>
+
+            <optgroup label="Bolk 7: Par-ord">
+                <option value="Par-ord">Par-ord</option>
+            </optgroup>
+
+            <optgroup label="Bolk 8: Småord og kort o-lyd">
+                <option value="Viktige små-ord">Viktige små-ord</option>
+                <option value="m ved slutten av ord">m ved slutten av ord</option>
+                <option value="Kort o-lyd">Kort o-lyd</option>
+                <option value="Lang æ-lyd">Lang æ-lyd</option>
+                <option value="Kort u-lyd">Kort u-lyd</option>
+            </optgroup>
+
+            <optgroup label="Bolk 9: Lydrette ord">
+                <option value="lydrette_ord">Lydrette ord</option>
+            </optgroup>
+
+            <optgroup label="Bolk 10: Mest brukte ord">
+                <option value="De 100 mest brukte">De 100 mest brukte</option>
+            </optgroup>
+        </select>
+
+        <select id="select-lengde" onchange="initGame()">
+            <option value="alle">Alle lengder</option>
+            <option value="2">2 bokstaver</option>
+            <option value="3">3 bokstaver</option>
+            <option value="4">4 bokstaver</option>
+            <option value="5">5 bokstaver</option>
+            <option value="6">6 bokstaver</option>
+        </select>
+
+        <div class="custom-words-container">
+            <input type="text" id="custom-words" placeholder="Skriv egne ord (f.eks: sol, is, mat)" onkeydown="if(event.key==='Enter') initGame()">
+            <button class="btn-action" onclick="initGame()">Bruk egne</button>
+        </div>
+    </div>
+
+    <div id="grid" class="grid-container"></div>
+
+    <div class="word-list-container">
+        <div id="word-list" class="word-list"></div>
+    </div>
+
+    <button class="btn-action btn-reset" onclick="initGame()">Nytt brett 🔄</button>
+
+<script>
+    const GRID_SIZE = 8;
+    const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ";
+    let activeWords = [];
+    let foundWords = new Set();
+    let gridData = [];
+    let selectedCells = [];
+    let isMouseDown = false;
+
+    function initGame() {
+        const customInput = document.getElementById('custom-words').value.trim();
+        let kandidater = [];
+
+        // 1. Sjekk om brukeren har skrevet inn egne ord
+        if (customInput !== '') {
+            kandidater = customInput
+                .split(/[\s,]+/) // Del opp på komma eller mellomrom
+                .map(w => w.toUpperCase().trim())
+                .filter(w => w.length > 1 && w.length <= GRID_SIZE); // Kun gyldige ordlengder
+        } 
+        
+        // 2. Hvis ingen egne ord, hent fra ord_lese.js
+        if (kandidater.length === 0) {
+            const katValg = document.getElementById('select-kategori').value;
+            const lengdeValg = document.getElementById('select-lengde').value;
+
+            if (typeof hentOrdFiltrert === "function") {
+                kandidater = hentOrdFiltrert(katValg, lengdeValg);
+            }
+
+            if (!kandidater || kandidater.length === 0) {
+                if (typeof hentOrdFiltrert === "function") {
+                    kandidater = hentOrdFiltrert("alle", "alle");
+                } else {
+                    kandidater = ["KATT", "HUND", "SOL", "IS", "BÅT"];
+                }
+            }
+
+            // Bland kandidatene tilfeldig hvis de hentes fra databasen
+            kandidater.sort(() => 0.5 - Math.random());
+        }
+
+        gridData = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
+        activeWords = [];
+        foundWords.clear();
+        selectedCells = [];
+
+        // Prøv å plassere inntil 5 ord på brettet
+        for (let word of kandidater) {
+            if (activeWords.length >= 5) break;
+            let cleanWord = word.toUpperCase().trim();
+            if (placeWord(cleanWord)) {
+                activeWords.push(cleanWord);
+            }
+        }
+
+        // Fyll resten av brettet med tilfeldige bokstaver
+        for (let r = 0; r < GRID_SIZE; r++) {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                if (gridData[r][c] === '') {
+                    gridData[r][c] = ALPHA[Math.floor(Math.random() * ALPHA.length)];
+                }
+            }
+        }
+
+        renderUI();
+    }
+
+    function placeWord(word) {
+        let attempts = 0;
+        while (attempts < 100) {
+            let dir = Math.floor(Math.random() * 2); // 0 = vannrett, 1 = loddrett
+            let r = Math.floor(Math.random() * GRID_SIZE);
+            let c = Math.floor(Math.random() * GRID_SIZE);
+
+            let dr = dir === 1 ? 1 : 0;
+            let dc = dir === 0 ? 1 : 0;
+
+            if (r + dr * (word.length - 1) < GRID_SIZE && c + dc * (word.length - 1) < GRID_SIZE) {
+                let canPlace = true;
+                for (let i = 0; i < word.length; i++) {
+                    let charInGrid = gridData[r + i * dr][c + i * dc];
+                    if (charInGrid !== '' && charInGrid !== word[i]) {
+                        canPlace = false;
+                        break;
+                    }
+                }
+                if (canPlace) {
+                    for (let i = 0; i < word.length; i++) {
+                        gridData[r + i * dr][c + i * dc] = word[i];
+                    }
+                    return true;
+                }
+            }
+            attempts++;
+        }
+        return false;
+    }
+
+    function renderUI() {
+        const gridEl = document.getElementById('grid');
+        gridEl.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 36px)`;
+        gridEl.innerHTML = '';
+
+        for (let r = 0; r < GRID_SIZE; r++) {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = gridData[r][c];
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                
+                // Hendelser for trykk og dra (Mus)
+                cell.onmousedown = (e) => { e.preventDefault(); startSelection(cell); };
+                cell.onmouseenter = () => { if (isMouseDown) toggleCell(cell); };
+                
+                // Hendelser for Touch (Mobil/Nettbrett)
+                cell.ontouchstart = (e) => { e.preventDefault(); startSelection(cell); };
+
+                gridEl.appendChild(cell);
+            }
+        }
+
+        renderWordList();
+    }
+
+    // Mobil touch-drag støtte over rutenettet
+    document.addEventListener('touchmove', (e) => {
+        if (!isMouseDown) return;
+        let touch = e.touches[0];
+        let element = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (element && element.classList.contains('cell')) {
+            toggleCell(element);
+        }
+    }, { passive: false });
+
+    document.addEventListener('mouseup', endSelection);
+    document.addEventListener('touchend', endSelection);
+
+    function startSelection(cell) {
+        isMouseDown = true;
+        clearSelection();
+        toggleCell(cell);
+    }
+
+    function toggleCell(cell) {
+        if (cell.classList.contains('found')) return;
+        
+        const index = selectedCells.indexOf(cell);
+        if (index === -1) {
+            selectedCells.push(cell);
+            cell.classList.add('selected');
+        }
+        sjekkOmOrdErFunnet();
+    }
+
+    function clearSelection() {
+        selectedCells.forEach(cell => {
+            if (!cell.classList.contains('found')) {
+                cell.classList.remove('selected');
+            }
+        });
+        selectedCells = [];
+    }
+
+    function endSelection() {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+        
+        // Fjerne markering hvis det ikke var et gyldig ord
+        setTimeout(() => {
+            selectedCells.forEach(cell => {
+                if (!cell.classList.contains('found')) {
+                    cell.classList.remove('selected');
+                }
+            });
+            selectedCells = [];
+        }, 300);
+    }
+
+    function sjekkOmOrdErFunnet() {
+        let valgtTekst = selectedCells.map(c => c.innerText).join('');
+        let omvendtTekst = valgtTekst.split('').reverse().join('');
+
+        activeWords.forEach(word => {
+            if (!foundWords.has(word) && (valgtTekst === word || omvendtTekst === word)) {
+                foundWords.add(word);
+                selectedCells.forEach(cell => {
+                    cell.classList.remove('selected');
+                    cell.classList.add('found');
+                });
+                selectedCells = [];
+                renderWordList();
+
+                if (foundWords.size === activeWords.length) {
+                    setTimeout(() => alert("Gratulerer! Du fant alle ordene! 🎉"), 200);
+                }
+            }
+        });
+    }
+
+    function renderWordList() {
+        const wordListEl = document.getElementById('word-list');
+        wordListEl.innerHTML = activeWords.map(w => {
+            const isFound = foundWords.has(w);
+            return `<span class="word-item ${isFound ? 'found' : ''}">${w}</span>`;
+        }).join('');
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>

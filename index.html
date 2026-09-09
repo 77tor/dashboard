@@ -39,25 +39,22 @@
     </div>
   </div>
 
-  <!-- VERKTØY (RUTENETT) -->
-  <div class="card">
-    <span class="card-title">Verktøy</span>
-    
-    <!-- Hovedverktøy: Trafikklys (Full bredde) -->
-    <button type="button" class="btn-tool btn-trafikklys tool-link-full" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">
-      🚦 Arbeidsro / Trafikklys
-    </button>
-
-    <!-- Verktøyrutenett (2 kolonner) -->
-    <div class="tools-grid">
-      <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
-      <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
-      <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
-      <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
-      <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
-      <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
-    </div>
+<!-- VERKTØY (RUTENETT) -->
+<div class="card">
+  <span class="card-title">Verktøy</span>
+  
+  <div class="tools-grid">
+    <button type="button" class="btn-tool btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">✏️ Whiteboard</button>
+    <button type="button" class="btn-tool btn-trafikklys" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">🚦 Arbeidsro / Trafikklys</button>
+    <button type="button" class="btn-tool btn-mattemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('matematikk.html');">🔢 Matte-mix</button>
+    <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
+    <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
+    <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
+    <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
+    <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
+    <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
   </div>
+</div>
 
   <!-- FASTLENKER -->
   <div class="card">
@@ -72,10 +69,6 @@
   <div class="card card-keep-visible card-actions">
     <button type="button" class="btn-action btn-home" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); goHome();">
       🏠 Hjem
-    </button>
-    
-    <button type="button" class="btn-action btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">
-      ✏️ Whiteboard
     </button>
 
     <button type="button" class="btn-action btn-fullscreen" onclick="togglePageFullscreen();" id="pageFullscreenBtn">
@@ -193,29 +186,52 @@
       <span class="info-icon">🕒</span>
       <div>
         <h2>Tid & Dato</h2>
-        <p id="modalHeaderSub" class="date-badge">Laster tid...</p>
+
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 8px;">
-      <!-- Pilleknapp for bakgrunn (mørk/lys) -->
       <button type="button" class="bg-toggle-btn btn-toggle-backdrop" onclick="toggleModalBackdrop()">👁️ Bakgrunn</button>
-      <!-- Lukkeknapp -->
       <button type="button" class="close-btn" onclick="closeTimeModal()">&times;</button>
     </div>
   </div>
 
   <!-- Modal Innhold (To kolonner) -->
   <div class="modal-body info-modal-body">
+    
+    <!-- VENSTRE KOLONNE -->
     <div class="info-left-col">
       <div class="info-card" style="text-align: center;">
-        <h3 id="modalDayName" style="margin: 0; font-size: 1.5rem; color: #0f172a;">Torsdag</h3>
-        <p id="timeModalFullDate" style="margin: 2px 0 0 0; color: #64748b; font-size: 0.95rem;">3. september 2026</p>
-        <span id="modalWeekNumber" style="display: inline-block; margin-top: 6px; padding: 2px 10px; background: #e0e7ff; color: #3730a3; border-radius: 12px; font-size: 0.85rem; font-weight: 700;">Uke 36</span>
+        <h3 id="modalDayName" style="margin: 0; font-size: 1.5rem; color: #0f172a;">Onsdag</h3>
+        <p id="timeModalFullDate" style="margin: 2px 0 0 0; color: #64748b; font-size: 0.95rem;">9. september 2026</p>
+        <span id="modalWeekNumber" style="display: inline-block; margin-top: 6px; padding: 2px 10px; background: #e0e7ff; color: #3730a3; border-radius: 12px; font-size: 0.85rem; font-weight: 700;">Uke 37</span>
       </div>
 
       <div class="info-card time-digital-card">
-        <span id="modalDigitalClock">14:35:49</span>
+        <span id="modalDigitalClock">13:04:57</span>
       </div>
+
+      <!-- PRIMSTAV KORT -->
+      <div class="info-card primstav-card">
+        <div class="primstav-header">
+          <span class="primstav-icon">📜</span>
+          <div class="primstav-titles">
+            <span class="primstav-label">Primstav</span>
+            <strong id="modalPrimstavName">Sommerhalvår</strong>
+          </div>
+        </div>
+        <p id="modalPrimstavDesc">Primstaven viser sommersiden (løvtre-symbolikk).</p>
+      </div>
+
+<!-- UKENS SITAT -->
+<div class="info-card quote-card" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+  <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+    <span style="font-size: 1.1rem;">💡</span>
+    <span style="font-size: 0.65rem; color: #166534; font-weight: 800; text-transform: uppercase;">Ukens Sitat</span>
+  </div>
+  <p id="modalWeeklyQuote" style="margin: 0; font-size: 0.8rem; color: #14532d; font-style: italic; font-weight: 600; line-height: 1.3;">
+    Laster ukens sitat...
+  </p>
+</div>
 
       <div class="info-card astro-card">
         <div class="astro-row">☀️ <span><strong>Sol opp:</strong> <strong id="modalSunrise">06:32</strong></span></div>
@@ -226,12 +242,13 @@
               <circle cx="16" cy="16" r="14" fill="#0f172a"/>
               <path id="moonPhasePath" fill="#f8fafc" d="M16,2 A14,14 0 0,1 16,30 A14,14 0 0,1 16,2"/>
             </svg>
-            <span><strong>Månefase:</strong> <strong id="modalMoonPhaseText">Voksende måneskinn</strong></span>
+            <span><strong>Månefase:</strong> <strong id="modalMoonPhaseText">Halvmåne (siste kvarter)</strong></span>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- HØYRE KOLONNE (KUN KLOKKEN) -->
     <div class="info-right-col dashed-container">
       <div class="analog-clock">
         <svg viewBox="0 0 200 200" class="clock-face">
@@ -268,6 +285,7 @@
         <div class="clock-center"></div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -1204,6 +1222,7 @@
 
 <div id="customModalBackdrop"></div>
 
+  <script src="sitat.js"></script>
   <script src="aktivitet.js"></script>
   <script src="navnedag.js"></script>
   <script src="vaer.js"></script>

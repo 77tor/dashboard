@@ -78,7 +78,6 @@ function loadState(key, fallback = null) {
 }
 
 
-/* --- LENKEREDIGERING --- */
 /* --- LENKEREDIGERING (MED 6 PLASSER) --- */
 function buildLinkEditor() {
   const table = document.getElementById('linkEditTable');
@@ -2432,9 +2431,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 /* --- TID - KLOKKEMODAL --- */
 let timeModalInterval = null;
+
+// Oversikt over merkedager på primstaven (MM-DD)
+const primstavDager = {
+  '01-01': { navn: 'Nyttårsdag (Årsdag)', desc: 'Starten på det nye året. Været i dag varslet om hele årets avling.' },
+  '01-13': { navn: 'Tyvendedag jul', desc: 'Siste dag av julen. «Knut jager julen ut» med feiekosten.' },
+  '02-02': { navn: 'Kyndelsmesse', desc: 'Lysmesse. Halvparten av vinterfôret til dyrene bør være igjen.' },
+  '03-21': { navn: 'Vårjevndøgn (Vårfruemesse)', desc: 'Dag og natt er like lange. Bekker begynner å tine.' },
+  '04-14': { navn: 'Sommarmål (Sommerdag)', desc: 'Første dag på primstavens sommerside! Nå starter sommerhalvåret.' },
+  '04-23': { navn: 'Jørgensdag', desc: 'Vernedag for husdyrene før de slippes ut på beite.' },
+  '05-03': { navn: 'Korsmesse vår', desc: 'Budeiene begynner forberedelsene til å flytte på setra.' },
+  '06-24': { navn: 'Sankthans (Jonsok)', desc: 'Midtsommer. Nå snur solen og dagene blir sakte kortere.' },
+  '07-29': { navn: 'Olsok', desc: 'Minne om Olav den hellige. Skuronna (skjæring av kornet) starter.' },
+  '08-10': { navn: 'Larsok', desc: 'Hvis det regner i dag, blir det en fuktig høst.' },
+  '08-24': { navn: 'Barsok', desc: 'Første høstdag i folketroen. Seterjentene gjør seg klare til heimreise.' },
+  '09-21': { navn: 'Matteusmesse', desc: 'Innhøstingen av epler, nøtter og rotfrukter må være ferdig.' },
+  '09-29': { navn: 'Mikkelsmess', desc: 'Innhøstingen feires! Nå skal alt korn og avling være i hus.' },
+  '10-14': { navn: 'Vinterdag (Vinternatt)', desc: 'Første dag på primstavens vinterside! Nå starter vinterhalvåret.' },
+  '11-01': { navn: 'Helgemesse (Allehelgensdag)', desc: 'Sjekk seil og båter – nå begynner de store høststormene.' },
+  '11-25': { navn: 'Kari med rokken (Katarinadag)', desc: 'Nå må julespinningen og forberedelsene til julestria starte.' },
+  '12-13': { navn: 'Lussinatt', desc: 'Årets lengste og skumleste natt ifølge den gamle kalenderen.' },
+  '12-21': { navn: 'Tomas brygger', desc: 'Nå skal juleølet være ferdig brygget og smakt på.' },
+  '12-25': { navn: 'Første juledag', desc: 'Stor helgedag. Vinden i dag forteller hvor stormfullt året blir.' }
+};
 
 function openTimeModal() {
   const modal = document.getElementById('timeModal');
@@ -2442,11 +2463,11 @@ function openTimeModal() {
   const header = document.getElementById('timeModalHeader') || modal?.querySelector('.info-modal-header') || modal?.querySelector('.modal-header');
 
   if (modal) {
-    // 1. Vis modal og plasser sentrert
+    // 1. Vis modal og plasser sentrert (Tilpasset 920px bredde)
     modal.style.display = 'flex';
     modal.classList.add('active');
-    modal.style.top = '8vh';
-    modal.style.left = 'calc(50vw - 500px)';
+    modal.style.top = '6vh';
+    modal.style.left = 'calc(50vw - 460px)';
 
     // 2. Vis mørk bakgrunn
     if (backdrop) {
@@ -2455,7 +2476,7 @@ function openTimeModal() {
       backdrop.classList.remove('transparent-backdrop');
     }
 
-    // 3. Start klokke
+    // 3. Start klokke og oppdater detaljer
     updateTimeModalDetails();
     if (timeModalInterval) clearInterval(timeModalInterval);
     timeModalInterval = setInterval(updateTimeModalDetails, 1000);
@@ -2505,7 +2526,6 @@ function updateTimeModalDetails() {
   const dayEl = document.getElementById('modalDayName');
   if (dayEl) dayEl.innerText = dayName;
 
-  // REPARATION: Endret ID fra 'modalFullDate' til 'timeModalFullDate'
   const dateEl = document.getElementById('timeModalFullDate');
   if (dateEl) dateEl.innerText = fullDate;
 
@@ -2544,6 +2564,41 @@ function updateTimeModalDetails() {
 
   if (typeof updateMoonPhaseSvg === 'function') {
     updateMoonPhaseSvg(now);
+  }
+
+  // 5. Oppdater Primstav
+  oppdaterPrimstav(now);
+
+  // 6. Oppdater Ukens Sitat (fra sitat.js)
+  if (typeof oppdaterUkensSitat === 'function') {
+    oppdaterUkensSitat(now);
+  }
+}
+
+// Slår opp merkedag på primstaven
+function oppdaterPrimstav(dato) {
+  const m = String(dato.getMonth() + 1).padStart(2, '0');
+  const d = String(dato.getDate()).padStart(2, '0');
+  const nokkel = `${m}-${d}`;
+
+  const nameEl = document.getElementById('modalPrimstavName');
+  const descEl = document.getElementById('modalPrimstavDesc');
+
+  if (!nameEl || !descEl) return;
+
+  if (primstavDager[nokkel]) {
+    nameEl.textContent = primstavDager[nokkel].navn;
+    descEl.textContent = primstavDager[nokkel].desc;
+  } else {
+    // Sjekker om vi er i sommerhalvåret (14. april - 13. oktober)
+    const mNum = dato.getMonth() + 1;
+    const dNum = dato.getDate();
+    const erSommer = (mNum > 4 || (mNum === 4 && dNum >= 14)) && (mNum < 10 || (mNum === 10 && dNum < 14));
+    
+    nameEl.textContent = erSommer ? 'Sommerhalvår' : 'Vinterhalvår';
+    descEl.textContent = erSommer 
+      ? 'Primstaven viser sommersiden (løvtre-symbolikk).' 
+      : 'Primstaven viser vintersiden (snø-/snaufjell-symbolikk).';
   }
 }
 

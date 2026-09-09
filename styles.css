@@ -36,7 +36,17 @@ body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift butt
 }
 .btn-tool { width: 100%; margin-top: 0; padding: 5px 4px; border-radius: 4px; font-weight: 600; font-size: 0.75rem; border: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; color: #0f172a; background: #f8fafc; }
 .btn-tool:hover { background: #e2e8f0; }
-.btn-trafikklys { background: #0f172a; color: #ffffff; font-weight: 700; border: none; } .btn-trafikklys:hover { background: #1e293b; }
+/* Arbeidsro / Trafikklys - Lys skifer/gråblå stil */
+.btn-trafikklys {
+  background-color: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+  margin-top: 0; /* Holdes tett og fin sammen med resten av listen */
+}
+.btn-trafikklys:hover {
+  background-color: #e2e8f0;
+}
+
 .btn-aktivitet { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; } .btn-aktivitet:hover { background: #e0f2fe; }
 .btn-timer { background: #fff7ed; color: #c2410c; border-color: #fed7aa; } .btn-timer:hover { background: #ffedd5; }
 .btn-group { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; } .btn-group:hover { background: #dcfce7; }
@@ -46,7 +56,15 @@ body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift butt
 .card-actions { margin-top: auto; display: flex; flex-direction: column; gap: 4px; background: #ffffff; padding: 4px; }
 .btn-action { width: 100%; padding: 6px; border-radius: 4px; border: none; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
 .btn-home { background: #4f46e5; color: white; }
-.btn-whiteboard { background: #d97706; color: white; }
+/* Whiteboard - Lys indigo/lilla stil */
+.btn-whiteboard {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  border-color: #c7d2fe;
+}
+.btn-whiteboard:hover {
+  background-color: #c7d2fe;
+}
 .btn-fullscreen { background: #475569; color: white; }
 .btn-action:hover { opacity: 0.9; }
 select, input[type="text"], input[type="url"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.78rem; outline: none; height: 26px; }
@@ -179,7 +197,7 @@ body.dark-mode .links-grid a { background-color: #27272a !important; color: #fff
 body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.85) contrast(1.1); background-color: #0f172a; }
 
 /* --- 9. INFORMASJON, DATO & TID (KLOKKE) --- */
-#dashboardInfoModal, #timeModal { width: 850px !important; max-width: 90vw !important; position: fixed; top: 8vh; left: calc(50vw - 425px); border-radius: 10px !important; border: 1px solid #cbd5e1 !important; overflow: hidden !important; }
+#dashboardInfoModal, #timeModal { width: 920px !important; max-width: 95vw !important; position: fixed; top: 6vh; left: calc(50vw - 460px); border-radius: 10px !important; border: 1px solid #cbd5e1 !important; overflow: hidden !important; }
 #dashboardInfoModal .modal-header, #timeModal .info-modal-header { background: #1e293b !important; padding: 8px 12px !important; border: none !important; cursor: move; user-select: none; }
 .date-badge { background: rgba(255, 255, 255, 0.2); color: #ffffff; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; display: inline-block; width: fit-content; }
 .info-grid-fun { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -199,20 +217,61 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
 .info-modal-title h2 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; }
 .info-modal-title p { margin: 0; font-size: 0.75rem; opacity: 0.9; color: #f1f5f9; }
 .info-icon { font-size: 1.4rem; }
-.info-modal-body { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #f8fafc; max-height: calc(90vh - 40px) !important; overflow-y: auto !important; }
+
+/* Layout: Venstre kolonne 300px, høyre kolonne midtstiller den store klokken */
+.info-modal-body { padding: 16px; display: grid; grid-template-columns: 300px 1fr; gap: 16px; background: #f8fafc; max-height: calc(90vh - 40px) !important; overflow-y: auto !important; align-items: center; }
 .info-left-col { display: flex; flex-direction: column; gap: 8px; }
-.dashed-container { background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; display: flex; justify-content: center; align-items: center; padding: 10px; }
+.dashed-container { background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; display: flex; justify-content: center; align-items: center; padding: 12px; }
 .info-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; }
 .time-digital-card { text-align: center; font-size: 1.4rem; font-weight: 800; color: #2563eb; background: #eff6ff; border-color: #bfdbfe; }
 .astro-card { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: #334155; }
 .astro-row { display: flex; align-items: center; gap: 6px; }
-.analog-clock { width: 240px; height: 240px; border: 6px solid #0f172a; border-radius: 50%; position: relative; background: #ffffff; flex-shrink: 0; }
+
+/* Enda større analog klokke (øst til 380px) */
+.analog-clock { width: 420px; height: 420px; border: 7px solid #0f172a; border-radius: 50%; position: relative; background: #ffffff; flex-shrink: 0; }
 .clock-face { width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none; }
+
+/* Forlengede visere tilpasset 380px diameter */
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: #0f172a; border-radius: 4px; z-index: 10; }
-.hour-hand { width: 6px; height: 60px; margin-left: -3px; }
-.minute-hand { width: 4px; height: 85px; margin-left: -2px; background: #334155; }
-.second-hand { width: 2px; height: 95px; margin-left: -1px; background: #dc2626; z-index: 11; }
-.clock-center { width: 12px; height: 12px; background: #dc2626; border: 2px solid #ffffff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 12; }
+.hour-hand { width: 9px; height: 95px; margin-left: -4.5px; }
+.minute-hand { width: 6px; height: 138px; margin-left: -3px; background: #334155; }
+.second-hand { width: 2px; height: 155px; margin-left: -1px; background: #dc2626; z-index: 11; }
+.clock-center { width: 16px; height: 16px; background: #dc2626; border: 2px solid #ffffff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 12; }
+
+/* Primstav-kort */
+.primstav-card {
+  background: #fffbe6;
+  border: 1px solid #fef08a;
+}
+.primstav-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.primstav-icon {
+  font-size: 1.2rem;
+}
+.primstav-titles {
+  display: flex;
+  flex-direction: column;
+}
+.primstav-label {
+  font-size: 0.65rem;
+  color: #854d0e;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+#modalPrimstavName {
+  font-size: 0.85rem;
+  color: #713f12;
+  font-weight: 700;
+}
+#modalPrimstavDesc {
+  margin: 4px 0 0 0;
+  font-size: 0.75rem;
+  color: #a16207;
+  line-height: 1.25;
+}
 
 /* --- 10. INNSTILLINGER, TOGGLES & SKRIFTSTØRRELSER --- */
 #innstillingerModal { width: 400px; max-width: 90vw; top: 15vh; left: calc(50vw - 200px); }
