@@ -13,19 +13,18 @@
       color: #1e293b;
       height: 100vh;
       margin: 0;
-      padding: 20px 20px 80px; /* Padding i bunnen for avstand til bokormen */
+      padding: 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       position: relative;
-      overflow-y: auto; /* Tillater rulling dersom skjermen er liten */
+      overflow: hidden;
     }
 
     /* --- BIEN SOM KRASJER OG KRABBER BORT --- */
     .bee-container {
       position: absolute;
-      top: 15px;
+      top: 0;
       left: 0;
       width: 100%;
       height: 100%;
@@ -75,86 +74,101 @@
       100% { top: 25px; left: -80px; opacity: 1; }
     }
 
+    /* --- SIRKELOPPSETT FOR SENTRUM OG KORT --- */
+    .circle-container {
+      position: relative;
+      width: 620px;
+      height: 620px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      margin-top: -40px; /* Flyttet hele elementet litt høyere på siden */
+    }
+
     .header-container { 
+      position: absolute;
       text-align: center; 
-      margin-bottom: 15px;
       cursor: pointer;
       user-select: none;
-      position: relative;
-      z-index: 10;
+      z-index: 20;
     }
         
     .school-logo { 
-      max-width: 210px;
+      max-width: 220px;
       filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1));
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 950px;
-      position: relative;
-      z-index: 10;
+    .school-logo:hover {
+      transform: scale(1.05);
     }
 
+    /* KORT SOM PLASSERES I SIRKEL */
     .resource-card {
+      position: absolute;
+      width: 155px; /* Økt bredde på kortene for å gi rom for større bilde */
       background: #ffffff;
-      border-radius: 20px;
-      padding: 20px 15px;
+      border-radius: 18px;
+      padding: 12px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-decoration: none;
-      position: relative;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 8px 0px var(--shadow-color), 0 15px 20px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 0px var(--shadow-color), 0 10px 15px rgba(0,0,0,0.06);
       border: 3px solid var(--border-color);
+      
+      /* Radius justert litt ut for at større kort ikke skal krasje med logoen */
+      --radius: 255px;
+      --angle: calc(var(--index) * (360deg / 6) - 90deg);
+      left: calc(50% + var(--radius) * cos(var(--angle)) - 77px);
+      top: calc(50% + var(--radius) * sin(var(--angle)) - 75px);
     }
 
     .resource-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 14px 0px var(--shadow-color), 0 20px 25px rgba(0,0,0,0.1);
+      transform: scale(1.08) translateY(-4px);
+      box-shadow: 0 10px 0px var(--shadow-color), 0 15px 20px rgba(0,0,0,0.1);
+      z-index: 30;
     }
 
     .resource-card:active {
-      transform: translateY(2px);
-      box-shadow: 0 4px 0px var(--shadow-color), 0 8px 10px rgba(0,0,0,0.1);
+      transform: scale(0.98);
+      box-shadow: 0 2px 0px var(--shadow-color), 0 4px 6px rgba(0,0,0,0.1);
     }
 
+    /* ØKT STØRRELSE PÅ BILDENE */
     .card-img-wrapper { 
-      height: 80px; 
+      height: 75px; /* Økt fra 60px til 75px */
       width: 100%;
       display: flex; 
       align-items: center; 
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .card-img { 
-      max-width: 90%; 
+      max-width: 95%; /* Økt fra 85% */
       max-height: 100%; 
       object-fit: contain; 
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.05));
     }
 
     .card-btn {
       width: 100%;
-      padding: 8px 0;
-      border-radius: 12px;
+      padding: 6px 0;
+      border-radius: 10px;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       color: white;
       background-color: var(--btn-bg);
       text-align: center;
-      box-shadow: 0 4px 0px var(--btn-shadow);
+      box-shadow: 0 3px 0px var(--btn-shadow);
       margin-top: auto;
     }
 
     .card-nrk {
+      --index: 0;
       --border-color: #bae6fd;
       --shadow-color: #38bdf8;
       --btn-bg: #0284c7;
@@ -162,6 +176,7 @@
     }
     
     .card-salaby {
+      --index: 1;
       --border-color: #fef08a;
       --shadow-color: #facc15;
       --btn-bg: #eab308;
@@ -169,6 +184,7 @@
     }
 
     .card-korarti {
+      --index: 2;
       --border-color: #fbcfe8;
       --shadow-color: #f472b6;
       --btn-bg: #db2777;
@@ -176,6 +192,7 @@
     }
 
     .card-super {
+      --index: 3;
       --border-color: #bbf7d0;
       --shadow-color: #4ade80;
       --btn-bg: #16a34a;
@@ -183,18 +200,27 @@
     }
 
     .card-tv2 {
+      --index: 4;
       --border-color: #ddd6fe;
       --shadow-color: #a78bfa;
       --btn-bg: #7c3aed;
       --btn-shadow: #6d28d9;
     }
 
-    /* NY FARGESTIL FOR MATEMATIKK-KORTET */
     .card-matte {
+      --index: 5;
       --border-color: #bbf7d0;
       --shadow-color: #22c55e;
       --btn-bg: #16a34a;
       --btn-shadow: #15803d;
+    }
+
+    /* Skalering for mindre skjermer */
+    @media (max-height: 700px), (max-width: 670px) {
+      .circle-container {
+        transform: scale(0.8);
+        margin-top: -20px;
+      }
     }
 
     /* --- BOKORM OG BØKER CONTAINER --- */
@@ -299,14 +325,15 @@
     </svg>
   </div>
 
-  <!-- SKOLE-LOGO MED KONFETTI-FEIRING -->
-  <div class="header-container" onclick="fyrAvKonfetti()" title="Klikk for en overraskelse! 🎉">
-    <img src="haanes.png" alt="Hånes skole" class="school-logo">
-  </div>
+  <!-- SIRKELCONTAINER MED LOGO I SENTRUM OG KORT RUNDT -->
+  <div class="circle-container">
 
-  <!-- RESSURSKORT -->
-  <div class="grid-container">
+    <!-- SKOLE-LOGO MED KONFETTI-FEIRING -->
+    <div class="header-container" onclick="fyrAvKonfetti()" title="Klikk for en overraskelse! 🎉">
+      <img src="haanes.png" alt="Hånes skole" class="school-logo">
+    </div>
 
+    <!-- RESSURSKORT SOM PLASSERES I SIRKEL -->
     <a href="https://tv.nrk.no/programmer/nrk-skole" target="_blank" class="resource-card card-nrk">
       <div class="card-img-wrapper">
         <img src="Bilder/nrkskole.png" alt="NRK Skole" class="card-img">
@@ -342,7 +369,6 @@
       <div class="card-btn">Elevkanalen 📺</div>
     </a>
 
-    <!-- NYTT KORT FOR MATEMATIKK (ÅPNES I IFRAME) -->
     <a href="matematikk.html" class="resource-card card-matte">
       <div class="card-img-wrapper">
         <img src="Bilder/matte.png" alt="Matte-mix" class="card-img">
@@ -358,7 +384,7 @@
         confetti({ 
           particleCount: 100, 
           spread: 70, 
-          origin: { y: 0.3 } 
+          origin: { y: 0.45 } 
         });
       }
     }

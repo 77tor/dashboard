@@ -352,8 +352,8 @@ const defaultDayStructure = [
   { id: "t4", label: "3. time", start: "10:00", end: "10:45", time: "10.00 - 10.45", img: "" },
   { id: "t5", label: "Spising", start: "10:45", end: "11:15", time: "10.45 - 11.15", img: "Spising.png" },
   { id: "t6", label: "Friminutt", start: "11:15", end: "11:45", time: "11.15 - 11.45", img: "Friminutt.png" },
-  { id: "t7", label: "4. time", start: "11:45", end: "12:15", time: "11.45 - 12.15", img: "" },
-  { id: "t8", label: "5. time", start: "12:15", end: "13:15", time: "12.15 - 13.15", img: "" }
+  { id: "t7", label: "4. time", start: "11:45", end: "12:30", time: "11.45 - 12.30", img: "" },
+  { id: "t8", label: "5. time", start: "12:30", end: "13:15", time: "12.30 - 13.15", img: "" }
 ];
 
 // Generer en hel uke (mandag–fredag) basert på malen
