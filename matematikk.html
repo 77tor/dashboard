@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Matematikk - Interaktive Oppgaver</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html {
+      width: 100%; height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0fdf4;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Meny / Navigasjon */
+    #topBar {
+      background: #15803d;
+      color: white;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .nav-buttons { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .nav-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.3); }
+    .nav-btn.active { background: #fde047; color: #14532d; }
+
+    /* Velgere i toppmenyen */
+    .top-select {
+      background: #166534;
+      color: white;
+      border: 1px solid #4ade80;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Hovedområde */
+    #mainContent {
+      flex: 1;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Oppgavekort */
+    .task-card {
+      position: relative;
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      flex: 1;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border: 3px solid #bbf7d0;
+    }
+    .task-title { font-size: 20px; color: #166534; margin-bottom: 20px; padding-right: 25px; }
+    .question-box {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1e293b;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Liten rund "Hopp over"-knapp øverst i høyre hjørne */
+    .btn-skip-icon {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 2px solid #cbd5e1;
+      color: #64748b;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .btn-skip-icon:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #94a3b8;
+      transform: rotate(90deg);
+    }
+
+    /* Inndata-felt */
+    .answer-input {
+      font-size: 28px;
+      font-weight: bold;
+      width: 110px;
+      height: 55px;
+      text-align: center;
+      border: 3px solid #cbd5e1;
+      border-radius: 10px;
+      background: #f8fafc;
+      outline: none;
+      color: #0f172a;
+    }
+    .answer-input.wide { width: 380px; font-size: 20px; text-align: left; padding-left: 12px; }
+    .answer-input:focus { border-color: #22c55e; background: #fff; }
+
+    /* Firkant for "Nærmeste tall" */
+    .square-container {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      border: 4px dashed #22c55e;
+      border-radius: 20px;
+      background: #f0fdf4;
+      margin: 10px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .center-number {
+      font-size: 42px;
+      font-weight: 800;
+      color: #15803d;
+      background: #ffffff;
+      padding: 10px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      border: 2px solid #bbf7d0;
+    }
+    .corner-btn {
+      position: absolute;
+      width: 65px;
+      height: 65px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 3px solid #16a34a;
+      color: #1e293b;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .corner-btn:hover {
+      background: #fde047;
+      border-color: #ca8a04;
+      transform: scale(1.1);
+    }
+    .corner-btn.top-left     { top: -20px; left: -20px; }
+    .corner-btn.top-right    { top: -20px; right: -20px; }
+    .corner-btn.bottom-left  { bottom: -20px; left: -20px; }
+    .corner-btn.bottom-right { bottom: -20px; right: -20px; }
+
+    /* Brikker for Tier-venner */
+    .tier-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .tier-card {
+      width: 85px;
+      height: 85px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 3px solid #16a34a;
+      color: #1e293b;
+      font-size: 32px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    .tier-card:hover {
+      transform: translateY(-3px);
+      border-color: #15803d;
+      background: #f0fdf4;
+    }
+    .tier-card.selected {
+      background: #fde047;
+      border-color: #ca8a04;
+      color: #854d0e;
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(202,138,4,0.3);
+    }
+
+    /* STILER FOR CANVAS-TALLINJE */
+    .line-canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 650px;
+      height: 230px;
+      user-select: none;
+      touch-action: none;
+    }
+    canvas#lineCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .btn-check {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+    .btn-check:hover { background: #16a34a; }
+
+    #feedback {
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      min-height: 30px;
+    }
+
+    /* Skjermtastatur (Numpad) */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      background: white;
+      padding: 15px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 2px solid #e2e8f0;
+      width: 260px;
+    }
+    .num-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 15px 0;
+      font-size: 20px;
+      font-weight: bold;
+      color: #334155;
+      cursor: pointer;
+      user-select: none;
+    }
+    .num-btn:active { background: #cbd5e1; }
+    .num-btn.clear { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+
+  <div id="topBar">
+    <div class="nav-buttons">
+      <button class="nav-btn" data-task="nabotall" onclick="loadTask('nabotall', this)">Nabotall</button>
+      <button class="nav-btn" data-task="tallinje" onclick="loadTask('tallinje', this)">Tallinje</button>
+      <button class="nav-btn" data-task="rundav" onclick="loadTask('rundav', this)">Rund av</button>
+      <button class="nav-btn" data-task="naermeste" onclick="loadTask('naermeste', this)">Nærmeste tall</button>
+      <button class="nav-btn" data-task="bokstaver" onclick="loadTask('bokstaver', this)">Tall til bokstaver</button>
+      <button class="nav-btn" data-task="siffer" onclick="loadTask('siffer', this)">Bokstaver til siffer</button>
+      <button class="nav-btn" data-task="tiervenner" onclick="loadTask('tiervenner', this)">Tier-venner</button>
+      
+      <!-- Velger for tallinjestart -->
+      <select id="lineStartSelect" class="top-select" style="display:none;" onchange="changeLineStart()">
+        <option value="0">Start: 0</option>
+        <option value="2">Start: 2</option>
+        <option value="3">Start: 3</option>
+        <option value="5">Start: 5</option>
+        <option value="10">Start: 10</option>
+        <option value="50">Start: 50</option>
+        <option value="100">Start: 100</option>
+      </select>
+
+      <!-- Velger for tallstørrelse -->
+      <select id="maxNumSelect" class="top-select" onchange="changeMaxNumber()">
+        <option value="10">Maks 10</option>
+        <option value="20">Maks 20</option>
+        <option value="100">Maks 100</option>
+        <option value="1000">Maks 1000</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="mainContent">
+    <div class="task-card">
+      <button class="btn-skip-icon" onclick="skipTask()" title="Hopp over / Ny oppgave">↻</button>
+      <div class="task-title" id="taskTitle">Oppgave</div>
+      <div class="question-box" id="questionBox"></div>
+      
+      <button id="checkBtn" class="btn-check" onclick="checkAnswer()">Sjekk svar</button>
+      <div id="feedback"></div>
+    </div>
+
+    <!-- Numpad for berøringsskjerm -->
+    <div class="numpad" id="numpad">
+      <button class="num-btn" onclick="pressNum('1')">1</button>
+      <button class="num-btn" onclick="pressNum('2')">2</button>
+      <button class="num-btn" onclick="pressNum('3')">3</button>
+      <button class="num-btn" onclick="pressNum('4')">4</button>
+      <button class="num-btn" onclick="pressNum('5')">5</button>
+      <button class="num-btn" onclick="pressNum('6')">6</button>
+      <button class="num-btn" onclick="pressNum('7')">7</button>
+      <button class="num-btn" onclick="pressNum('8')">8</button>
+      <button class="num-btn" onclick="pressNum('9')">9</button>
+      <button class="num-btn clear" onclick="pressClear()">C</button>
+      <button class="num-btn" onclick="pressNum('0')">0</button>
+      <button class="num-btn" onclick="pressBackspace()">⌫</button>
+    </div>
+  </div>
+
+  <script>
+    let currentTask = 'nabotall';
+    let activeInputId = '';
+    let correctAnswer = {};
+    let maxNumber = 100;
+    let lineStartValue = 0;
+
+    // Tilstand for Tier-venner valg
+    let selectedTierCards = [];
+
+    // Canvas Variabler for 3 brikker på tallinjen
+    let chipsData = []; 
+    let activeChipIndex = -1;
+    let canvasConfig = {};
+
+    function numberToWords(n) {
+      const entall = ["null", "en", "to", "tre", "fire", "fem", "seks", "sju", "åtte", "ni", "ti",
+                      "elleve", "tolv", "tretten", "fjorten", "femten", "seksten", "sytten", "atten", "nitten"];
+      const tiere = ["", "", "tjue", "tretti", "førti", "femti", "seksti", "sytti", "åtti", "nitti"];
+
+      if (n < 20) return entall[n];
+
+      if (n < 100) {
+        const t = Math.floor(n / 10);
+        const e = n % 10;
+        return tiere[t] + (e > 0 ? entall[e] : "");
+      }
+
+      if (n < 1000) {
+        const h = Math.floor(n / 100);
+        const rest = n % 100;
+        let prefix = (h === 1) ? "ett hundre" : entall[h] + " hundre";
+        if (rest === 0) return prefix;
+        return prefix + " og " + numberToWords(rest);
+      }
+
+      if (n <= 10000) {
+        const t = Math.floor(n / 1000);
+        const rest = n % 1000;
+        let prefix = (t === 1) ? "ett tusen" : numberToWords(t) + " tusen";
+        if (rest === 0) return prefix;
+        if (rest < 100) return prefix + " og " + numberToWords(rest);
+        return prefix + " " + numberToWords(rest);
+      }
+
+      return n.toString();
+    }
+
+    function initSettingsFromStorage() {
+      const savedTask = localStorage.getItem('math_currentTask');
+      if (savedTask) currentTask = savedTask;
+
+      const savedMax = localStorage.getItem('math_maxNumber');
+      if (savedMax) {
+        maxNumber = parseInt(savedMax);
+        document.getElementById('maxNumSelect').value = maxNumber;
+      } else {
+        document.getElementById('maxNumSelect').value = '100';
+      }
+
+      const savedStart = localStorage.getItem('math_lineStart');
+      if (savedStart) {
+        lineStartValue = parseInt(savedStart);
+        document.getElementById('lineStartSelect').value = lineStartValue;
+      }
+    }
+
+    function changeMaxNumber() {
+      maxNumber = parseInt(document.getElementById('maxNumSelect').value);
+      localStorage.setItem('math_maxNumber', maxNumber);
+      loadTask(currentTask);
+    }
+
+    function changeLineStart() {
+      lineStartValue = parseInt(document.getElementById('lineStartSelect').value);
+      localStorage.setItem('math_lineStart', lineStartValue);
+      loadTask(currentTask);
+    }
+
+    function skipTask() {
+      loadTask(currentTask);
+    }
+
+    function loadTask(taskType, btnEl) {
+      currentTask = taskType;
+      localStorage.setItem('math_currentTask', taskType);
+      selectedTierCards = [];
+
+      document.querySelectorAll('.nav-btn').forEach(b => {
+        if (b.getAttribute('data-task') === taskType) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+
+      document.getElementById('feedback').textContent = '';
+      const box = document.getElementById('questionBox');
+      const title = document.getElementById('taskTitle');
+      const numpad = document.getElementById('numpad');
+      const checkBtn = document.getElementById('checkBtn');
+      const lineStartSelect = document.getElementById('lineStartSelect');
+
+      lineStartSelect.style.display = (taskType === 'tallinje') ? 'inline-block' : 'none';
+      numpad.style.display = (['bokstaver', 'naermeste', 'tallinje', 'tiervenner'].includes(taskType)) ? 'none' : 'grid';
+      checkBtn.style.display = (['naermeste', 'tiervenner'].includes(taskType)) ? 'none' : 'inline-block';
+
+      if (taskType === 'nabotall') {
+        title.textContent = 'Fyll inn nabotallene (tallet før og etter)';
+        const minVal = 1;
+        const maxVal = Math.max(2, maxNumber - 1);
+        const num = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+        correctAnswer = { left: num - 1, right: num + 1 };
+        box.innerHTML = `
+          <input type="text" id="inpLeft" class="answer-input" onfocus="setActiveInput('inpLeft')" readonly>
+          <span>${num}</span>
+          <input type="text" id="inpRight" class="answer-input" onfocus="setActiveInput('inpRight')" readonly>
+        `;
+        setActiveInput('inpLeft');
+
+      } else if (taskType === 'tallinje') {
+        title.textContent = 'Dra streker fra de 3 brikkene til riktig sted på tallinjen';
+        
+        let start = lineStartValue;
+        let step = 1;
+        if (maxNumber <= 10) step = 1;
+        else if (maxNumber <= 20) step = 2;
+        else if (maxNumber <= 100) step = 10;
+        else step = 100;
+
+        let totalTicks = 10;
+        let endValue = start + totalTicks * step;
+
+        let availableIndices = [];
+        for (let i = 1; i < totalTicks; i++) availableIndices.push(i);
+        availableIndices.sort(() => Math.random() - 0.5);
+        let chosenIndices = availableIndices.slice(0, 3);
+
+        let targetValues = chosenIndices.map(idx => start + idx * step);
+
+        correctAnswer = { targets: targetValues };
+
+        box.innerHTML = `
+          <div class="line-canvas-container">
+            <canvas id="lineCanvas" width="650" height="230"></canvas>
+          </div>
+        `;
+
+        setTimeout(() => setupCanvasLine(start, endValue, step, totalTicks, targetValues), 50);
+
+      } else if (taskType === 'rundav') {
+        if (maxNumber === 10) {
+          title.textContent = 'Er tallet nærmest 0 eller 10?';
+          const target = Math.floor(Math.random() * 9) + 1;
+          correctAnswer = { val: (target < 5) ? 0 : 10 };
+          box.innerHTML = `<span>Rund <b>${target}</b> til nærmeste tall (0 eller 10):</span><br><input type="text" id="inpAns" class="answer-input" onfocus="setActiveInput('inpAns')" readonly>`;
+        } else {
+          title.textContent = 'Hvilken tier er nærmest?';
+          const target = Math.floor(Math.random() * (maxNumber - 10)) + 11;
+          const lowTier = Math.floor(target / 10) * 10;
+          const highTier = lowTier + 10;
+          correctAnswer = { val: (target % 10 < 5) ? lowTier : highTier };
+          box.innerHTML = `<span>Rund <b>${target}</b> til nærmeste tier:</span><br><input type="text" id="inpAns" class="answer-input" onfocus="setActiveInput('inpAns')" readonly>`;
+        }
+        setActiveInput('inpAns');
+
+      } else if (taskType === 'naermeste') {
+        title.textContent = 'Klikk på det tallet i hjørnene som er nærmest tallet i midten';
+        const centerVal = Math.floor(Math.random() * (maxNumber - 10)) + 5;
+        let diff = Math.max(2, Math.floor(maxNumber / 10));
+        let bestVal = centerVal + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * Math.max(1, diff / 2)) + 1);
+        bestVal = Math.max(0, Math.min(maxNumber, bestVal));
+        
+        let corners = new Set([bestVal]);
+        while(corners.size < 4) {
+          let offset = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * diff * 3) + diff + 2);
+          let val = Math.max(0, Math.min(maxNumber, centerVal + offset));
+          if (val !== centerVal) corners.add(val);
+        }
+
+        let cornerArray = Array.from(corners).sort(() => Math.random() - 0.5);
+        let winningVal = cornerArray[0];
+        let minDiff = Math.abs(centerVal - cornerArray[0]);
+        for (let i = 1; i < cornerArray.length; i++) {
+          let currentDiff = Math.abs(centerVal - cornerArray[i]);
+          if (currentDiff < minDiff) {
+            minDiff = currentDiff;
+            winningVal = cornerArray[i];
+          }
+        }
+        correctAnswer = { val: winningVal };
+
+        const classes = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+        let html = `<div class="square-container"><div class="center-number">${centerVal}</div>`;
+        for (let i = 0; i < 4; i++) {
+          html += `<button class="corner-btn ${classes[i]}" onclick="selectCorner(${cornerArray[i]})">${cornerArray[i]}</button>`;
+        }
+        html += `</div>`;
+        box.innerHTML = html;
+
+      } else if (taskType === 'bokstaver') {
+        title.textContent = 'Skriv tallet med bokstaver';
+        const num = Math.floor(Math.random() * (maxNumber + 1));
+        correctAnswer = { text: numberToWords(num) };
+        box.innerHTML = `<span>${num} = </span><input type="text" id="inpText" class="answer-input wide" onkeydown="checkEnter(event)">`;
+        setTimeout(() => document.getElementById('inpText').focus(), 50);
+
+      } else if (taskType === 'siffer') {
+        title.textContent = 'Skriv tallet med siffer';
+        const num = Math.floor(Math.random() * (maxNumber + 1));
+        correctAnswer = { val: num };
+        box.innerHTML = `<span style="font-size:22px;">"${numberToWords(num)}" = </span><input type="text" id="inpNum" class="answer-input" onfocus="setActiveInput('inpNum')" readonly>`;
+        setActiveInput('inpNum');
+
+      } else if (taskType === 'tiervenner') {
+        title.textContent = 'Klikk på de to tallene som er tier-venner (blir 10 sammen)';
+        
+        // Generer et tilfeldig tiervenn-par (f.eks. 3 og 7)
+        const pair1 = Math.floor(Math.random() * 11);
+        const pair2 = 10 - pair1;
+        
+        // Generer to «forstyrrelses»-tall som IKKE kan til sammen bli 10 med noen andre
+        let dummy1, dummy2;
+        do {
+          dummy1 = Math.floor(Math.random() * 11);
+          dummy2 = Math.floor(Math.random() * 11);
+        } while (
+          dummy1 + dummy2 === 10 || 
+          pair1 + dummy1 === 10 || 
+          pair1 + dummy2 === 10 || 
+          pair2 + dummy1 === 10 || 
+          pair2 + dummy2 === 10
+        );
+
+        let numbers = [pair1, pair2, dummy1, dummy2].sort(() => Math.random() - 0.5);
+
+        let html = `<div class="tier-grid">`;
+        numbers.forEach((val, idx) => {
+          html += `<button class="tier-card" id="tierBtn_${idx}" onclick="toggleTierCard(${idx}, ${val})">${val}</button>`;
+        });
+        html += `</div>`;
+        box.innerHTML = html;
+      }
+    }
+
+    /* LOGIKK FOR TIER-VENNER MED 4 TALL */
+    function toggleTierCard(index, value) {
+      const btn = document.getElementById(`tierBtn_${index}`);
+      if (!btn) return;
+
+      const existingIndex = selectedTierCards.findIndex(item => item.index === index);
+
+      if (existingIndex !== -1) {
+        selectedTierCards.splice(existingIndex, 1);
+        btn.classList.remove('selected');
+      } else {
+        if (selectedTierCards.length < 2) {
+          selectedTierCards.push({ index, value });
+          btn.classList.add('selected');
+        }
+      }
+
+      // Sjekk om to tall er valgt
+      if (selectedTierCards.length === 2) {
+        const sum = selectedTierCards[0].value + selectedTierCards[1].value;
+        processResult(sum === 10);
+      }
+    }
+
+    /* TALLINJE CANVAS TEGNING OG LOGIKK FOR 3 BRIKKER */
+    function setupCanvasLine(start, end, step, totalTicks, targets) {
+      const canvas = document.getElementById('lineCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      canvasConfig = { start, end, step, totalTicks, targets };
+
+      const padX = 40;
+      const axisY = 70;
+      const width = canvas.width - (padX * 2);
+
+      let shuffledTargets = [...targets].sort(() => Math.random() - 0.5);
+      let positionsX = [canvas.width * 0.22, canvas.width * 0.5, canvas.width * 0.78];
+      
+      chipsData = shuffledTargets.map((val, i) => ({
+        val: val,
+        startPt: { x: positionsX[i], y: 180 },
+        endPt: { x: positionsX[i], y: 180 },
+        currentX: null,
+        isDrawn: false
+      }));
+
+      activeChipIndex = -1;
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. TEGN AKSE
+        ctx.beginPath();
+        ctx.moveTo(padX, axisY);
+        ctx.lineTo(canvas.width - padX, axisY);
+        ctx.strokeStyle = '#166534';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // 2. TEGN UNDERDELINGSSTREKER
+        for (let i = 0; i <= totalTicks; i++) {
+          let x = padX + (i / totalTicks) * width;
+          let val = start + i * step;
+
+          ctx.beginPath();
+          ctx.moveTo(x, axisY - 10);
+          ctx.lineTo(x, axisY + 10);
+          ctx.strokeStyle = '#166534';
+          ctx.lineWidth = (i === 0 || i === totalTicks) ? 4 : 3;
+          ctx.stroke();
+
+          if (i === 0 || i === totalTicks) {
+            ctx.font = 'bold 18px "Segoe UI"';
+            ctx.fillStyle = '#166534';
+            ctx.textAlign = 'center';
+            ctx.fillText(val, x, axisY + 32);
+          }
+        }
+
+        // 3. TEGN STREKER FRA BRIKKENE
+        chipsData.forEach(chip => {
+          if (chip.isDrawn || chip === chipsData[activeChipIndex]) {
+            ctx.beginPath();
+            ctx.moveTo(chip.startPt.x, chip.startPt.y - 25);
+            ctx.lineTo(chip.endPt.x, chip.endPt.y);
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([6, 6]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.beginPath();
+            ctx.arc(chip.endPt.x, chip.endPt.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+          }
+        });
+
+        // 4. TEGN BRIKKENE NEDERST
+        chipsData.forEach(chip => {
+          ctx.fillStyle = '#fde047';
+          ctx.strokeStyle = '#ca8a04';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(chip.startPt.x - 32, chip.startPt.y - 24, 64, 48, 10);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.font = 'bold 20px "Segoe UI"';
+          ctx.fillStyle = '#854d0e';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(chip.val, chip.startPt.x, chip.startPt.y);
+        });
+      }
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * (canvas.width / rect.width),
+          y: (clientY - rect.top) * (canvas.height / rect.height)
+        };
+      }
+
+      function startDrag(e) {
+        let pos = getPos(e);
+        for (let i = 0; i < chipsData.length; i++) {
+          let chip = chipsData[i];
+          if (Math.abs(pos.x - chip.startPt.x) < 40 && Math.abs(pos.y - chip.startPt.y) < 30) {
+            activeChipIndex = i;
+            chip.isDrawn = true;
+            chip.endPt = pos;
+            render();
+            break;
+          }
+        }
+      }
+
+      function moveDrag(e) {
+        if (activeChipIndex === -1) return;
+        let pos = getPos(e);
+        let chip = chipsData[activeChipIndex];
+        chip.endPt = pos;
+
+        let relativeX = pos.x - padX;
+        let fraction = relativeX / width;
+        let valFloat = start + fraction * (end - start);
+        
+        valFloat = Math.max(start, Math.min(end, valFloat));
+        chip.currentX = valFloat;
+
+        render();
+      }
+
+      function stopDrag(e) {
+        if (activeChipIndex !== -1) {
+          activeChipIndex = -1;
+        }
+      }
+
+      canvas.onmousedown = startDrag;
+      canvas.onmousemove = moveDrag;
+      window.onmouseup = stopDrag;
+
+      canvas.ontouchstart = startDrag;
+      canvas.ontouchmove = moveDrag;
+      window.ontouchend = stopDrag;
+
+      render();
+    }
+
+    function selectCorner(val) {
+      processResult(val === correctAnswer.val);
+    }
+
+    function setActiveInput(id) {
+      activeInputId = id;
+      document.querySelectorAll('.answer-input').forEach(inp => inp.style.borderColor = '#cbd5e1');
+      const activeEl = document.getElementById(id);
+      if (activeEl) activeEl.style.borderColor = '#22c55e';
+    }
+
+    function pressNum(digit) {
+      if (!activeInputId) return;
+      const input = document.getElementById(activeInputId);
+      if (input && input.value.length < 5) input.value += digit;
+    }
+
+    function pressClear() {
+      if (activeInputId) {
+        const input = document.getElementById(activeInputId);
+        if (input) input.value = '';
+      }
+    }
+
+    function pressBackspace() {
+      if (activeInputId) {
+        const input = document.getElementById(activeInputId);
+        if (input) input.value = input.value.slice(0, -1);
+      }
+    }
+
+    function checkEnter(e) {
+      if (e.key === 'Enter') checkAnswer();
+    }
+
+    function checkAnswer() {
+      let isCorrect = false;
+
+      if (currentTask === 'nabotall') {
+        const l = parseInt(document.getElementById('inpLeft').value);
+        const r = parseInt(document.getElementById('inpRight').value);
+        isCorrect = (l === correctAnswer.left && r === correctAnswer.right);
+
+      } else if (currentTask === 'tallinje') {
+        let correctCount = 0;
+        let tolerance = canvasConfig.step * 0.45;
+
+        chipsData.forEach(chip => {
+          if (chip.isDrawn && chip.currentX !== null) {
+            let diff = Math.abs(chip.currentX - chip.val);
+            if (diff <= tolerance) {
+              correctCount++;
+            }
+          }
+        });
+
+        isCorrect = (correctCount === 3);
+
+      } else if (currentTask === 'rundav' || currentTask === 'siffer') {
+        const inpId = currentTask === 'rundav' ? 'inpAns' : 'inpNum';
+        const val = parseInt(document.getElementById(inpId).value);
+        isCorrect = (val === correctAnswer.val);
+
+      } else if (currentTask === 'bokstaver') {
+        const txt = document.getElementById('inpText').value.trim().toLowerCase();
+        isCorrect = (txt === correctAnswer.text.toLowerCase());
+      }
+
+      processResult(isCorrect);
+    }
+
+    function processResult(isCorrect) {
+      const fb = document.getElementById('feedback');
+      if (isCorrect) {
+        fb.style.color = '#16a34a';
+        fb.textContent = '🎉 Riktig! Bra jobba!';
+        setTimeout(() => loadTask(currentTask), 1300);
+      } else {
+        fb.style.color = '#dc2626';
+        fb.textContent = '❌ Uff da, prøv igjen!';
+        if (currentTask === 'tiervenner') {
+          setTimeout(() => {
+            selectedTierCards = [];
+            document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('selected'));
+            fb.textContent = '';
+          }, 1000);
+        }
+      }
+    }
+
+    // Oppstart
+    initSettingsFromStorage();
+    loadTask(currentTask);
+  </script>
+</body>
+</html>

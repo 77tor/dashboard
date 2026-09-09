@@ -5,6 +5,7 @@ const defaultLinks = [
   { name: "Wikipedia", url: "https://www.wikipedia.org", external: false },
   { name: "Korartí", url: "https://www.korarti.no/", external: false },
   { name: "Salaby", url: "https://www.salaby.no/", external: false },
+  { name: "Youtube", url: "https://www.youtube.no/", external: true },
   { name: "Skoleregler", url: "https://sites.google.com/ikrs.no/regler", external: true }
 ];
 
@@ -78,6 +79,7 @@ function loadState(key, fallback = null) {
 
 
 /* --- LENKEREDIGERING --- */
+/* --- LENKEREDIGERING (MED 6 PLASSER) --- */
 function buildLinkEditor() {
   const table = document.getElementById('linkEditTable');
   if (!table) return;
@@ -85,6 +87,11 @@ function buildLinkEditor() {
   // Sjekk om customLinks er tom, sett standard hvis nødvendig
   if (!Array.isArray(customLinks) || customLinks.length === 0) {
     customLinks = [...defaultLinks];
+  }
+
+  // Sørg for at det alltid er nøyaktig 6 objekter i arrayen
+  while (customLinks.length < 6) {
+    customLinks.push({ name: "", url: "", external: false });
   }
 
   // Generer tabellstrukturen på nytt hver gang den åpnes
@@ -99,21 +106,23 @@ function buildLinkEditor() {
     <tbody id="linkEditTbody">
   `;
 
-  customLinks.forEach((link, idx) => {
+  // Bygg kun de første 6 radene
+  for (let idx = 0; idx < 6; idx++) {
+    const link = customLinks[idx] || { name: '', url: '', external: false };
     html += `
       <tr>
         <td style="padding:6px; border-bottom:1px solid #f1f5f9;">
-          <input type="text" id="linkName_${idx}" value="${link.name || ''}" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
+          <input type="text" id="linkName_${idx}" value="${link.name || ''}" placeholder="Navn (f.eks. NRK)" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
         </td>
         <td style="padding:6px; border-bottom:1px solid #f1f5f9;">
-          <input type="url" id="linkUrl_${idx}" value="${link.url || ''}" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
+          <input type="url" id="linkUrl_${idx}" value="${link.url || ''}" placeholder="https://..." style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
         </td>
         <td style="padding:6px; text-align:center; border-bottom:1px solid #f1f5f9;">
           <input type="checkbox" id="linkExt_${idx}" ${link.external ? 'checked' : ''} style="transform: scale(1.3); cursor: pointer;">
         </td>
       </tr>
     `;
-  });
+  }
 
   html += `</tbody>`;
   table.innerHTML = html;
@@ -130,16 +139,20 @@ function buildLinkEditor() {
 }
 
 function saveLinks() {
-  customLinks.forEach((link, idx) => {
+  for (let idx = 0; idx < 6; idx++) {
     const nameInput = document.getElementById(`linkName_${idx}`);
     const urlInput = document.getElementById(`linkUrl_${idx}`);
     const extInput = document.getElementById(`linkExt_${idx}`);
+    
     if (nameInput && urlInput && extInput) {
-      link.name = nameInput.value || "Uten navn";
-      link.url = urlInput.value || "#";
-      link.external = extInput.checked;
+      if (!customLinks[idx]) {
+        customLinks[idx] = {};
+      }
+      customLinks[idx].name = nameInput.value.trim();
+      customLinks[idx].url = urlInput.value.trim();
+      customLinks[idx].external = extInput.checked;
     }
-  });
+  }
   
   saveState('customLinksData', customLinks);
   renderLinks();
@@ -1097,9 +1110,17 @@ document.addEventListener('keydown', (e) => {
 });
 
 
+
 /* --- FILOPPLASTING & LINK-MODAL LOGIKK --- */
 function openFilePickerModal() {
   openModal('filePickerModal');
+  
+  // Aktiverer flytting (drag) for modalen når den åpnes
+  const modal = document.getElementById('filePickerModal');
+  const header = document.getElementById('filePickerHeader');
+  if (typeof makeModalDraggable === 'function' && modal && header) {
+    makeModalDraggable(modal, header);
+  }
 }
 
 function closeFilePickerModal() {
@@ -1122,18 +1143,35 @@ function loadGoogleUrlAndClose() {
 
   let url = urlInput.value.trim();
 
-  // Konverter Google Drive / Docs-lenker til preview
+  // Automatisk omformatering av Google-lenker slik at de tillates i iframe
   if (url.includes('docs.google.com')) {
-    if (url.includes('/edit') && !url.includes('embedded=true')) {
+    if (url.includes('/edit')) {
       url = url.replace(/\/edit.*$/, '/preview');
+    } else if (url.includes('/view')) {
+      url = url.replace(/\/view.*$/, '/preview');
+    } else if (!url.includes('/preview')) {
+      url = url.replace(/\/$/, '') + '/preview';
     }
+  } else if (url.includes('drive.google.com/file/d/')) {
+    url = url.replace(/\/view.*$/, '/preview');
   }
 
-  setAndSaveIframeUrl(url);
+  // Sender lenken til iframe
+  if (typeof setAndSaveIframeUrl === 'function') {
+    setAndSaveIframeUrl(url);
+  } else {
+    const iframe = document.getElementById('mainFrame');
+    if (iframe) iframe.src = url;
+  }
 
   urlInput.value = "";
   closeFilePickerModal();
 }
+
+function aapnGoogleDrive() {
+  window.open('https://drive.google.com', '_blank');
+}
+
 
 
 /* --- GJØR MODALER DRAS-BARE --- */

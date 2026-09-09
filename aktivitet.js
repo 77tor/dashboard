@@ -26,7 +26,7 @@ const aktiviteterData = [
   // Nye aktiviteter
   { tittel: "Lesekvart", bilde: "Aktivitet/Lesekvart.png" },
   { tittel: "Vaske hendene", bilde: "Aktivitet/vaske.png" },
-  { tittel: "Finn Fabel", bilde: "Aktivitet/Fabel.png" },
+  { tittel: "Finn Fabel Lesebok 1", bilde: "Aktivitet/Fabel1-Lesebok.png" },
   { tittel: "Finn lesebok", bilde: "Aktivitet/Stillelesing.png" },
   { tittel: "Hent mat/drikke", bilde: "Aktivitet/Spising.png" }
 ];

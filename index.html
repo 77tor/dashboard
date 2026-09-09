@@ -12,63 +12,77 @@
 
 <!-- VENSTRE SIDEBAR -->
 <aside class="sidebar">
-    <div class="card clickable-card" id="infoCard" onclick="openModal('dashboardInfoModal')" title="Klikk for stor visning">
-      <h3>Informasjon</h3>
-      <p><strong>Dag i året:</strong> <span id="dayOfYear">-</span></p>
-      <p><strong>Dager til nyttår:</strong> <span id="daysToNY">-</span></p>
-      <p><strong>Navnedag:</strong> <span id="nameDay">Ola, Kari</span></p>
-      <p><strong>Været:</strong> <span id="weather">🌤️ 18°C, Delvis skyet</span></p>
+
+  <!-- INFORMASJONSKORT -->
+  <div class="card card-info clickable-card" id="infoCard" onclick="openModal('dashboardInfoModal')" title="Klikk for stor visning">
+    <div class="card-header-flex">
+      <span class="card-title">Informasjon</span>
+      <span class="info-badge">i Dag</span>
     </div>
+    <div class="info-list">
+      <div class="info-item">
+        <span class="info-label">📅 Dag i året</span>
+        <span class="info-val" id="dayOfYear">-</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">⏳ Til nyttår</span>
+        <span class="info-val" id="daysToNY">-</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">🎉 Navnedag</span>
+        <span class="info-val" id="nameDay">Ola, Kari</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">🌤️ Været</span>
+        <span class="info-val" id="weather">18°C, Delvis skyet</span>
+      </div>
+    </div>
+  </div>
 
-
-
-<!-- VERKTØY-KNAPPER -->
-<div class="card">
-  <h3>Verktøy</h3>
-
-  <!-- Trafikklys-knapp (Med opprydding i visningen) -->
-  <a href="trafikklys.html" target="mainFrame" onclick="skjulAktivitetDisplay()" style="text-decoration: none; display: block; margin-bottom: 0px;">
-    <button type="button" style="background-color: #0f172a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;">
+  <!-- VERKTØY (RUTENETT) -->
+  <div class="card">
+    <span class="card-title">Verktøy</span>
+    
+    <!-- Hovedverktøy: Trafikklys (Full bredde) -->
+    <button type="button" class="btn-tool btn-trafikklys tool-link-full" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">
       🚦 Arbeidsro / Trafikklys
     </button>
-  </a>
-<button class="btn" style="background: #0284c7;" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
 
-  <button class="btn-timer" onclick="openModal('timerModal')">⏱️ Åpne Tidsur</button>
-  <button class="btn-group" onclick="openModal('groupModal')">👥 Trekk Grupper</button>
-  <button onclick="openModal('bigWheelModal')" style="background-color: #B0259D; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center; margin-bottom: 6px;">
-    🎲 Trekk Elev
-  </button>
-
-  <button class="tool-btn" onclick="lastUkeplaner(); openModal('ukeplanModal');" style="background-color: #0ACCCC; color: white;">
-    📑 Ukeplaner
-  </button>
-  <button onclick="openFilePickerModal()" style="background-color: #7F3300; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; text-align: center;">
-    📁 Åpne lokal fil / lenke
-  </button>
-</div>
-
-<!-- FASTLENKER -->
-<div class="card">
-  <div class="card-header-flex">
-    <h3>Lenker</h3>
-    <button class="btn-edit-icon" onclick="buildLinkEditor(); openModal('linkModal');" title="Endre lenker">⚙️ Rediger</button>
+    <!-- Verktøyrutenett (2 kolonner) -->
+    <div class="tools-grid">
+      <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
+      <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
+      <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
+      <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
+      <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
+      <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
+    </div>
   </div>
-  <div class="links-grid" id="linksContainer"></div>
-</div>
 
+  <!-- FASTLENKER -->
+  <div class="card">
+    <div class="card-header-flex">
+      <span class="card-title">Lenker</span>
+      <button type="button" class="btn-edit-icon" onclick="buildLinkEditor(); openModal('linkModal');" title="Endre lenker">⚙️ Rediger</button>
+    </div>
+    <div class="links-grid" id="linksContainer"></div>
+  </div>
 
+  <!-- SYSTEM & NAVIGASJON (BUNN) -->
+  <div class="card card-keep-visible card-actions">
+    <button type="button" class="btn-action btn-home" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); goHome();">
+      🏠 Hjem
+    </button>
+    
+    <button type="button" class="btn-action btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">
+      ✏️ Whiteboard
+    </button>
 
-<!-- EGEN RUTE FOR HJEM OG FULLSKJERM -->
-<div class="card card-keep-visible">
-  <button onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); goHome();" style="width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
-    🏠 Hjem
-  </button>
-  
-  <button onclick="togglePageFullscreen()" id="pageFullscreenBtn" class="btn-mode" style="width: 100%; padding: 6px 10px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-    🖥️ Fullskjerm
-  </button>
-</div>
+    <button type="button" class="btn-action btn-fullscreen" onclick="togglePageFullscreen();" id="pageFullscreenBtn">
+      🖥️ Fullskjerm
+    </button>
+  </div>
+
 </aside>
 
 
@@ -728,11 +742,14 @@
 </div>
 
 
+
+
 <!-- MODAL FOR FIL- OG LINKÅPNING -->
-<div id="filePickerModal" class="floating-modal" style="display: none;">
+<div id="filePickerModal" class="floating-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
   <div class="modal-content" style="width: 440px; max-width: 90vw; background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); overflow: hidden;">
     
-    <div class="modal-header" style="background: #3b82f6; color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+    <!-- HEADER MED NY FARGE (#7F3300) -->
+    <div id="filePickerHeader" class="modal-header" style="background: #7F3300; color: white; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; cursor: move;">
       <h3 style="margin: 0; font-size: 16px; color: white;">📁 Åpne fil eller Google-dokument</h3>
       <button onclick="closeFilePickerModal()" class="close-btn" style="border: none; background: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
     </div>
@@ -749,14 +766,23 @@
 
       <div style="text-align: center; color: #94a3b8; font-size: 12px; font-weight: bold;">— ELLER —</div>
 
-      <!-- VALG 2: GOOGLE / NETTLENKE -->
+      <!-- VALG 2: GOOGLE DISK OG NETTLENKE -->
       <div>
         <label style="font-size: 13px; font-weight: bold; color: #1e293b; display: block; margin-bottom: 6px;">
-          🔗 Lim inn Google-lenke (Docs, Sheets, Slides, Drive):
+          🔗 Google Drive / Dokumenter:
         </label>
+        
+        <!-- KNAPP FOR Å ÅPNE GOOGLE DRIVE -->
+        <button onclick="window.open('https://drive.google.com', '_blank')" style="width: 100%; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; padding: 9px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" alt="Drive" style="width: 16px; height: 16px;">
+          Åpne min Google Disk (for å finne lenke)
+        </button>
+
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <input type="url" id="googleUrlInput" placeholder="https://docs.google.com/..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
-          <button onclick="loadGoogleUrlAndClose()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer;">
+          <input type="url" id="googleUrlInput" placeholder="Lim inn Google-lenke her (Docs, Drive...)" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+          
+          <!-- KNAPP MED NY FARGE (#7F3300) -->
+          <button onclick="loadGoogleUrlAndClose()" style="width: 100%; background: #7F3300; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer;">
             Vis i midtfeltet
           </button>
         </div>

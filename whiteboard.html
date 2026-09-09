@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Whiteboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #f8fafc; display: flex; flex-direction: column; }
+    
+    #toolbar {
+      background: #7F3300;
+      color: white;
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+    
+    .group { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 6px; }
+    label { font-size: 12px; font-weight: bold; }
+    
+    button, select, input[type="file"], .color-btn-wrapper {
+      background: white; 
+      border: none; 
+      padding: 6px 10px; 
+      border-radius: 4px; 
+      font-size: 13px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      color: #1e293b;
+      height: 31px;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    button:hover, .color-btn-wrapper:hover { background: #f1f5f9; }
+    button.active { background: #fde047; color: #000; }
+
+    .color-btn-wrapper { gap: 6px; }
+    .color-preview-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: #000000;
+      border: 2px solid #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    #boardContainer { flex: 1; position: relative; width: 100%; height: 100%; cursor: crosshair; }
+    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
+    #bgCanvas { z-index: 1; }
+    #drawCanvas { z-index: 2; }
+    #strokeCanvas { z-index: 3; pointer-events: none; } /* Midlertidig canvas for å unngå at tusj overlapping blir heldekkende */
+    #cursorCanvas { z-index: 4; pointer-events: none; }
+
+    #colorModalOverlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .color-modal {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 280px;
+    }
+    .color-modal h3 { font-size: 15px; color: #1e293b; text-align: center; margin-bottom: 2px; }
+    .quick-colors { display: flex; justify-content: space-between; gap: 6px; }
+    .quick-color-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .quick-color-btn:hover { transform: scale(1.1); }
+    .custom-color-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: bold; color: #475569; }
+    .custom-color-row input[type="color"] { width: 50px; height: 36px; border: none; background: transparent; cursor: pointer; }
+    .modal-submit-btn {
+      background: #4f46e5;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      justify-content: center;
+      height: auto;
+    }
+    .modal-submit-btn:hover { background: #4338ca; }
+  </style>
+</head>
+<body>
+
+  <div id="toolbar">
+    <!-- Bakgrunner -->
+    <div class="group">
+      <label>Bakgrunn:</label>
+      <select id="bgSelect" onchange="drawBackground(); saveBoardState();">
+        <option value="white">Hvit skjerm</option>
+        <option value="lines">Linjer</option>
+        <option value="houseLines">Bokstavhus (4 linjer)</option>
+        <option value="grid">Rutenett</option>
+      </select>
+    </div>
+
+    <!-- Verktøyvelger -->
+    <div class="group">
+      <label>Verktøy:</label>
+      <select id="penTypeSelect" onchange="selectPenType()">
+        <option value="pen">✏️ Penn</option>
+        <option value="marker">🖊️ Tusj</option>
+        <option value="fill">🪣 Fyll inn</option>
+      </select>
+
+      <button id="btnEraser" onclick="toggleEraser()">🧹 Viskelær</button>
+      
+      <!-- Farge-knapp -->
+      <div class="color-btn-wrapper" onclick="openColorPicker()">
+        <div class="color-preview-box" id="colorPreview"></div>
+        <span style="font-size:12px; font-weight:bold; color:#1e293b;">Farge</span>
+      </div>
+
+      <select id="penSize" onchange="drawEraserCursor({offsetX: lastMouseX, offsetY: lastMouseY})">
+        <option value="2">Tynn</option>
+        <option value="5" selected>Middels</option>
+        <option value="12">Tykk</option>
+        <option value="24">Meget tykk</option>
+      </select>
+    </div>
+
+    <!-- Figurer -->
+    <div class="group">
+      <label>Figur:</label>
+      <select id="shapeSelect">
+        <option value="none">Ingen</option>
+        <option value="rectangle">Rektangel</option>
+        <option value="circle">Sirkel</option>
+        <option value="line">Rett linje</option>
+      </select>
+    </div>
+
+    <!-- Bilder -->
+    <div class="group">
+      <label>Bilde:</label>
+      <button onclick="document.getElementById('imageLoader').click()">🖼️ Sett inn</button>
+      <input type="file" id="imageLoader" accept="image/*" style="display:none" onchange="insertImage(event)">
+    </div>
+
+    <!-- Handlinger -->
+    <div class="group">
+      <button onclick="clearDrawings()">🗑️ Tøm skjerm</button>
+    </div>
+  </div>
+
+  <div id="boardContainer">
+    <canvas id="bgCanvas"></canvas>
+    <canvas id="drawCanvas"></canvas>
+    <canvas id="strokeCanvas"></canvas>
+    <canvas id="cursorCanvas"></canvas>
+  </div>
+
+  <!-- MODAL FOR FARGEVALG -->
+  <div id="colorModalOverlay">
+    <div class="color-modal">
+      <h3>Velg farge</h3>
+      
+      <div class="quick-colors">
+        <div class="quick-color-btn" style="background:#000000" onclick="setModalColor('#000000')"></div>
+        <div class="quick-color-btn" style="background:#ef4444" onclick="setModalColor('#ef4444')"></div>
+        <div class="quick-color-btn" style="background:#3b82f6" onclick="setModalColor('#3b82f6')"></div>
+        <div class="quick-color-btn" style="background:#22c55e" onclick="setModalColor('#22c55e')"></div>
+        <div class="quick-color-btn" style="background:#fde047" onclick="setModalColor('#fde047')"></div>
+      </div>
+
+      <div class="custom-color-row">
+        <span>Egendefinert:</span>
+        <input type="color" id="modalColorPicker" value="#000000">
+      </div>
+
+      <button class="modal-submit-btn" onclick="closeColorPicker()">Velg</button>
+    </div>
+  </div>
+
+  <script>
+    const bgCanvas = document.getElementById('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    const drawCanvas = document.getElementById('drawCanvas');
+    const ctx = drawCanvas.getContext('2d');
+    const strokeCanvas = document.getElementById('strokeCanvas');
+    const strokeCtx = strokeCanvas.getContext('2d');
+    const cursorCanvas = document.getElementById('cursorCanvas');
+    const cursorCtx = cursorCanvas.getContext('2d');
+
+    let isDrawing = false;
+    let isEraserActive = false;
+    let currentColor = '#000000';
+    let startX = 0, startY = 0;
+    let lastMouseX = -100, lastMouseY = -100;
+    let snapshot;
+
+    function resizeCanvas() {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = drawCanvas.width;
+      tempCanvas.height = drawCanvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(drawCanvas, 0, 0);
+
+      bgCanvas.width = drawCanvas.width = strokeCanvas.width = cursorCanvas.width = drawCanvas.offsetWidth;
+      bgCanvas.height = drawCanvas.height = strokeCanvas.height = cursorCanvas.height = drawCanvas.offsetHeight;
+      
+      drawBackground();
+      ctx.drawImage(tempCanvas, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function drawBackground() {
+      const type = document.getElementById('bgSelect').value;
+      const w = bgCanvas.width;
+      const h = bgCanvas.height;
+      bgCtx.clearRect(0, 0, w, h);
+
+      bgCtx.fillStyle = "#ffffff";
+      bgCtx.fillRect(0, 0, w, h);
+
+      if (type === 'lines') {
+        bgCtx.strokeStyle = "#cbd5e1";
+        bgCtx.lineWidth = 1.5;
+        for (let y = 60; y < h; y += 40) {
+          bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+        }
+      } else if (type === 'houseLines') {
+        const gap = 18;
+        const setHeight = gap * 3 + 40;
+        for (let topY = 40; topY < h; topY += setHeight) {
+          bgCtx.strokeStyle = "#94a3b8"; bgCtx.lineWidth = 1;
+          bgCtx.beginPath(); bgCtx.moveTo(0, topY); bgCtx.lineTo(w, topY); bgCtx.stroke();
+          bgCtx.beginPath(); bgCtx.moveTo(0, topY + gap); bgCtx.lineTo(w, topY + gap); bgCtx.stroke();
+          bgCtx.strokeStyle = "#1e293b"; bgCtx.lineWidth = 2.5;
+          bgCtx.beginPath(); bgCtx.moveTo(0, topY + gap * 2); bgCtx.lineTo(w, topY + gap * 2); bgCtx.stroke();
+          bgCtx.strokeStyle = "#94a3b8"; bgCtx.lineWidth = 1;
+          bgCtx.beginPath(); bgCtx.moveTo(0, topY + gap * 3); bgCtx.lineTo(w, topY + gap * 3); bgCtx.stroke();
+        }
+      } else if (type === 'grid') {
+        bgCtx.strokeStyle = "#cbd5e1";
+        bgCtx.lineWidth = 1;
+        const gridSize = 30;
+        for (let x = 0; x < w; x += gridSize) {
+          bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); bgCtx.stroke();
+        }
+        for (let y = 0; y < h; y += gridSize) {
+          bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+        }
+      }
+    }
+
+    // --- FARGE-DIALOGBOKS ---
+    function openColorPicker() {
+      document.getElementById('modalColorPicker').value = currentColor;
+      document.getElementById('colorModalOverlay').style.display = 'flex';
+    }
+
+    function setModalColor(hex) {
+      document.getElementById('modalColorPicker').value = hex;
+    }
+
+    function closeColorPicker() {
+      currentColor = document.getElementById('modalColorPicker').value;
+      document.getElementById('colorPreview').style.backgroundColor = currentColor;
+      document.getElementById('colorModalOverlay').style.display = 'none';
+
+      if (isEraserActive) {
+        toggleEraser();
+      }
+    }
+
+    // --- FLOOD FILL / FYLL INN LOGIKK ---
+    function hexToRgba(hex) {
+      let c = hex.replace('#', '');
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      return [ (num >> 16) & 255, (num >> 8) & 255, num & 255, 255 ];
+    }
+
+    function floodFill(startX, startY, fillColorHex) {
+      startX = Math.round(startX);
+      startY = Math.round(startY);
+      const width = drawCanvas.width;
+      const height = drawCanvas.height;
+
+      const imgData = ctx.getImageData(0, 0, width, height);
+      const data = imgData.data;
+      const targetColor = hexToRgba(fillColorHex);
+
+      const pos = (startY * width + startX) * 4;
+      const startR = data[pos];
+      const startG = data[pos + 1];
+      const startB = data[pos + 2];
+      const startA = data[pos + 3];
+
+      if (startR === targetColor[0] && startG === targetColor[1] && 
+          startB === targetColor[2] && startA === targetColor[3]) {
+        return;
+      }
+
+      function colorMatch(idx) {
+        return Math.abs(data[idx] - startR) < 30 &&
+               Math.abs(data[idx+1] - startG) < 30 &&
+               Math.abs(data[idx+2] - startB) < 30 &&
+               Math.abs(data[idx+3] - startA) < 30;
+      }
+
+      const pixelStack = [[startX, startY]];
+
+      while (pixelStack.length) {
+        let newPos = pixelStack.pop();
+        let x = newPos[0];
+        let y = newPos[1];
+        let pixelPos = (y * width + x) * 4;
+
+        while (y-- >= 0 && colorMatch(pixelPos)) {
+          pixelPos -= width * 4;
+        }
+        pixelPos += width * 4;
+        y++;
+
+        let reachLeft = false;
+        let reachRight = false;
+
+        while (y++ < height - 1 && colorMatch(pixelPos)) {
+          data[pixelPos] = targetColor[0];
+          data[pixelPos + 1] = targetColor[1];
+          data[pixelPos + 2] = targetColor[2];
+          data[pixelPos + 3] = targetColor[3];
+
+          if (x > 0) {
+            if (colorMatch(pixelPos - 4)) {
+              if (!reachLeft) {
+                pixelStack.push([x - 1, y]);
+                reachLeft = true;
+              }
+            } else if (reachLeft) {
+              reachLeft = false;
+            }
+          }
+
+          if (x < width - 1) {
+            if (colorMatch(pixelPos + 4)) {
+              if (!reachRight) {
+                pixelStack.push([x + 1, y]);
+                reachRight = true;
+              }
+            } else if (reachRight) {
+              reachRight = false;
+            }
+          }
+
+          pixelPos += width * 4;
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      saveBoardState();
+    }
+
+    // Viskelær-ring
+    function drawEraserCursor(e) {
+      cursorCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+      if (!isEraserActive) return;
+
+      const x = e.offsetX !== undefined ? e.offsetX : lastMouseX;
+      const y = e.offsetY !== undefined ? e.offsetY : lastMouseY;
+      let size = parseInt(document.getElementById('penSize').value);
+      let eraserRadius = (size * 2.5) / 2;
+
+      cursorCtx.beginPath();
+      cursorCtx.arc(x, y, eraserRadius, 0, 2 * Math.PI);
+      cursorCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      cursorCtx.fill();
+      cursorCtx.lineWidth = 1.5;
+      cursorCtx.strokeStyle = '#475569';
+      cursorCtx.setLineDash([3, 3]);
+      cursorCtx.stroke();
+      cursorCtx.setLineDash([]);
+    }
+
+    drawCanvas.addEventListener('pointerdown', (e) => {
+      const penType = document.getElementById('penTypeSelect').value;
+
+      if (!isEraserActive && penType === 'fill') {
+        floodFill(e.offsetX, e.offsetY, currentColor);
+        return;
+      }
+
+      isDrawing = true;
+      startX = e.offsetX;
+      startY = e.offsetY;
+      
+      strokeCtx.clearRect(0, 0, strokeCanvas.width, strokeCanvas.height);
+      strokeCtx.beginPath();
+      strokeCtx.moveTo(startX, startY);
+      
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      snapshot = ctx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+      drawEraserCursor(e);
+    });
+
+    drawCanvas.addEventListener('pointermove', (e) => {
+      lastMouseX = e.offsetX;
+      lastMouseY = e.offsetY;
+
+      drawEraserCursor(e);
+
+      if (!isDrawing) return;
+      const shape = document.getElementById('shapeSelect').value;
+      let size = parseInt(document.getElementById('penSize').value);
+      const penType = document.getElementById('penTypeSelect').value;
+
+      if (isEraserActive) {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.globalAlpha = 1.0;
+        ctx.lineWidth = size * 2.5;
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+      } else if (penType === 'marker') {
+        // TUSJ-LOGIKK: Tegnes helt heldekkende på det midlertidige laget (strokeCanvas), 
+        // og vises gjennomsiktig på skjermen slik at skriften under er synlig.
+        strokeCtx.clearRect(0, 0, strokeCanvas.width, strokeCanvas.height);
+        strokeCtx.lineCap = 'round';
+        strokeCtx.lineJoin = 'round';
+        strokeCtx.strokeStyle = currentColor;
+        strokeCtx.lineWidth = size * 2.5;
+
+        if (shape === 'none') {
+          strokeCtx.lineTo(e.offsetX, e.offsetY);
+          strokeCtx.stroke();
+        } else {
+          strokeCtx.beginPath();
+          if (shape === 'rectangle') strokeCtx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
+          else if (shape === 'circle') {
+            let radius = Math.hypot(e.offsetX - startX, e.offsetY - startY);
+            strokeCtx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            strokeCtx.stroke();
+          } else if (shape === 'line') {
+            strokeCtx.moveTo(startX, startY);
+            strokeCtx.lineTo(e.offsetX, e.offsetY);
+            strokeCtx.stroke();
+          }
+        }
+        strokeCanvas.style.opacity = '0.45'; // Gjennomsiktighet på tusjen!
+
+      } else {
+        // VANLIG PENN
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+        ctx.globalAlpha = 1.0;
+        ctx.lineWidth = size;
+
+        if (shape === 'none') {
+          ctx.lineTo(e.offsetX, e.offsetY);
+          ctx.stroke();
+        } else {
+          ctx.putImageData(snapshot, 0, 0);
+          ctx.beginPath();
+          if (shape === 'rectangle') {
+            ctx.strokeRect(startX, startY, e.offsetX - startX, e.offsetY - startY);
+          } else if (shape === 'circle') {
+            let radius = Math.hypot(e.offsetX - startX, e.offsetY - startY);
+            ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+          } else if (shape === 'line') {
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+          }
+        }
+      }
+    });
+
+    drawCanvas.addEventListener('pointerup', () => {
+      if (isDrawing) {
+        isDrawing = false;
+        
+        const penType = document.getElementById('penTypeSelect').value;
+        if (!isEraserActive && penType === 'marker') {
+          // Overfør den jenvne tusj-streken til hovedlærretet med gjennomsiktighet
+          ctx.globalAlpha = 0.45;
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.drawImage(strokeCanvas, 0, 0);
+          strokeCtx.clearRect(0, 0, strokeCanvas.width, strokeCanvas.height);
+          strokeCanvas.style.opacity = '1.0';
+        }
+
+        ctx.globalAlpha = 1.0;
+        saveBoardState();
+      }
+    });
+
+    drawCanvas.addEventListener('pointerleave', () => {
+      cursorCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+    });
+
+    function selectPenType() {
+      isEraserActive = false;
+      document.getElementById('btnEraser').classList.remove('active');
+      cursorCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+    }
+
+    function toggleEraser() {
+      isEraserActive = !isEraserActive;
+      document.getElementById('btnEraser').classList.toggle('active', isEraserActive);
+      if (!isEraserActive) {
+        cursorCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
+      } else {
+        drawEraserCursor({offsetX: lastMouseX, offsetY: lastMouseY});
+      }
+    }
+
+    function saveBoardState() {
+      try {
+        const dataURL = drawCanvas.toDataURL();
+        localStorage.setItem('whiteboard_drawing', dataURL);
+        localStorage.setItem('whiteboard_bg', document.getElementById('bgSelect').value);
+      } catch (e) {
+        console.warn("Kunne ikke lagre whiteboard-tilstand:", e);
+      }
+    }
+
+    function loadBoardState() {
+      const savedBg = localStorage.getItem('whiteboard_bg');
+      if (savedBg) {
+        document.getElementById('bgSelect').value = savedBg;
+      }
+      drawBackground();
+
+      const savedDrawing = localStorage.getItem('whiteboard_drawing');
+      if (savedDrawing) {
+        const img = new Image();
+        img.onload = function() {
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = savedDrawing;
+      }
+    }
+
+    function clearDrawings() {
+      ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+      localStorage.removeItem('whiteboard_drawing');
+    }
+
+    function insertImage(event) {
+      const reader = new FileReader();
+      reader.onload = function() {
+        const img = new Image();
+        img.onload = function() {
+          const x = (drawCanvas.width - img.width) / 2;
+          const y = (drawCanvas.height - img.height) / 2;
+          ctx.drawImage(img, x > 0 ? x : 10, y > 0 ? y : 10, Math.min(img.width, drawCanvas.width - 20), Math.min(img.height, drawCanvas.height - 20));
+          saveBoardState();
+        }
+        img.src = reader.result;
+      }
+      if(event.target.files[0]) {
+        reader.readAsDataURL(event.target.files[0]);
+      }
+    }
+
+    setTimeout(() => {
+      bgCanvas.width = drawCanvas.width = strokeCanvas.width = cursorCanvas.width = drawCanvas.offsetWidth;
+      bgCanvas.height = drawCanvas.height = strokeCanvas.height = cursorCanvas.height = drawCanvas.offsetHeight;
+      loadBoardState();
+    }, 100);
+  </script>
+</body>
+</html>
