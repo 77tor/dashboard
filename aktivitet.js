@@ -3,6 +3,7 @@ const aktiviteterData = [
   // Eksisterende fra dagsplan
   { tittel: "Arbeidstime", bilde: "Aktivitet/Arbeidstime.png" },
   { tittel: "Bibliotek", bilde: "Aktivitet/Bibliotek.png" },
+  { tittel: "DKS", bilde: "Aktivitet/DKS.png" },
   { tittel: "Engelsk", bilde: "Aktivitet/Engelsk.png" },
   { tittel: "Forestilling", bilde: "Aktivitet/Forestilling.png" },
   { tittel: "Friminutt", bilde: "Aktivitet/Friminutt.png" },
@@ -26,6 +27,7 @@ const aktiviteterData = [
   // Nye aktiviteter
   { tittel: "Lesekvart", bilde: "Aktivitet/Lesekvart.png" },
   { tittel: "Vaske hendene", bilde: "Aktivitet/vaske.png" },
+  { tittel: "Vask hendene og finn maten", bilde: "Aktivitet/vask_mat.png" },
   { tittel: "Finn Fabel Lesebok 1", bilde: "Aktivitet/Fabel1-Lesebok.png" },
   { tittel: "Finn lesebok", bilde: "Aktivitet/Stillelesing.png" },
   { tittel: "Hent mat/drikke", bilde: "Aktivitet/Spising.png" }

@@ -91,13 +91,30 @@ button:hover { background: #1d4ed8; }
 .schedule-card.pause-card { background: #fefce8; border-color: #fde047; }
 
 /* Vertikal oppstilling for tekst inni kortet: Fag øverst -> Time under -> Klokkeslett nederst */
-.schedule-time { flex: 1; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; align-self: stretch; }
+/* Vertikal oppstilling for tekst inni kortet: Fag øverst -> Time under -> Klokkeslett nederst */
+.schedule-time { 
+  flex: 1; 
+  flex-shrink: 0; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; /* Endret fra space-between til center for vertikal midtstilling */
+  gap: 2px;               /* Legger til en jevn, liten avstand mellom tekstlinjene */
+  align-self: stretch; 
+}
 
 /* Fagnavn - Plassert øverst og gjort ekstra stort */
 .schedule-subject { font-size: 1.55rem !important; font-weight: 900 !important; color: #0f172a !important; line-height: 1.1; margin-bottom: 2px; order: 1; }
 
 /* Timenummer (f.eks. 1. TIME) - Plassert i midten */
-.schedule-label { font-size: 0.85rem !important; font-weight: 800 !important; color: #64748b !important; text-transform: uppercase; line-height: 1.1; order: 2; margin-bottom: auto; }
+.schedule-label { 
+  font-size: 0.85rem !important; 
+  font-weight: 800 !important; 
+  color: #64748b !important; 
+  text-transform: uppercase; 
+  line-height: 1.1; 
+  order: 2; 
+  /* margin-bottom: auto;  <-- Fjern eller kommenter ut denne linjen */
+}
 
 /* Klokkeslett - Plassert nederst */
 .schedule-clock { font-size: 0.9rem !important; font-weight: 700 !important; color: #334155 !important; order: 3; }
