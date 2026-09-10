@@ -163,20 +163,35 @@
 
 <!-- HØYRE SIDEBAR: Dato & Dagsplan -->
 <aside class="sidebar sidebar-right">
-  <div class="card" onclick="openTimeModal()" style="text-align: center; padding: 10px; flex-shrink: 0; cursor: pointer;" title="Klikk for mer info om tid og dato">
-    <h2 id="currentDate" style="font-size: 1.4rem; font-weight: 800; margin: 0; line-height: 1.2; color: #0f172a;">Laster dag...</h2>
-    <h4 id="currentYear" style="color: #64748b; font-weight: 500; font-size: 0.85rem; margin: 2px 0 0 0;"></h4>
-    <div id="currentTime" style="font-size: 1.1rem; font-weight: 700; color: #2563eb; margin-top: 4px;"></div>
+<div class="card" onclick="openTimeModal()" style="padding: 6px 10px; flex-shrink: 0; cursor: pointer; display: flex; align-items: stretch; justify-content: space-between; background: #ffffff; border-left: 5px solid #2563eb;" title="Klikk for mer info om tid og dato">
+  <!-- Venstre: Ukedag og dato -->
+  <div style="text-align: left; display: flex; flex-direction: column; justify-content: center;">
+    <h2 id="currentDate" style="font-size: 1.3rem; font-weight: 900; margin: 0; color: #0f172a; line-height: 1.05; text-transform: capitalize;">Laster dag...</h2>
+    <span id="currentYear" style="color: #64748b; font-weight: 600; font-size: 0.8rem; display: block; margin-top: 2px;"></span>
   </div>
+
+  <!-- Høyre: Stor klokke-badge -->
+  <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 2px 10px; display: flex; align-items: center; justify-content: center;">
+    <div id="currentTime" style="font-size: 1.45rem; font-weight: 900; color: #1d4ed8; line-height: 1; font-family: monospace; letter-spacing: -0.5px;"></div>
+  </div>
+</div>
+
+  <!-- Høyre: Klokke-badge -->
+  <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 3px 8px; text-align: center;">
+    <div id="currentTime" style="font-size: 0.95rem; font-weight: 800; color: #1d4ed8; line-height: 1; font-family: monospace;"></div>
+  </div>
+</div>
 
   <div class="card" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 8px;">
     <div class="card-header-flex">
-      <h3 style="margin-bottom: 4px;">Dagsplan</h3>
-      <!-- Forstørrelsesknapp -->
-      <button onclick="openScheduleModal()" class="btn-edit-icon" title="Forstørr dagsplan">🔍</button>
+      <h3 style="margin-bottom: 0;">Dagsplan</h3>
+      <!-- Ikoner for Endre og Forstørr -->
+      <div style="display: flex; gap: 4px; align-items: center;">
+        <button type="button" class="btn-edit-icon" onclick="editingDay = getCurrentDayName(); buildPlanEditor(); openModal('planModal');" title="Endre dagsplan">✏️</button>
+        <button type="button" class="btn-edit-icon" onclick="openScheduleModal()" title="Forstørr dagsplan">🔍</button>
+      </div>
     </div>
     <div class="schedule-list" id="scheduleDisplay"></div>
-    <button class="btn-plan" onclick="editingDay = getCurrentDayName(); buildPlanEditor(); openModal('planModal');">✏️ Endre dagsplan</button>
   </div>
 </aside>
 

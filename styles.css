@@ -5,14 +5,22 @@ body { display: flex; height: 100vh; background-color: #e2e8f0; overflow: hidden
 body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift button, body.bruker-trykkskrift input, body.bruker-trykkskrift select, body.bruker-trykkskrift textarea { font-family: 'FUNtasticTrykkskrift', sans-serif !important; }
 
 /* --- 2. LAYOUT & RAMMER --- */
-.sidebar { width: 250px; background: #ffffff; border-right: 1px solid #cbd5e1; padding: 6px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; flex-shrink: 0; }
+.sidebar { position: relative; width: 250px; height: 100vh; background: #ffffff; border-right: 1px solid #cbd5e1; padding: 4px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; flex-shrink: 0; transition: all 0.3s ease; }
 .sidebar.hidden { display: none !important; }
-.sidebar-right { width: 320px; border-right: none; border-left: 1px solid #cbd5e1; overflow: hidden; background: #ffffff; padding: 6px; }
+.sidebar-right { width: 400px; border-right: none; border-left: 1px solid #cbd5e1; overflow: hidden; background: #ffffff; padding: 8px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
 .main-content { flex: 1; padding: 6px; display: flex; flex-direction: column; background: #f1f5f9; position: relative; gap: 6px; }
 .frame-container { flex: 1; border-radius: 6px; overflow: hidden; background: #ffffff; border: 1px solid #cbd5e1; display: flex; flex-direction: column; }
 #mainFrame { width: 100%; height: 100%; border: none; flex: 1; }
 .top-bar { background: #fff; padding: 4px 8px; border: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; font-size: 0.8rem; }
 .top-bar input { margin: 0; width: 60%; height: 26px; }
+
+/* --- SIDEBAR - VENSTREMENY (SKJUL/VIS INTERAKSJON) --- */
+.sidebar-hover-zone { position: absolute; top: 0; right: 0; width: 16px; height: 100%; background: transparent; border: none; cursor: pointer; z-index: 1000; display: flex; align-items: center; justify-content: center; color: transparent; transition: background 0.2s ease, color 0.2s ease; }
+.sidebar-hover-zone:hover { background: rgba(148, 163, 184, 0.4); border-right: 2px solid #64748b; color: #334155; }
+.sidebar.collapsed { width: 0 !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important; border-right: none !important; overflow: visible !important; }
+.sidebar.collapsed > *:not(.sidebar-hover-zone) { display: none !important; }
+.sidebar.collapsed .sidebar-hover-zone { left: 0; right: auto; width: 20px; }
+main, iframe { flex: 1; transition: all 0.3s ease; }
 
 /* --- 3. KORT, SKJEMA & KNAPPER --- */
 .card { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; box-shadow: none; }
@@ -27,26 +35,11 @@ body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift butt
 .info-label { color: #64748b; font-weight: 500; }
 .info-val { font-weight: 700; color: #0f172a; }
 .tool-link-full { text-decoration: none; display: block; margin-bottom: 4px; }
-
-/* Endret fra grid til en vertikal liste (én knapp per linje) */
-.tools-grid { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px; 
-}
+.tools-grid { display: flex; flex-direction: column; gap: 4px; }
 .btn-tool { width: 100%; margin-top: 0; padding: 5px 4px; border-radius: 4px; font-weight: 600; font-size: 0.75rem; border: 1px solid #cbd5e1; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; color: #0f172a; background: #f8fafc; }
 .btn-tool:hover { background: #e2e8f0; }
-/* Arbeidsro / Trafikklys - Lys skifer/gråblå stil */
-.btn-trafikklys {
-  background-color: #f1f5f9;
-  color: #334155;
-  border-color: #cbd5e1;
-  margin-top: 0; /* Holdes tett og fin sammen med resten av listen */
-}
-.btn-trafikklys:hover {
-  background-color: #e2e8f0;
-}
-
+.btn-trafikklys { background-color: #f1f5f9; color: #334155; border-color: #cbd5e1; margin-top: 0; }
+.btn-trafikklys:hover { background-color: #e2e8f0; }
 .btn-aktivitet { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; } .btn-aktivitet:hover { background: #e0f2fe; }
 .btn-timer { background: #fff7ed; color: #c2410c; border-color: #fed7aa; } .btn-timer:hover { background: #ffedd5; }
 .btn-group { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; } .btn-group:hover { background: #dcfce7; }
@@ -56,33 +49,22 @@ body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift butt
 .card-actions { margin-top: auto; display: flex; flex-direction: column; gap: 4px; background: #ffffff; padding: 4px; }
 .btn-action { width: 100%; padding: 6px; border-radius: 4px; border: none; font-weight: 700; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
 .btn-home { background: #4f46e5; color: white; }
-/* Whiteboard - Lys indigo/lilla stil */
-.btn-whiteboard {
-  background-color: #e0e7ff;
-  color: #3730a3;
-  border-color: #c7d2fe;
-}
-.btn-whiteboard:hover {
-  background-color: #c7d2fe;
-}
+.btn-whiteboard { background-color: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+.btn-whiteboard:hover { background-color: #c7d2fe; }
 .btn-fullscreen { background: #475569; color: white; }
 .btn-action:hover { opacity: 0.9; }
 select, input[type="text"], input[type="url"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 4px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.78rem; outline: none; height: 26px; }
 select:focus, input:focus, textarea:focus { border-color: #2563eb; }
 button { background: #2563eb; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 2px; font-size: 0.75rem; }
 button:hover { background: #1d4ed8; }
-.btn-edit-icon { background: none; border: none; font-size: 0.75rem; cursor: pointer; color: #64748b; padding: 0 2px; width: auto; margin: 0; }
-.btn-edit-icon:hover { color: #2563eb; background: #f1f5f9; }
+.btn-edit-icon { background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #64748b; padding: 2px 4px; width: auto; margin: 0; line-height: 1; }
+.btn-edit-icon:hover { color: #2563eb; background: #f1f5f9; border-radius: 4px; }
 .btn-mode { background: #64748b; font-size: 0.75rem; padding: 4px 6px; } .btn-mode:hover { background: #334155; }
 .btn-toggle-backdrop { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; cursor: pointer; margin-right: 4px; width: auto; }
 
+
 /* --- 4. FASTLENKER --- */
-/* Låst til nøyaktig 2 kolonner (2 og 2 lenker på hver linje) */
-.links-grid { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 4px; 
-}
+.links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 .links-grid a { display: flex; align-items: center; justify-content: center; background: #f8fafc; text-align: center; padding: 4px 2px; border: 1px solid #cbd5e1; border-radius: 4px; text-decoration: none; color: #334155; font-weight: 600; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .links-grid a:hover { background: #eff6ff; color: #2563eb; border-color: #93c5fd; }
 #linkEditTable { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
@@ -91,22 +73,22 @@ button:hover { background: #1d4ed8; }
 #linkEditTable input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
 
 /* --- 5. DAGSPLAN & HORISONTAL VISNING --- */
-.schedule-list { display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 2px; }
-.schedule-card { display: flex; align-items: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 3px 6px; gap: 6px; flex: 1; min-height: 0; opacity: 0.85; }
+.schedule-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 2px; }
+.schedule-card { display: flex; align-items: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; gap: 12px; flex: 1; min-height: 0; opacity: 0.85; }
 .schedule-card.pause-card { background: #fefce8; border-color: #fde047; }
+.schedule-time { width: 120px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
+.schedule-label { font-size: 0.85rem; font-weight: 800; color: #475569; text-transform: uppercase; line-height: 1.1; }
+.schedule-clock { font-size: 0.85rem; font-weight: 700; color: #475569; }
+.schedule-subject { font-size: 1.15rem; font-weight: 800; color: #0f172a; line-height: 1.2; }
 .schedule-card.active-now { opacity: 1 !important; background: #f0fdf4 !important; border: 2px solid #16a34a !important; }
-.schedule-time { width: 95px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
-.schedule-label { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; line-height: 1; }
-.active-now .schedule-label { color: #15803d; }
-.schedule-clock { font-size: 0.65rem; font-weight: 600; color: #64748b; }
-.active-now .schedule-clock { color: #166534; font-weight: 700; }
-.schedule-subject { font-size: 0.82rem; font-weight: 700; color: #1e293b; line-height: 1; }
-.active-now .schedule-subject { font-size: 0.95rem; color: #052e16; }
-.active-badge { display: inline-flex; align-items: center; gap: 3px; background: #16a34a; color: white; font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 8px; margin-top: 2px; }
-.active-badge::before { content: ''; display: inline-block; width: 4px; height: 4px; background-color: white; border-radius: 50%; }
+.schedule-card.active-now .schedule-subject { font-size: 1.3rem !important; color: #052e16 !important; }
+.schedule-card.active-now .schedule-label, .schedule-card.active-now .schedule-clock { color: #15803d !important; font-size: 0.95rem !important; }
+.active-badge { display: inline-flex; align-items: center; gap: 3px; background: #16a34a; color: white; font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 8px; margin-top: 2px; }
+.active-badge::before { content: ''; display: inline-block; width: 5px; height: 5px; background-color: white; border-radius: 50%; }
 .schedule-img-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; }
 .schedule-img { height: 100%; max-height: 100%; max-width: 100%; object-fit: contain; }
-.schedule-empty { font-size: 0.7rem; color: #94a3b8; font-style: italic; }
+.schedule-empty { font-size: 0.8rem; color: #94a3b8; font-style: italic; }
+.btn-plan { margin-top: 6px; padding: 8px; font-size: 0.85rem; font-weight: 700; background-color: #2563eb; color: white; border-radius: 6px; }
 #bigScheduleContainer { display: flex !important; flex-direction: row !important; gap: 6px !important; align-items: stretch !important; padding: 4px !important; overflow-x: auto !important; width: 100% !important; height: 100% !important; }
 #bigScheduleContainer .schedule-card { flex: 1 1 0 !important; min-width: 110px !important; display: flex !important; flex-direction: column !important; justify-content: flex-end !important; align-items: center !important; text-align: center !important; padding: 8px 4px !important; background: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; }
 #bigScheduleContainer .schedule-card * { opacity: 1 !important; color: #1e293b !important; }
@@ -217,8 +199,6 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
 .info-modal-title h2 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff; }
 .info-modal-title p { margin: 0; font-size: 0.75rem; opacity: 0.9; color: #f1f5f9; }
 .info-icon { font-size: 1.4rem; }
-
-/* Layout: Venstre kolonne 300px, høyre kolonne midtstiller den store klokken */
 .info-modal-body { padding: 16px; display: grid; grid-template-columns: 300px 1fr; gap: 16px; background: #f8fafc; max-height: calc(90vh - 40px) !important; overflow-y: auto !important; align-items: center; }
 .info-left-col { display: flex; flex-direction: column; gap: 8px; }
 .dashed-container { background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; display: flex; justify-content: center; align-items: center; padding: 12px; }
@@ -226,52 +206,20 @@ body.dark-mode #mainFrame { filter: invert(0.9) hue-rotate(180deg) brightness(0.
 .time-digital-card { text-align: center; font-size: 1.4rem; font-weight: 800; color: #2563eb; background: #eff6ff; border-color: #bfdbfe; }
 .astro-card { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: #334155; }
 .astro-row { display: flex; align-items: center; gap: 6px; }
-
-/* Enda større analog klokke (øst til 380px) */
 .analog-clock { width: 420px; height: 420px; border: 7px solid #0f172a; border-radius: 50%; position: relative; background: #ffffff; flex-shrink: 0; }
 .clock-face { width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none; }
-
-/* Forlengede visere tilpasset 380px diameter */
 .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; background: #0f172a; border-radius: 4px; z-index: 10; }
 .hour-hand { width: 9px; height: 95px; margin-left: -4.5px; }
 .minute-hand { width: 6px; height: 138px; margin-left: -3px; background: #334155; }
 .second-hand { width: 2px; height: 155px; margin-left: -1px; background: #dc2626; z-index: 11; }
 .clock-center { width: 16px; height: 16px; background: #dc2626; border: 2px solid #ffffff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 12; }
-
-/* Primstav-kort */
-.primstav-card {
-  background: #fffbe6;
-  border: 1px solid #fef08a;
-}
-.primstav-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.primstav-icon {
-  font-size: 1.2rem;
-}
-.primstav-titles {
-  display: flex;
-  flex-direction: column;
-}
-.primstav-label {
-  font-size: 0.65rem;
-  color: #854d0e;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-#modalPrimstavName {
-  font-size: 0.85rem;
-  color: #713f12;
-  font-weight: 700;
-}
-#modalPrimstavDesc {
-  margin: 4px 0 0 0;
-  font-size: 0.75rem;
-  color: #a16207;
-  line-height: 1.25;
-}
+.primstav-card { background: #fffbe6; border: 1px solid #fef08a; }
+.primstav-header { display: flex; align-items: center; gap: 8px; }
+.primstav-icon { font-size: 1.2rem; }
+.primstav-titles { display: flex; flex-direction: column; }
+.primstav-label { font-size: 0.65rem; color: #854d0e; font-weight: 800; text-transform: uppercase; }
+#modalPrimstavName { font-size: 0.85rem; color: #713f12; font-weight: 700; }
+#modalPrimstavDesc { margin: 4px 0 0 0; font-size: 0.75rem; color: #a16207; line-height: 1.25; }
 
 /* --- 10. INNSTILLINGER, TOGGLES & SKRIFTSTØRRELSER --- */
 #innstillingerModal { width: 400px; max-width: 90vw; top: 15vh; left: calc(50vw - 200px); }
@@ -302,72 +250,3 @@ body.font-size-large h2 { font-size: 1.3rem !important; }
 body.font-size-large h3 { font-size: 1.1rem !important; }
 body.font-size-large .timer-display { font-size: 3rem !important; }
 .hidden { display: none !important; }
-
-
-/* --- SIDEBAR - VENSTREMENY --- */
-.sidebar {
-  position: relative;
-  width: 250px;
-  height: 100vh;
-  background: #ffffff;
-  border-right: 1px solid #cbd5e1;
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow: hidden;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-/* Sone i full høyde som fanger opp musepekeren */
-.sidebar-hover-zone {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 16px;
-  height: 100%;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: transparent;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-/* Når brukeren fører musa over sonen */
-.sidebar-hover-zone:hover {
-  background: rgba(148, 163, 184, 0.4);
-  border-right: 2px solid #64748b;
-  color: #334155;
-}
-
-/* Skjult tilstand for sidebaren */
-.sidebar.collapsed {
-  width: 0 !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-right: none !important;
-  overflow: visible !important; /* VIKTIG: Lar hover-sonen stikke ut fra 0px bredde */
-}
-
-/* Skjul alt innhold unntatt hover-sonen når lukket */
-.sidebar.collapsed > *:not(.sidebar-hover-zone) {
-  display: none !important;
-}
-
-/* Flytt hover-sonen ut til høyre for den lukkede menyen */
-.sidebar.collapsed .sidebar-hover-zone {
-  left: 0;
-  right: auto;
-  width: 20px;
-}
-
-main, iframe {
-  flex: 1;
-  transition: all 0.3s ease;
-}
