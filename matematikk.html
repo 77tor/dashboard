@@ -58,7 +58,7 @@
     #mainContent {
       flex: 1;
       display: flex;
-      padding: 20px;
+      padding: 15px;
       gap: 20px;
       align-items: center;
       justify-content: center;
@@ -69,31 +69,33 @@
       position: relative;
       background: white;
       border-radius: 16px;
-      padding: 30px;
+      padding: 24px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       flex: 1;
-      max-width: 760px;
+      max-width: 950px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
       border: 3px solid #bbf7d0;
+      max-height: 92vh;
+      overflow: hidden;
     }
-    .task-title { font-size: 20px; color: #166534; margin-bottom: 20px; padding-right: 25px; }
+    .task-title { font-size: 20px; color: #166534; margin-bottom: 10px; padding-right: 25px; }
     .question-box {
       font-size: 28px;
       font-weight: bold;
       color: #1e293b;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      gap: 10px;
       justify-content: center;
       width: 100%;
     }
 
-    /* Liten rund "Hopp over"-knapp øverst i høyre hjørne */
+    /* Liten rund "Hopp over"-knapp */
     .btn-skip-icon {
       position: absolute;
       top: 14px;
@@ -222,7 +224,70 @@
       box-shadow: 0 6px 14px rgba(202,138,4,0.3);
     }
 
-    /* STILER FOR CANVAS-TALLINJE */
+    /* Rekkefølge GRID */
+    .order-grid {
+      display: grid;
+      justify-content: center;
+      margin-top: 5px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .order-btn {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 2px solid #16a34a;
+      color: #1e293b;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .order-btn.start-zero {
+      background: #fde047;
+      border-color: #ca8a04;
+      color: #854d0e;
+    }
+
+    .order-btn:hover:not(.disabled) {
+      background: #fde047;
+      border-color: #ca8a04;
+      transform: scale(1.05);
+    }
+    .order-btn.correct {
+      background: #22c55e !important;
+      border-color: #15803d !important;
+      color: white !important;
+      cursor: default;
+      opacity: 0.6;
+    }
+    .order-btn.wrong {
+      background: #ef4444 !important;
+      border-color: #b91c1c !important;
+      color: white !important;
+      animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .timer-display {
+      font-size: 18px;
+      font-weight: bold;
+      color: #166534;
+      margin-bottom: 5px;
+      background: #e2e8f0;
+      padding: 3px 12px;
+      border-radius: 16px;
+    }
+
+    /* CANVAS TALLINJE */
     .line-canvas-container {
       position: relative;
       width: 100%;
@@ -254,13 +319,13 @@
     .btn-check:hover { background: #16a34a; }
 
     #feedback {
-      margin-top: 15px;
-      font-size: 20px;
+      margin-top: 10px;
+      font-size: 18px;
       font-weight: bold;
-      min-height: 30px;
+      min-height: 26px;
     }
 
-    /* Skjermtastatur (Numpad) */
+    /* Numpad */
     .numpad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -292,6 +357,7 @@
   <div id="topBar">
     <div class="nav-buttons">
       <button class="nav-btn" data-task="nabotall" onclick="loadTask('nabotall', this)">Nabotall</button>
+      <button class="nav-btn" data-task="rekkefolge" onclick="loadTask('rekkefolge', this)">Rekkefølge</button>
       <button class="nav-btn" data-task="tallinje" onclick="loadTask('tallinje', this)">Tallinje</button>
       <button class="nav-btn" data-task="rundav" onclick="loadTask('rundav', this)">Rund av</button>
       <button class="nav-btn" data-task="naermeste" onclick="loadTask('naermeste', this)">Nærmeste tall</button>
@@ -299,7 +365,32 @@
       <button class="nav-btn" data-task="siffer" onclick="loadTask('siffer', this)">Bokstaver til siffer</button>
       <button class="nav-btn" data-task="tiervenner" onclick="loadTask('tiervenner', this)">Tier-venner</button>
       
-      <!-- Velger for tallinjestart -->
+      <select id="timesTableSelect" class="top-select" style="display:none;" onchange="changeTimesTable()">
+        <option value="none">Gangetabell: Ingen</option>
+        <option value="1">1-gangen (0 til 10)</option>
+        <option value="2">2-gangen (0 til 20)</option>
+        <option value="3">3-gangen (0 til 30)</option>
+        <option value="4">4-gangen (0 til 40)</option>
+        <option value="5">5-gangen (0 til 50)</option>
+        <option value="6">6-gangen (0 til 60)</option>
+        <option value="7">7-gangen (0 til 70)</option>
+        <option value="8">8-gangen (0 til 80)</option>
+        <option value="9">9-gangen (0 til 90)</option>
+        <option value="10">10-gangen (0 til 100)</option>
+      </select>
+
+      <select id="stepSelect" class="top-select" style="display:none;" onchange="changeStep()">
+        <option value="1">Hopp: 1</option>
+        <option value="2">Hopp: 2</option>
+        <option value="3">Hopp: 3</option>
+        <option value="4">Hopp: 4</option>
+        <option value="5">Hopp: 5</option>
+        <option value="10">Hopp: 10</option>
+        <option value="20">Hopp: 20</option>
+        <option value="50">Hopp: 50</option>
+        <option value="100">Hopp: 100</option>
+      </select>
+
       <select id="lineStartSelect" class="top-select" style="display:none;" onchange="changeLineStart()">
         <option value="0">Start: 0</option>
         <option value="2">Start: 2</option>
@@ -310,7 +401,6 @@
         <option value="100">Start: 100</option>
       </select>
 
-      <!-- Velger for tallstørrelse -->
       <select id="maxNumSelect" class="top-select" onchange="changeMaxNumber()">
         <option value="10">Maks 10</option>
         <option value="20">Maks 20</option>
@@ -330,7 +420,6 @@
       <div id="feedback"></div>
     </div>
 
-    <!-- Numpad for berøringsskjerm -->
     <div class="numpad" id="numpad">
       <button class="num-btn" onclick="pressNum('1')">1</button>
       <button class="num-btn" onclick="pressNum('2')">2</button>
@@ -353,18 +442,22 @@
     let correctAnswer = {};
     let maxNumber = 100;
     let lineStartValue = 0;
+    let stepValue = 1;
+    let activeTimesTable = 'none';
 
-    // Tilstand for Tier-venner valg
+    let orderSequence = [];
+    let orderNextIndex = 0;
+    let timerInterval = null;
+    let startTime = null;
+
     let selectedTierCards = [];
-
-    // Canvas Variabler for 3 brikker på tallinjen
     let chipsData = []; 
     let activeChipIndex = -1;
     let canvasConfig = {};
 
     function numberToWords(n) {
       const entall = ["null", "en", "to", "tre", "fire", "fem", "seks", "sju", "åtte", "ni", "ti",
-                      "elleve", "tolv", "tretten", "fjorten", "femten", "seksten", "sytten", "atten", "nitten"];
+                      "elleve", "tolv", "tretten", "femten", "seksten", "sytten", "atten", "nitten"];
       const tiere = ["", "", "tjue", "tretti", "førti", "femti", "seksti", "sytti", "åtti", "nitti"];
 
       if (n < 20) return entall[n];
@@ -412,6 +505,18 @@
         lineStartValue = parseInt(savedStart);
         document.getElementById('lineStartSelect').value = lineStartValue;
       }
+
+      const savedStep = localStorage.getItem('math_stepValue');
+      if (savedStep) {
+        stepValue = parseInt(savedStep);
+        document.getElementById('stepSelect').value = stepValue;
+      }
+
+      const savedTable = localStorage.getItem('math_timesTable');
+      if (savedTable) {
+        activeTimesTable = savedTable;
+        document.getElementById('timesTableSelect').value = activeTimesTable;
+      }
     }
 
     function changeMaxNumber() {
@@ -426,14 +531,42 @@
       loadTask(currentTask);
     }
 
+    function changeStep() {
+      stepValue = parseInt(document.getElementById('stepSelect').value);
+      localStorage.setItem('math_stepValue', stepValue);
+      activeTimesTable = 'none';
+      document.getElementById('timesTableSelect').value = 'none';
+      localStorage.setItem('math_timesTable', 'none');
+      loadTask(currentTask);
+    }
+
+    function changeTimesTable() {
+      activeTimesTable = document.getElementById('timesTableSelect').value;
+      localStorage.setItem('math_timesTable', activeTimesTable);
+      if (activeTimesTable !== 'none') {
+        stepValue = parseInt(activeTimesTable);
+        document.getElementById('stepSelect').value = stepValue;
+        localStorage.setItem('math_stepValue', stepValue);
+      }
+      loadTask(currentTask);
+    }
+
     function skipTask() {
       loadTask(currentTask);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
     }
 
     function loadTask(taskType, btnEl) {
       currentTask = taskType;
       localStorage.setItem('math_currentTask', taskType);
       selectedTierCards = [];
+      stopTimer();
 
       document.querySelectorAll('.nav-btn').forEach(b => {
         if (b.getAttribute('data-task') === taskType) {
@@ -449,10 +582,17 @@
       const numpad = document.getElementById('numpad');
       const checkBtn = document.getElementById('checkBtn');
       const lineStartSelect = document.getElementById('lineStartSelect');
+      const stepSelect = document.getElementById('stepSelect');
+      const timesTableSelect = document.getElementById('timesTableSelect');
+      const maxNumSelect = document.getElementById('maxNumSelect');
 
       lineStartSelect.style.display = (taskType === 'tallinje') ? 'inline-block' : 'none';
-      numpad.style.display = (['bokstaver', 'naermeste', 'tallinje', 'tiervenner'].includes(taskType)) ? 'none' : 'grid';
-      checkBtn.style.display = (['naermeste', 'tiervenner'].includes(taskType)) ? 'none' : 'inline-block';
+      stepSelect.style.display = (taskType === 'rekkefolge') ? 'inline-block' : 'none';
+      timesTableSelect.style.display = (taskType === 'rekkefolge') ? 'inline-block' : 'none';
+      maxNumSelect.style.display = 'inline-block';
+      
+      numpad.style.display = (['bokstaver', 'naermeste', 'tallinje', 'tiervenner', 'rekkefolge'].includes(taskType)) ? 'none' : 'grid';
+      checkBtn.style.display = (['naermeste', 'tiervenner', 'rekkefolge'].includes(taskType)) ? 'none' : 'inline-block';
 
       if (taskType === 'nabotall') {
         title.textContent = 'Fyll inn nabotallene (tallet før og etter)';
@@ -461,11 +601,73 @@
         const num = Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
         correctAnswer = { left: num - 1, right: num + 1 };
         box.innerHTML = `
-          <input type="text" id="inpLeft" class="answer-input" onfocus="setActiveInput('inpLeft')" readonly>
-          <span>${num}</span>
-          <input type="text" id="inpRight" class="answer-input" onfocus="setActiveInput('inpRight')" readonly>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <input type="text" id="inpLeft" class="answer-input" onfocus="setActiveInput('inpLeft')" readonly>
+            <span>${num}</span>
+            <input type="text" id="inpRight" class="answer-input" onfocus="setActiveInput('inpRight')" readonly>
+          </div>
         `;
         setActiveInput('inpLeft');
+
+      } else if (taskType === 'rekkefolge') {
+        let endValue = maxNumber;
+
+        if (activeTimesTable !== 'none') {
+          title.textContent = `Trykk på ${activeTimesTable}-gangen i stigende rekkefølge!`;
+          endValue = stepValue * 10;
+        } else {
+          title.textContent = `Trykk på tallene med hopp på ${stepValue} i stigende rekkefølge!`;
+        }
+
+        orderSequence = [];
+        for (let i = 0; i <= endValue; i += stepValue) {
+          orderSequence.push(i);
+        }
+        orderNextIndex = 0;
+
+        let totalItems = orderSequence.length;
+
+        // BEREGN RUTENETT: Tilstreber et mer kvadratisk rutenett (helst kolonner >= rader)
+        let cols = Math.ceil(Math.sqrt(totalItems));
+        let rows = Math.ceil(totalItems / cols);
+
+        // Maksbegrensninger (maks 10 rader, maks 11 kolonner)
+        if (rows > 10) {
+          rows = 10;
+          cols = Math.ceil(totalItems / rows);
+        }
+        cols = Math.min(cols, 11);
+
+        // Dynamisk tilpasning av knappestørrelse og skrift
+        let btnWidth = 70;
+        let btnHeight = 45;
+        let fontSize = 18;
+
+        if (totalItems > 60) {
+          btnWidth = 52;
+          btnHeight = 34;
+          fontSize = 13;
+        } else if (totalItems > 30) {
+          btnWidth = 60;
+          btnHeight = 38;
+          fontSize = 15;
+        }
+
+        let gap = 6;
+        let gridWidth = cols * btnWidth + (cols - 1) * gap;
+
+        let shuffled = [...orderSequence].sort(() => Math.random() - 0.5);
+
+        let html = `
+          <div class="timer-display" id="timer">⏱️ 0.0 s</div>
+          <div class="order-grid" style="grid-template-columns: repeat(${cols}, ${btnWidth}px); grid-auto-rows: ${btnHeight}px; gap: ${gap}px; width: ${gridWidth}px;">
+        `;
+        shuffled.forEach((val) => {
+          let zeroClass = (val === 0) ? ' start-zero' : '';
+          html += `<button class="order-btn${zeroClass}" id="ordBtn_${val}" style="font-size: ${fontSize}px;" onclick="clickOrderNumber(${val})">${val}</button>`;
+        });
+        html += `</div>`;
+        box.innerHTML = html;
 
       } else if (taskType === 'tallinje') {
         title.textContent = 'Dra streker fra de 3 brikkene til riktig sted på tallinjen';
@@ -502,14 +704,14 @@
           title.textContent = 'Er tallet nærmest 0 eller 10?';
           const target = Math.floor(Math.random() * 9) + 1;
           correctAnswer = { val: (target < 5) ? 0 : 10 };
-          box.innerHTML = `<span>Rund <b>${target}</b> til nærmeste tall (0 eller 10):</span><br><input type="text" id="inpAns" class="answer-input" onfocus="setActiveInput('inpAns')" readonly>`;
+          box.innerHTML = `<span>Rund <b>${target}</b> til nærmeste tall (0 eller 10):</span><input type="text" id="inpAns" class="answer-input" onfocus="setActiveInput('inpAns')" readonly>`;
         } else {
           title.textContent = 'Hvilken tier er nærmest?';
           const target = Math.floor(Math.random() * (maxNumber - 10)) + 11;
           const lowTier = Math.floor(target / 10) * 10;
           const highTier = lowTier + 10;
           correctAnswer = { val: (target % 10 < 5) ? lowTier : highTier };
-          box.innerHTML = `<span>Rund <b>${target}</b> til nærmeste tier:</span><br><input type="text" id="inpAns" class="answer-input" onfocus="setActiveInput('inpAns')" readonly>`;
+          box.innerHTML = `<span>Rund <b>${target}</b> til nærmeste tier:</span><input type="text" id="inpAns" class="answer-input" onfocus="setActiveInput('inpAns')" readonly>`;
         }
         setActiveInput('inpAns');
 
@@ -564,11 +766,9 @@
       } else if (taskType === 'tiervenner') {
         title.textContent = 'Klikk på de to tallene som er tier-venner (blir 10 sammen)';
         
-        // Generer et tilfeldig tiervenn-par (f.eks. 3 og 7)
         const pair1 = Math.floor(Math.random() * 11);
         const pair2 = 10 - pair1;
         
-        // Generer to «forstyrrelses»-tall som IKKE kan til sammen bli 10 med noen andre
         let dummy1, dummy2;
         do {
           dummy1 = Math.floor(Math.random() * 11);
@@ -592,7 +792,38 @@
       }
     }
 
-    /* LOGIKK FOR TIER-VENNER MED 4 TALL */
+    function clickOrderNumber(val) {
+      const btn = document.getElementById(`ordBtn_${val}`);
+      if (!btn || btn.classList.contains('correct')) return;
+
+      if (orderNextIndex === 0 && !timerInterval) {
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+          const elapsed = (Date.now() - startTime) / 1000;
+          const timerEl = document.getElementById('timer');
+          if (timerEl) timerEl.textContent = `⏱️ ${elapsed.toFixed(1)} s`;
+        }, 100);
+      }
+
+      const expectedVal = orderSequence[orderNextIndex];
+      if (val === expectedVal) {
+        btn.classList.add('correct');
+        orderNextIndex++;
+
+        if (orderNextIndex === orderSequence.length) {
+          stopTimer();
+          const finalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+          const fb = document.getElementById('feedback');
+          fb.style.color = '#16a34a';
+          fb.textContent = `🎉 Supert! Du klarte oppgaven på ${finalTime} sekunder!`;
+          setTimeout(() => loadTask('rekkefolge'), 2500);
+        }
+      } else {
+        btn.classList.add('wrong');
+        setTimeout(() => btn.classList.remove('wrong'), 400);
+      }
+    }
+
     function toggleTierCard(index, value) {
       const btn = document.getElementById(`tierBtn_${index}`);
       if (!btn) return;
@@ -609,14 +840,12 @@
         }
       }
 
-      // Sjekk om to tall er valgt
       if (selectedTierCards.length === 2) {
         const sum = selectedTierCards[0].value + selectedTierCards[1].value;
         processResult(sum === 10);
       }
     }
 
-    /* TALLINJE CANVAS TEGNING OG LOGIKK FOR 3 BRIKKER */
     function setupCanvasLine(start, end, step, totalTicks, targets) {
       const canvas = document.getElementById('lineCanvas');
       if (!canvas) return;
@@ -644,7 +873,6 @@
       function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. TEGN AKSE
         ctx.beginPath();
         ctx.moveTo(padX, axisY);
         ctx.lineTo(canvas.width - padX, axisY);
@@ -653,7 +881,6 @@
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // 2. TEGN UNDERDELINGSSTREKER
         for (let i = 0; i <= totalTicks; i++) {
           let x = padX + (i / totalTicks) * width;
           let val = start + i * step;
@@ -673,7 +900,6 @@
           }
         }
 
-        // 3. TEGN STREKER FRA BRIKKENE
         chipsData.forEach(chip => {
           if (chip.isDrawn || chip === chipsData[activeChipIndex]) {
             ctx.beginPath();
@@ -692,7 +918,6 @@
           }
         });
 
-        // 4. TEGN BRIKKENE NEDERST
         chipsData.forEach(chip => {
           ctx.fillStyle = '#fde047';
           ctx.strokeStyle = '#ca8a04';
@@ -857,7 +1082,6 @@
       }
     }
 
-    // Oppstart
     initSettingsFromStorage();
     loadTask(currentTask);
   </script>
