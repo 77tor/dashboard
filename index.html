@@ -10,8 +10,13 @@
 </head>
 <body>
 
-<!-- VENSTRE SIDEBAR -->
-<aside class="sidebar">
+<!-- VENSTRE SIDEBAR (Skjult som standard) -->
+<aside class="sidebar collapsed" id="sidebar">
+
+  <!-- INTERAKTIV SONE FOR Å LUKKE/ÅPNE -->
+  <button type="button" class="sidebar-hover-zone" onclick="toggleSidebar()" title="Klikk for å åpne/skjule">
+    <span id="toggleArrow">❯</span>
+  </button>
 
   <!-- INFORMASJONSKORT -->
   <div class="card card-info clickable-card" id="infoCard" onclick="openModal('dashboardInfoModal')" title="Klikk for stor visning">
@@ -39,22 +44,22 @@
     </div>
   </div>
 
-<!-- VERKTØY (RUTENETT) -->
-<div class="card">
-  <span class="card-title">Verktøy</span>
-  
-  <div class="tools-grid">
-    <button type="button" class="btn-tool btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">✏️ Whiteboard</button>
-    <button type="button" class="btn-tool btn-trafikklys" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">🚦 Arbeidsro / Trafikklys</button>
-    <button type="button" class="btn-tool btn-mattemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('matematikk.html');">🔢 Matte-mix</button>
-    <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
-    <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
-    <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
-    <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
-    <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
-    <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
+  <!-- VERKTØY (RUTENETT) -->
+  <div class="card">
+    <span class="card-title">Verktøy</span>
+    <div class="tools-grid">
+      <button type="button" class="btn-tool btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">✏️ Whiteboard</button>
+      <button type="button" class="btn-tool btn-trafikklys" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">🚦 Arbeidsro / Trafikklys</button>
+      <button type="button" class="btn-tool btn-mattemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('matematikk.html');">🔢 Matte-mix</button>
+      <button type="button" class="btn-tool btn-lesemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('lese.html');">📖 Lese-mix</button>
+      <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
+      <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
+      <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
+      <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
+      <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
+      <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
+    </div>
   </div>
-</div>
 
   <!-- FASTLENKER -->
   <div class="card">
@@ -70,14 +75,12 @@
     <button type="button" class="btn-action btn-home" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); goHome();">
       🏠 Hjem
     </button>
-
     <button type="button" class="btn-action btn-fullscreen" onclick="togglePageFullscreen();" id="pageFullscreenBtn">
       🖥️ Fullskjerm
     </button>
   </div>
 
 </aside>
-
 
 <!-- MIDTFELT -->
 <main class="main-content">

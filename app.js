@@ -78,6 +78,7 @@ function loadState(key, fallback = null) {
 }
 
 
+
 /* --- LENKEREDIGERING (MED 6 PLASSER) --- */
 function buildLinkEditor() {
   const table = document.getElementById('linkEditTable');
@@ -2792,6 +2793,19 @@ function skjulAktivitetDisplay() {
   if (frame) frame.style.display = 'block';
 }
 
+/* --- VENSTRESIDE-MENY-LUKKER/ÅPNER--- */
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const arrow = document.getElementById('toggleArrow');
+  
+  sidebar.classList.toggle('collapsed');
+  
+  if (sidebar.classList.contains('collapsed')) {
+    arrow.textContent = '❯';
+  } else {
+    arrow.textContent = '❮';
+  }
+}
 
 
 /* --- SAMLET OPPSTARTSLOGIKK --- */

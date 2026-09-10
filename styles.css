@@ -302,3 +302,72 @@ body.font-size-large h2 { font-size: 1.3rem !important; }
 body.font-size-large h3 { font-size: 1.1rem !important; }
 body.font-size-large .timer-display { font-size: 3rem !important; }
 .hidden { display: none !important; }
+
+
+/* --- SIDEBAR - VENSTREMENY --- */
+.sidebar {
+  position: relative;
+  width: 250px;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #cbd5e1;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+/* Sone i full høyde som fanger opp musepekeren */
+.sidebar-hover-zone {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Når brukeren fører musa over sonen */
+.sidebar-hover-zone:hover {
+  background: rgba(148, 163, 184, 0.4);
+  border-right: 2px solid #64748b;
+  color: #334155;
+}
+
+/* Skjult tilstand for sidebaren */
+.sidebar.collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-right: none !important;
+  overflow: visible !important; /* VIKTIG: Lar hover-sonen stikke ut fra 0px bredde */
+}
+
+/* Skjul alt innhold unntatt hover-sonen når lukket */
+.sidebar.collapsed > *:not(.sidebar-hover-zone) {
+  display: none !important;
+}
+
+/* Flytt hover-sonen ut til høyre for den lukkede menyen */
+.sidebar.collapsed .sidebar-hover-zone {
+  left: 0;
+  right: auto;
+  width: 20px;
+}
+
+main, iframe {
+  flex: 1;
+  transition: all 0.3s ease;
+}
