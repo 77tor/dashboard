@@ -378,14 +378,16 @@
   </div>
 
 
+
+
 <!-- DAGSPLAN MODAL -->
 <div id="planModal" class="floating-modal" style="display: none;">
   <!-- Tittellinje (dragbar) -->
   <div id="planModalHeader" class="modal-header" style="background: #8b5cf6;">
-    <h3 style="margin: 0; font-size: 16px; color: white;">🖊️ Velg bilder for dagsplanen</h3>
+    <h3 style="margin: 0; font-size: 16px; color: white;">🖊️ Velg bilder og visning for dagsplanen</h3>
     
     <div style="display: flex; align-items: center; gap: 8px;">
-      <!-- Knapp for å skve av/på mørk bakgrunn -->
+      <!-- Knapp for å skru av/på mørk bakgrunn -->
       <button type="button" class="btn-toggle-backdrop" onclick="toggleModalBackdrop()">
         👁️ Bakgrunn
       </button>
@@ -394,10 +396,24 @@
   </div>
   
   <div class="modal-body" style="padding: 16px; background: white; border-radius: 0 0 8px 8px;">
+    
+    <!-- VISNINGSVALG (AV/PÅ-BOKSER) -->
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; margin-bottom: 12px; display: flex; gap: 20px; justify-content: center; align-items: center;">
+      <span style="font-weight: bold; font-size: 0.8rem; color: #475569;">Vis på dagsplanen:</span>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+        <input type="checkbox" id="showTimeLabelCheckbox" checked onchange="toggleScheduleViewOption('showLabels', this.checked)">
+        Timetall (f.eks. 1. time)
+      </label>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600;">
+        <input type="checkbox" id="showClockCheckbox" checked onchange="toggleScheduleViewOption('showClock', this.checked)">
+        Klokkeslett (f.eks. 08.30 - 09.15)
+      </label>
+    </div>
+
     <!-- Dagsknapper (Man, Tir, Ons...) -->
     <div id="planDayNavContainer"></div>
 
-    <!-- Tabell for utfylling -->
+    <!-- Tabell for utfylling (genereres dynamisk via JS) -->
     <table id="planEditTable" style="width: 100%; border-collapse: collapse; margin-top: 8px;"></table>
 
     <!-- Knappelinje -->
@@ -415,7 +431,37 @@
   </div>
 </div>
 
+<!-- MODAL FOR EGENDEFINERT FAG (ÅPNES NÅR DU VELGER "Skriv fag selv...") -->
+<div id="customSubjectModal" class="floating-modal" style="display: none; width: 420px; top: 15vh; left: calc(50vw - 210px);">
+  <div class="modal-header" style="background: #1e293b;">
+    <span>Opprett egendefinert fag</span>
+    <button class="close-btn" onclick="closeModal('customSubjectModal')">&times;</button>
+  </div>
+  <div class="modal-body" style="gap: 12px; padding: 16px;">
+    <div>
+      <label style="font-weight: bold; font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px;">Fagets navn:</label>
+      <input type="text" id="customSubjectInput" placeholder="F.eks. Temadag, Tur osv.">
+    </div>
 
+    <div>
+      <label style="font-weight: bold; font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px;">Velg eksisterende bilde:</label>
+      <select id="customSubjectImgSelect">
+        <option value="">-- Ingen bilde / Standard --</option>
+      </select>
+    </div>
+
+    <div style="border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+      <label style="font-weight: bold; font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px;">Eller last opp eget bilde (URL eller fil):</label>
+      <input type="text" id="customSubjectUrlInput" placeholder="Lim inn bilde-URL her..." style="margin-bottom: 6px;">
+      <input type="file" id="customSubjectFileInput" accept="image/*" style="font-size: 0.75rem;">
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-top: 8px;">
+      <button type="button" onclick="confirmCustomSubject()" style="background: #16a34a;">Lagre fag</button>
+      <button type="button" onclick="closeModal('customSubjectModal')" style="background: #64748b;">Avbryt</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL FOR TIDSUR -->
 <div class="floating-modal" id="timerModal">
