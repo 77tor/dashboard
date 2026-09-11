@@ -82,28 +82,57 @@
 
 </aside>
 
+
+
 <!-- MIDTFELT -->
 <main class="main-content">
 <div class="top-bar" style="display: flex; align-items: center; justify-content: space-between; padding: 0 12px;">
-  <!-- Usynlig romholder for å holde overskriften helt sentrert -->
-  <div style="width: 32px;"></div>
+  <!-- Romholder for å holde overskriften helt sentrert -->
+  <div style="width: 64px;"></div>
 
   <h1 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 700;">Dashboard - Hånes skole</h1>
 
-  <!-- Innstillinger-knapp (Tannhjul) -->
-  <button onclick="openModal('innstillingerModal')" title="Innstillinger" style="
-    background: transparent; 
-    border: none; 
-    font-size: 1.2rem; 
-    cursor: pointer; 
-    padding: 2px 4px; 
-    width: auto;
-    margin: 0;
-    line-height: 1;
-    transition: transform 0.2s ease;
-  " onmouseover="this.style.transform='rotate(45deg)'" onmouseout="this.style.transform='rotate(0deg)'">
-    ⚙️
-  </button>
+  <!-- Knappegruppe til høyre: Hjem-dropdown og Innstillinger-dropdown -->
+  <div style="display: flex; align-items: center; gap: 8px; width: 64px; justify-content: flex-end;">
+    
+    <!-- Hjem-knapp med nedtrekksmeny -->
+    <div style="position: relative; display: inline-block;">
+      <button type="button" onclick="toggleHomeMenu(event)" title="Meny" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 2px 4px; line-height: 1; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+        🏠
+      </button>
+
+      <!-- Hjem Nedtrekksmeny -->
+      <div id="homeDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 140px; overflow: hidden;">
+        <button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          🏠 Hjem
+        </button>
+        <button type="button" onclick="openScreensaver('video'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          🖼️ Bilde
+        </button>
+        <button type="button" onclick="openScreensaver('sort'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          🌙 Sort skjerm
+        </button>
+        <button type="button" onclick="openScreensaver('whiteboard'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          ✏️ Whiteboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Innstillinger-knapp med nedtrekksmeny -->
+    <div style="position: relative; display: inline-block;">
+      <button type="button" onclick="toggleSettingsMenu(event)" title="Innstillinger" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 2px 4px; line-height: 1; transition: transform 0.2s ease;" onmouseover="this.style.transform='rotate(45deg)'" onmouseout="this.style.transform='rotate(0deg)'">
+        ⚙️
+      </button>
+
+      <!-- Innstillinger Nedtrekksmeny -->
+      <div id="settingsDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 170px; overflow: hidden;">
+        <button type="button" onclick="openModal('resetConfirmModal'); toggleSettingsMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #dc2626; font-weight: 600;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'">
+          ⚠️ Nullstill all data
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
   <!-- ULTRA-KOMPAKT HJELPELINJE (GRID-STYRT) -->
@@ -647,8 +676,6 @@
 </div>
 
 
-
-<!-- TREKKE ELEV GENERATOR MODAL (MED SPINNERHJUL) -->
 <!-- STORT LYKKEHJUL MODAL FOR KLASSEROM (BRED VERSJON) -->
 <div class="floating-modal" id="bigWheelModal" style="width: 95vw; max-width: 950px; border-radius: 16px;">
   <div class="modal-header" style="background: linear-gradient(135deg, #e91e63, #9c27b0); padding: 14px 20px;">
@@ -878,7 +905,7 @@
 
 
 <!-- MODAL FOR BEKREFTELSE AV NULLSTILLING MED PIN OG ADVARSEL -->
-<div class="floating-modal" id="resetConfirmModal" style="display: none; width: 90vw; max-width: 440px; border-radius: 16px; border: 2px solid #ef4444; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; margin: 0 !important; z-index: 10000 !important; background: #ffffff !important; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+<div class="floating-modal" id="resetConfirmModal" style="display: none; width: 90vw; max-width: 440px; border-radius: 16px; border: 2px solid #ef4444; position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; margin: 0 !important; z-index: 10000002 !important; background: #ffffff !important; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
   
   <div class="modal-header" style="background: #ef4444; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
     <span style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
@@ -897,7 +924,7 @@
       <span style="color: #dc2626; font-weight: bold;">⚠️ Handlingen kan ikke angres!</span>
     </p>
 
-    <!-- ROVUST/BREDERE INPUT-FELT FOR PIN -->
+    <!-- INPUT-FELT FOR PIN -->
     <div style="margin-bottom: 20px;">
       <input type="password" id="resetPinInput" placeholder="Skriv kode..." style="width: 220px; padding: 10px 14px; font-size: 1rem; text-align: center; border: 2px solid #cbd5e1; border-radius: 8px; outline: none; box-sizing: border-box;" maxlength="4" />
       <div id="resetPinError" style="color: #ef4444; font-size: 0.8rem; font-weight: bold; margin-top: 6px; display: none;">Feil kode! Prøv igjen.</div>
@@ -1196,87 +1223,31 @@
 
 
 
+
 <!-- INNSTILLINGER MODAL -->
-<div id="innstillingerModal" class="floating-modal" style="display: none; position: fixed; top: 12vh; left: calc(50vw - 225px); width: 450px; max-width: 90vw; z-index: 1000001; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1;">
+<div id="innstillingerModal" class="floating-modal" style="display: none; position: fixed; top: 20vh; left: calc(50vw - 200px); width: 400px; max-width: 90vw; z-index: 1000001; background: #ffffff; border-radius: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.25); flex-direction: column; overflow: hidden; border: 1px solid #cbd5e1;">
   
   <!-- Header -->
   <div class="modal-header" style="background: #2563eb; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1rem;">
     <span>⚙️ Innstillinger</span>
-    <button class="close-btn" onclick="avbrytInnstillinger()" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0 4px; line-height: 1;">&times;</button>
+    <button class="close-btn" onclick="closeModal('innstillingerModal')" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0 4px; line-height: 1;">&times;</button>
   </div>
 
   <!-- Body -->
-  <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; background: #ffffff; box-sizing: border-box; overflow-y: auto;">
+  <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; background: #ffffff; box-sizing: border-box;">
     
-    <!-- Valg 1: Skrifttype -->
+    <!-- Tilbakestilling -->
     <div>
-      <label style="font-weight: bold; display: block; margin-bottom: 6px; color: #334155; font-size: 0.9rem;">Skrifttype:</label>
-      <select id="fontSelect" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem; background: #fff; color: #333;">
-        <option value="standard">Standard skrifttype</option>
-        <option value="trykkskrift">Trykkskrift</option>
-      </select>
-    </div>
-
-    <!-- Valg 2: Skriftstørrelse -->
-    <div>
-      <label style="font-weight: bold; display: block; margin-bottom: 6px; color: #334155; font-size: 0.9rem;">Skriftstørrelse:</label>
-      <select id="fontSizeSelect" style="width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.88rem; background: #fff; color: #333;">
-        <option value="small">Liten (Standard)</option>
-        <option value="medium">Middels</option>
-        <option value="large">Stor</option>
-      </select>
-    </div>
-
-    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 2px 0;">
-
-    <!-- Valg 3: Visning og Funksjoner (Sliders) -->
-    <div style="display: flex; flex-direction: column; gap: 12px;">
-      <label style="font-weight: bold; display: block; color: #334155; font-size: 0.9rem;">Visning & Meny:</label>
-
-      <!-- Nattmodus Switch (Standard: Av) -->
-      <div class="setting-toggle-row">
-        <span>🌙 Nattmodus</span>
-        <label class="switch">
-          <input type="checkbox" id="toggleDarkMode">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- Dagsplan Switch (Standard: På) -->
-      <div class="setting-toggle-row">
-        <span>📅 Vis Dagsplan</span>
-        <label class="switch">
-          <input type="checkbox" id="toggleSchedule" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- Venstremeny Switch (Standard: På) -->
-      <div class="setting-toggle-row">
-        <span>👁️ Vis Venstremeny</span>
-        <label class="switch">
-          <input type="checkbox" id="toggleSidebar" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 2px 0;">
-
-    <!-- Valg 4: Tilbakestilling -->
-    <div>
-      <button type="button" onclick="closeModal('innstillingerModal'); openModal('resetConfirmModal');" class="settings-option-btn btn-danger" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);">
+      <label style="font-weight: bold; display: block; margin-bottom: 8px; color: #334155; font-size: 0.9rem;">System & Data:</label>
+      <button type="button" onclick="closeModal('innstillingerModal'); openModal('resetConfirmModal');" class="settings-option-btn btn-danger" style="width: 100%; border-radius: 8px; padding: 10px; font-weight: 700; background: #ef4444; color: white; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);">
         ⚠️ Tilbakestill alt av data
       </button>
     </div>
 
-    <!-- OK og Avbryt-knapper -->
-    <div style="display: flex; gap: 10px; margin-top: 6px; justify-content: flex-end;">
-      <button type="button" onclick="avbrytInnstillinger()" style="padding: 8px 16px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; cursor: pointer; width: auto; margin: 0;">
-        Avbryt
-      </button>
-      <button type="button" onclick="lagreInnstillinger()" style="padding: 8px 20px; background: #22c55e; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: auto; margin: 0;">
-        OK
+    <!-- Avbryt-knapp nederst -->
+    <div style="display: flex; margin-top: 6px; justify-content: flex-end;">
+      <button type="button" onclick="closeModal('innstillingerModal')" style="padding: 8px 16px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: bold; cursor: pointer; width: auto; margin: 0;">
+        Lukk
       </button>
     </div>
 

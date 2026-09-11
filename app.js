@@ -2530,6 +2530,89 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+/* --- MENYER (HJEM, SKJERMSPARER & INNSTILLINGER) --- */
+
+// Vis/skjul Hjem-meny
+function toggleHomeMenu(event) {
+  if (event) event.stopPropagation();
+  const homeDropdown = document.getElementById('homeDropdown');
+  const settingsDropdown = document.getElementById('settingsDropdown');
+  
+  if (settingsDropdown) settingsDropdown.style.display = 'none';
+  if (homeDropdown) {
+    const isVisible = homeDropdown.style.display === 'block';
+    homeDropdown.style.display = isVisible ? 'none' : 'block';
+  }
+}
+
+// Vis/skjul Innstillinger-meny
+function toggleSettingsMenu(event) {
+  if (event) event.stopPropagation();
+  const homeDropdown = document.getElementById('homeDropdown');
+  const settingsDropdown = document.getElementById('settingsDropdown');
+  
+  if (homeDropdown) homeDropdown.style.display = 'none';
+  if (settingsDropdown) {
+    const isVisible = settingsDropdown.style.display === 'block';
+    settingsDropdown.style.display = isVisible ? 'none' : 'block';
+  }
+}
+
+// Lukker alle menyene automatisk ved klikk utenfor
+window.addEventListener('click', function() {
+  const homeDropdown = document.getElementById('homeDropdown');
+  const settingsDropdown = document.getElementById('settingsDropdown');
+  if (homeDropdown) homeDropdown.style.display = 'none';
+  if (settingsDropdown) settingsDropdown.style.display = 'none';
+});
+
+// Hjelpefunksjon for å gå Hjem
+function triggerGoHome() {
+  if (typeof nullstillAktivitetsVisning === 'function') {
+    nullstillAktivitetsVisning();
+  }
+  if (typeof goHome === 'function') {
+    goHome();
+  } else {
+    const iframe = document.getElementById('mainIframe') || document.querySelector('iframe');
+    if (iframe) iframe.src = 'hjem.html';
+  }
+}
+
+// Åpner valgt visning i iframe (bilde, sort skjerm eller whiteboard)
+function openScreensaver(type) {
+  if (typeof nullstillAktivitetsVisning === 'function') {
+    nullstillAktivitetsVisning();
+  }
+
+  const iframe = document.getElementById('mainIframe') || document.querySelector('iframe');
+  if (iframe) {
+    if (type === 'sort') {
+      iframe.src = 'about:blank';
+      iframe.onload = function() {
+        try {
+          iframe.contentDocument.body.style.backgroundColor = '#000000';
+          iframe.contentDocument.body.style.margin = '0';
+        } catch(e) {
+          iframe.style.backgroundColor = '#000000';
+        }
+      };
+      iframe.style.backgroundColor = '#000000';
+    } else if (type === 'whiteboard') {
+      iframe.style.backgroundColor = '';
+      iframe.onload = null;
+      iframe.src = 'whiteboard.html';
+    } else {
+      iframe.style.backgroundColor = '';
+      iframe.onload = null;
+      iframe.src = 'skjermsparer.html';
+    }
+  }
+}
+
+
+
 /* --- TID - KLOKKEMODAL --- */
 let timeModalInterval = null;
 
