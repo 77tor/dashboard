@@ -388,8 +388,8 @@ checkAppVersion();
 
 /* --- DYNAMISKE LENKER & INNSTILLINGER --- */
 let scheduleViewConfig = loadState('dagsplanVisning', {
-  showLabels: true,
-  showClock: true,
+  showLabels: false,
+  showClock: false,
   font: 'standard',
   fontSize: 'large'
 });
@@ -569,8 +569,9 @@ function buildPlanEditor() {
   const fontSel = document.getElementById('scheduleFontSelect');
   const sizeSel = document.getElementById('scheduleFontSizeSelect');
 
-  if (labelCb) labelCb.checked = scheduleViewConfig.showLabels;
-  if (clockCb) clockCb.checked = scheduleViewConfig.showClock;
+  // Setter standard til false dersom verdien ikke er lagret fra før
+  if (labelCb) labelCb.checked = scheduleViewConfig.showLabels ?? false;
+  if (clockCb) clockCb.checked = scheduleViewConfig.showClock ?? false;
   if (fontSel) fontSel.value = scheduleViewConfig.font || 'standard';
   if (sizeSel) sizeSel.value = scheduleViewConfig.fontSize || 'large';
 
