@@ -89,48 +89,49 @@
 <main class="main-content">
 <div class="top-bar" style="display: flex; align-items: center; justify-content: space-between; padding: 0 12px;">
   <!-- Romholder for å holde overskriften helt sentrert -->
-  <div style="width: 64px;"></div>
+  <div style="width: 32px;"></div>
 
   <h1 style="margin: 0; font-size: 1.1rem; color: #1e293b; font-weight: 700;">Dashboard - Hånes skole</h1>
 
-  <!-- Knappegruppe til høyre: Hjem-dropdown og Innstillinger-dropdown -->
-  <div style="display: flex; align-items: center; gap: 8px; width: 64px; justify-content: flex-end;">
+  <!-- Enkelt menyikon til høyre -->
+  <div style="display: flex; align-items: center; gap: 8px; width: 32px; justify-content: flex-end;">
     
-    <!-- Hjem-knapp med nedtrekksmeny -->
     <div style="position: relative; display: inline-block;">
-      <button type="button" onclick="toggleHomeMenu(event)" title="Meny" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 2px 4px; line-height: 1; transition: transform 0.15s ease;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
-        🏠
-      </button>
+<button type="button" onclick="toggleHomeMenu(event)" title="Meny" style="background: transparent; border: none; font-size: 1.4rem; color: #1e293b; cursor: pointer; padding: 2px 6px; line-height: 1; transition: transform 0.15s ease; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+</button>
 
-      <!-- Hjem Nedtrekksmeny -->
-      <div id="homeDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 140px; overflow: hidden;">
-        <button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+      <!-- Felles Nedtrekksmeny -->
+      <div id="homeDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 170px; overflow: hidden;">
+        <button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
           🏠 Hjem
         </button>
-        <button type="button" onclick="openScreensaver('video'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
-          🖼️ Bilde
+        <button type="button" onclick="openScreensaver('video'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          🖼️ Skjermbilde
         </button>
-        <button type="button" onclick="openScreensaver('sort'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <button type="button" onclick="openScreensaver('sort'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
           🌙 Sort skjerm
         </button>
-        <button type="button" onclick="openScreensaver('whiteboard'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <button type="button" onclick="openScreensaver('whiteboard'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
           ✏️ Whiteboard
         </button>
-      </div>
-    </div>
+        <button type="button" onclick="if(typeof skjulAktivitetDisplay === 'function') skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          🚦 Trafikklys
+        </button>
+        <button type="button" onclick="if(typeof genererAktiviteter === 'function') genererAktiviteter(); openModal('aktivitetModal'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          🎨 Aktiviteter
+        </button>
 
-    <!-- Innstillinger-knapp med nedtrekksmeny -->
-    <div style="position: relative; display: inline-block;">
-      <button type="button" onclick="toggleSettingsMenu(event)" title="Innstillinger" style="background: transparent; border: none; font-size: 1.2rem; cursor: pointer; padding: 2px 4px; line-height: 1; transition: transform 0.2s ease;" onmouseover="this.style.transform='rotate(45deg)'" onmouseout="this.style.transform='rotate(0deg)'">
-        ⚙️
-      </button>
-
-      <!-- Innstillinger Nedtrekksmeny -->
-      <div id="settingsDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 170px; overflow: hidden;">
-        <button type="button" onclick="openModal('resetConfirmModal'); toggleSettingsMenu();" style="display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #dc2626; font-weight: 600;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'">
+        <!-- NULLSTILL (med tydelig rød farge og ekstra skillelinje) -->
+        <button type="button" onclick="openModal('resetConfirmModal'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #dc2626; font-weight: 600; border-top: 2px solid #e2e8f0;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'">
           ⚠️ Nullstill all data
         </button>
       </div>
+
     </div>
 
   </div>
