@@ -7,8 +7,8 @@ body.bruker-trykkskrift, body.bruker-trykkskrift *, body.bruker-trykkskrift butt
 /* --- 2. LAYOUT & RAMMER --- */
 .sidebar { position: relative; width: 250px; height: 100vh; background: #ffffff; border-right: 1px solid #cbd5e1; padding: 4px; display: flex; flex-direction: column; gap: 4px; overflow: hidden; flex-shrink: 0; transition: all 0.3s ease; }
 .sidebar.hidden { display: none !important; }
-.sidebar-right { width: 400px; border-right: none; border-left: 1px solid #cbd5e1; overflow: hidden; background: #ffffff; padding: 8px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-.main-content { flex: 1; padding: 6px; display: flex; flex-direction: column; background: #f1f5f9; position: relative; gap: 6px; }
+.sidebar-right { width: 400px; height: 100vh !important; max-height: 100vh !important; border-right: none; border-left: 1px solid #cbd5e1; overflow: hidden; background: #ffffff; padding: 8px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; box-sizing: border-box; }
+.main-content { flex: 1; padding: 6px; display: flex; flex-direction: column; background: #f1f5f9; position: relative; gap: 6px; height: 100vh; }
 .frame-container { flex: 1; border-radius: 6px; overflow: hidden; background: #ffffff; border: 1px solid #cbd5e1; display: flex; flex-direction: column; }
 #mainFrame { width: 100%; height: 100%; border: none; flex: 1; }
 .top-bar { background: #fff; padding: 4px 8px; border: 1px solid #cbd5e1; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; font-size: 0.8rem; }
@@ -66,15 +66,7 @@ button:hover { background: #1d4ed8; }
 
 /* Spesifikt for select-menyer i tabellen */
 #planEditTable select { height: 34px !important; font-size: 0.85rem !important; padding: 4px 8px !important; background-color: #ffffff; cursor: pointer; }
-/* Styling for tekstfeltet/fagvalget i dagsplan-redigeringen */
-#planEditTable input[type="text"] {
-  height: 34px !important;
-  font-size: 0.82rem !important;
-  padding: 4px 8px !important;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-}
+#planEditTable input[type="text"] { height: 34px !important; font-size: 0.82rem !important; padding: 4px 8px !important; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; }
 
 /* --- 4. FASTLENKER --- */
 .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
@@ -86,79 +78,106 @@ button:hover { background: #1d4ed8; }
 #linkEditTable input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
 
 /* --- 5. DAGSPLAN & HORISONTAL VISNING --- */
-.schedule-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding: 2px; }
-.schedule-card { display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; gap: 12px; flex: 1; min-height: 0; opacity: 0.85; }
-.schedule-card.pause-card { background: #fefce8; border-color: #fde047; }
+.schedule-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px !important; 
+  flex: 1; 
+  height: 100%;
+  overflow: hidden !important; 
+  min-height: 0 !important; 
+  padding: 2px; 
+}
 
-/* Vertikal oppstilling for tekst inni kortet: Fag øverst -> Time under -> Klokkeslett nederst */
-/* Vertikal oppstilling for tekst inni kortet: Fag øverst -> Time under -> Klokkeslett nederst */
+.schedule-card { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  background: #ffffff; 
+  border: 1px solid #cbd5e1; 
+  border-radius: 6px; 
+  padding: 4px 10px !important; 
+  gap: 8px; 
+  flex: 1 1 0px !important; /* Tvinger alle kort til å dele tilgjengelig høyde likt */
+  min-height: 0 !important; 
+  overflow: hidden;
+  opacity: 0.85; 
+}
+
+
+/* Vertikal oppstilling for tekst inni kortet */
 .schedule-time { 
   flex: 1; 
   flex-shrink: 0; 
   display: flex; 
   flex-direction: column; 
-  justify-content: center; /* Endret fra space-between til center for vertikal midtstilling */
-  gap: 2px;               /* Legger til en jevn, liten avstand mellom tekstlinjene */
+  justify-content: center; 
+  gap: 2px; 
   align-self: stretch; 
 }
 
-/* Fagnavn - Plassert øverst og gjort ekstra stort */
-.schedule-subject { font-size: 1.55rem !important; font-weight: 900 !important; color: #0f172a !important; line-height: 1.1; margin-bottom: 2px; order: 1; }
+/* Fagnavn */
+.schedule-subject { font-weight: 900 !important; color: #0f172a !important; line-height: 1.1; margin-bottom: 2px; order: 1; }
 
-/* Timenummer (f.eks. 1. TIME) - Plassert i midten */
-.schedule-label { 
-  font-size: 0.85rem !important; 
-  font-weight: 800 !important; 
-  color: #64748b !important; 
-  text-transform: uppercase; 
-  line-height: 1.1; 
-  order: 2; 
-  /* margin-bottom: auto;  <-- Fjern eller kommenter ut denne linjen */
-}
+/* Timenummer */
+.schedule-label { font-weight: 800 !important; color: #64748b !important; text-transform: uppercase; line-height: 1.1; order: 2; }
 
-/* Klokkeslett - Plassert nederst */
-.schedule-clock { font-size: 0.9rem !important; font-weight: 700 !important; color: #334155 !important; order: 3; }
+/* Klokkeslett */
+.schedule-clock { font-weight: 700 !important; color: #334155 !important; order: 3; }
 
 /* Aktiv time (NÅ) */
 .schedule-card.active-now { opacity: 1 !important; background: #f0fdf4 !important; border: 2.5px solid #16a34a !important; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15); }
-.schedule-card.active-now .schedule-subject { font-size: 1.75rem !important; color: #052e16 !important; }
-.schedule-card.active-now .schedule-label { color: #16a34a !important; font-size: 0.9rem !important; }
-.schedule-card.active-now .schedule-clock { color: #15803d !important; font-size: 0.95rem !important; }
+.schedule-card.active-now .schedule-subject { color: #052e16 !important; }
+.schedule-card.active-now .schedule-label { color: #16a34a !important; }
+.schedule-card.active-now .schedule-clock { color: #15803d !important; }
 
 .active-badge { display: inline-flex; align-items: center; gap: 3px; background: #16a34a; color: white; font-size: 0.65rem !important; font-weight: 800; padding: 2px 6px; border-radius: 8px; margin-top: 4px; width: fit-content; order: 4; }
 .active-badge::before { content: ''; display: inline-block; width: 5px; height: 5px; background-color: white; border-radius: 50%; }
 
-.schedule-img-container { height: 100%; display: flex; align-items: center; justify-content: flex-end; overflow: hidden; max-width: 40%; }
-.schedule-img { height: 100%; max-height: 100%; max-width: 100%; object-fit: contain; }
+/* Dynamisk bildebeholder som krymper med kortene */
+.schedule-img-container {
+  width: auto !important;
+  min-width: 30px !important;
+  max-width: 75px !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 1 !important; /* Tillater bildene å krympe ved lave skjermhøyder */
+}
+
+.schedule-img {
+  max-height: 100% !important;
+  max-width: 100% !important;
+  object-fit: contain;
+}
+
 .schedule-empty { font-size: 0.8rem; color: #94a3b8; font-style: italic; }
 
 #bigScheduleContainer { display: flex !important; flex-direction: row !important; gap: 6px !important; align-items: stretch !important; padding: 4px !important; overflow-x: auto !important; width: 100% !important; height: 100% !important; }
 #bigScheduleContainer .schedule-card { flex: 1 1 0 !important; min-width: 110px !important; display: flex !important; flex-direction: column !important; justify-content: flex-end !important; align-items: center !important; text-align: center !important; padding: 8px 4px !important; background: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; }
 #bigScheduleContainer .schedule-card * { opacity: 1 !important; color: #1e293b !important; }
-#bigScheduleContainer .schedule-img-container { width: 100% !important; height: 100px !important; display: flex !important; justify-content: center !important; align-items: flex-end !important; margin-bottom: 6px !important; margin-top: auto !important; order: 1 !important; max-width: 100% !important; }
+#bigScheduleContainer .schedule-img-container { 
+  width: 100% !important; 
+  height: auto !important; 
+  flex: 1 !important; /* Tillater bildet å ta tilgjengelig plass uten å tvinge frem scrollefelt */
+  min-height: 0 !important;
+  display: flex !important; 
+  justify-content: center !important; 
+  align-items: flex-end !important; 
+  margin-bottom: 6px !important; 
+  margin-top: auto !important; 
+  order: 1 !important; 
+  max-width: 100% !important; 
+}
 #bigScheduleContainer .schedule-img { max-height: 100% !important; max-width: 100% !important; object-fit: contain !important; }
 #bigScheduleContainer .schedule-time { width: 100% !important; align-items: center !important; order: 2 !important; flex-shrink: 0 !important; min-height: 50px !important; display: flex !important; flex-direction: column !important; justify-content: flex-end !important; }
 #bigScheduleContainer .schedule-subject { font-size: 1.1rem !important; font-weight: bold !important; color: #0f172a !important; order: 1 !important; }
 #bigScheduleContainer .schedule-label { order: 2 !important; }
 #bigScheduleContainer .schedule-clock { order: 3 !important; }
 #bigScheduleContainer .active-now { border: 2px solid #16a34a !important; background-color: #f0fdf4 !important; }
-/* --- BILDEBEHOLDER MED FAST BREDDE FOR BEIN LINJEFØRING --- */
-.schedule-img-container {
-  width: 80px;          /* Fast bredde slik at teksten alltid starter på samme sted */
-  min-width: 70px;      /* Hindrer at boksen krymper */
-  height: 80px;         /* Fast høyde for bildet */
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Sentrerer bildet i sin faste boks */
-  overflow: hidden;
-  flex-shrink: 0;       /* Låser størrelsen permanent */
-}
-
-.schedule-img {
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;  /* Beholder bildets misforhold uten å strekke det */
-}
 
 /* --- 6. FLYTTBARE VINDUER (MODALER) & BACKDROP --- */
 #customModalBackdrop, .modal-backdrop { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(15, 23, 42, 0.6) !important; z-index: 99998 !important; }
@@ -173,10 +192,7 @@ button:hover { background: #1d4ed8; }
 .modal-body { flex: 1; padding: 10px; overflow-y: auto !important; position: relative; background: #fff; display: flex; flex-direction: column; min-height: 0; max-height: calc(90vh - 40px) !important; }
 #timerModal { width: 320px; height: auto; top: 15vh; left: 35vw; }
 #groupModal { width: 750px; max-height: 85vh; top: 8vh; left: 20vw; }
-
-/* Økt bredde, bedre luft og sentrert visning for Dagsplan-modalen */
 #planModal { width: 560px !important; max-width: 92vw !important; height: auto !important; max-height: 88vh !important; top: 6vh !important; left: calc(50vw - 280px) !important; }
-
 #linkModal { width: 600px; max-height: 85vh; top: 10vh; left: 25vw; }
 #studentModal, #lykkehjulModal { width: 700px; max-width: 95vw; max-height: 85vh; top: 10vh; left: 20vw; }
 #samlingModal { width: 340px; max-height: 85vh; top: 10vh; left: 30vw; }
@@ -323,3 +339,110 @@ body.font-size-large h3 { font-size: 1.1rem !important; }
 body.font-size-large .timer-display { font-size: 3rem !important; }
 
 .hidden { display: none !important; }
+
+/* --- 11. DAGSPLAN: SKRIFTTYPER OG STØRRELSER --- */
+
+/* Font-deklarasjoner */
+@font-face {
+  font-family: 'TrykkskriftFont';
+  src: url('trykkskrift.otf') format('opentype');
+  font-weight: 400 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'StavskriftFont';
+  src: url('skogstavskrift.otf') format('opentype');
+  font-weight: 400 900;
+  font-style: normal;
+}
+
+/* Dynamiske font-klasser som gjelder for hele kortet */
+.schedule-font-standard .schedule-card * { font-family: inherit; }
+
+.schedule-font-trykkskrift .schedule-card * { 
+  font-family: 'TrykkskriftFont', sans-serif !important; 
+}
+
+.schedule-font-stavskrift .schedule-card * { 
+  font-family: 'StavskriftFont', cursive !important; 
+}
+
+.schedule-font-comic .schedule-card * { 
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive !important; 
+}
+
+/* Gjør fagnavn EKSTRA tykt */
+.schedule-subject { font-weight: 900 !important; }
+
+.schedule-font-trykkskrift .schedule-subject,
+.schedule-font-stavskrift .schedule-subject {
+  -webkit-text-stroke: 1px currentColor; /* Økt fra 0.5px til 1px */
+  text-shadow: 0 0 0.5px currentColor;   /* Ekstra fyll for maksimal tykkelse */
+}
+
+/* Styrker lesbarheten på timetall og klokke i valgt font */
+.schedule-label {
+  font-weight: 900 !important;
+  color: #1e293b !important;
+}
+
+.schedule-clock {
+  font-weight: 900 !important;
+  color: #0f172a !important;
+}
+
+.schedule-font-trykkskrift .schedule-label,
+.schedule-font-trykkskrift .schedule-clock,
+.schedule-font-stavskrift .schedule-label,
+.schedule-font-stavskrift .schedule-clock {
+  -webkit-text-stroke: 0.6px currentColor; /* Økt fra 0.3px til 0.6px */
+  text-shadow: 0 0 0.3px currentColor;
+}
+
+/* STANDARD FONT STØRRELSER */
+.schedule-font-standard.schedule-size-small .schedule-subject { font-size: 1.15rem !important; }
+.schedule-font-standard.schedule-size-standard .schedule-subject { font-size: 1.4rem !important; }
+.schedule-font-standard.schedule-size-large .schedule-subject { font-size: 1.7rem !important; }
+
+/* TRYKKSKRIFT */
+.schedule-font-trykkskrift.schedule-size-small .schedule-subject { font-size: 1.4rem !important; }
+.schedule-font-trykkskrift.schedule-size-standard .schedule-subject { font-size: 1.75rem !important; }
+.schedule-font-trykkskrift.schedule-size-large .schedule-subject { font-size: 2.1rem !important; }
+
+/* STAVSKRIFT */
+.schedule-font-stavskrift.schedule-size-small .schedule-subject { font-size: 1.5rem !important; }
+.schedule-font-stavskrift.schedule-size-standard .schedule-subject { font-size: 1.9rem !important; }
+.schedule-font-stavskrift.schedule-size-large .schedule-subject { font-size: 2.3rem !important; }
+
+/* COMIC SANS */
+.schedule-font-comic.schedule-size-small .schedule-subject { font-size: 1.25rem !important; }
+.schedule-font-comic.schedule-size-standard .schedule-subject { font-size: 1.55rem !important; }
+.schedule-font-comic.schedule-size-large .schedule-subject { font-size: 1.85rem !important; }
+
+/* Sekundærtekst størrelser (Timetall og klokkeslett) */
+.schedule-size-small .schedule-label { font-size: 0.72rem !important; }
+.schedule-size-small .schedule-clock { font-size: 0.78rem !important; }
+
+.schedule-size-standard .schedule-label { font-size: 0.82rem !important; }
+.schedule-size-standard .schedule-clock { font-size: 0.88rem !important; }
+
+.schedule-size-large .schedule-label { font-size: 0.92rem !important; }
+.schedule-size-large .schedule-clock { font-size: 0.98rem !important; }
+
+/* MINIMAL VISNING */
+.schedule-minimal.schedule-font-standard.schedule-size-small .schedule-subject { font-size: 1.45rem !important; }
+.schedule-minimal.schedule-font-standard.schedule-size-standard .schedule-subject { font-size: 1.85rem !important; }
+.schedule-minimal.schedule-font-standard.schedule-size-large .schedule-subject { font-size: 2.3rem !important; }
+
+.schedule-minimal.schedule-font-trykkskrift.schedule-size-small .schedule-subject { font-size: 1.75rem !important; }
+.schedule-minimal.schedule-font-trykkskrift.schedule-size-standard .schedule-subject { font-size: 2.2rem !important; }
+.schedule-minimal.schedule-font-trykkskrift.schedule-size-large .schedule-subject { font-size: 2.6rem !important; }
+
+.schedule-minimal.schedule-font-stavskrift.schedule-size-small .schedule-subject { font-size: 1.85rem !important; }
+.schedule-minimal.schedule-font-stavskrift.schedule-size-standard .schedule-subject { font-size: 2.35rem !important; }
+.schedule-minimal.schedule-font-stavskrift.schedule-size-large .schedule-subject { font-size: 2.8rem !important; }
+
+.schedule-minimal.schedule-font-comic.schedule-size-small .schedule-subject { font-size: 1.6rem !important; }
+.schedule-minimal.schedule-font-comic.schedule-size-standard .schedule-subject { font-size: 2.0rem !important; }
+.schedule-minimal.schedule-font-comic.schedule-size-large .schedule-subject { font-size: 2.4rem !important; }

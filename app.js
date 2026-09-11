@@ -1,3 +1,41 @@
+
+
+// Sett et versjonsnummer for datastrukturen din
+const APP_VERSION = "1.0.1"; 
+
+function checkAppVersion() {
+  // Sjekk om siden kjøres lokalt fra disk (file://)
+  const isLocalFile = window.location.protocol === 'file:';
+
+  // Hvis filen åpnes direkte fra lokal disk, dropper vi automatisk nullstilling
+  if (isLocalFile) {
+    console.log("Kjører fra lokal disk (file://) – hopper over versjonssjekk for å bevare lokal data.");
+    return;
+  }
+
+  const savedVersion = localStorage.getItem('app_version');
+
+  // Hvis brukeren på nettstedet har en eldre versjon, oppdater
+  if (savedVersion !== APP_VERSION) {
+    console.log("Ny versjon oppdaget på nett! Oppdaterer lokal lagring...");
+    
+    if (typeof defaultDayStructure !== 'undefined') {
+      const days = ['mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag'];
+      const updatedSchedule = {};
+      days.forEach(d => {
+        updatedSchedule[d] = JSON.parse(JSON.stringify(defaultDayStructure));
+      });
+      localStorage.setItem('weekSchedule', JSON.stringify(updatedSchedule));
+    }
+
+    localStorage.setItem('app_version', APP_VERSION);
+  }
+}
+
+// Kjør sjekken umiddelbart
+checkAppVersion();
+
+
 /* --- DYNAMISKE LENKER --- */
 // Standardlenker dersom brukeren ikke har lagret noe enda
 const defaultLinks = [
@@ -347,16 +385,18 @@ const availableImages = [
 
 let scheduleViewConfig = loadState('dagsplanVisning', {
   showLabels: true,
-  showClock: true
+  showClock: true,
+  font: 'standard',
+  fontSize: 'large'
 });
 
 const defaultDayStructure = [
   { id: "t1", label: "1. time", start: "08:30", end: "09:15", time: "08.30 - 09.15", customSubject: "", img: "" },
-  { id: "t2", label: "Friminutt", start: "09:15", end: "09:30", time: "09.15 - 09.30", customSubject: "Friminutt", img: "Friminutt.png" },
+  { id: "t2", label: "", start: "09:15", end: "09:30", time: "09.15 - 09.30", customSubject: "Friminutt", img: "Friminutt.png" },
   { id: "t3", label: "2. time", start: "09:30", end: "10:00", time: "09.30 - 10.00", customSubject: "", img: "" },
   { id: "t4", label: "3. time", start: "10:00", end: "10:45", time: "10.00 - 10.45", customSubject: "", img: "" },
-  { id: "t5", label: "Spising", start: "10:45", end: "11:15", time: "10.45 - 11.15", customSubject: "Spising", img: "Spising.png" },
-  { id: "t6", label: "Friminutt", start: "11:15", end: "11:45", time: "11.15 - 11.45", customSubject: "Friminutt", img: "Friminutt.png" },
+  { id: "t5", label: "", start: "10:45", end: "11:15", time: "10.45 - 11.15", customSubject: "Spising", img: "Spising.png" },
+  { id: "t6", label: "", start: "11:15", end: "11:45", time: "11.15 - 11.45", customSubject: "Friminutt", img: "Friminutt.png" },
   { id: "t7", label: "4. time", start: "11:45", end: "12:30", time: "11.45 - 12.30", customSubject: "", img: "" },
   { id: "t8", label: "5. time", start: "12:30", end: "13:15", time: "12.30 - 13.15", customSubject: "", img: "" }
 ];
@@ -422,13 +462,70 @@ function isTimeActive(startStr, endStr) {
   return currentMinutes >= (startH * 60 + startM) && currentMinutes < (endH * 60 + endM);
 }
 
+
+// Legg til en ny økt på den dagen du redigerer nå
+function addNewSlot() {
+  saveCurrentEditState();
+  
+  const currentSlots = weekSchedule[editingDay] || [];
+  
+  // Finn det høyeste timetallet som finnes fra før (f.eks. om siste time var "5. time")
+  let maxTimeNum = 0;
+  currentSlots.forEach(slot => {
+    const match = slot.label.match(/(\d+)\.\s*time/i);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxTimeNum) maxTimeNum = num;
+    }
+  });
+
+  // Neste time blir 1 høyere enn høyeste eksisterende timetall
+  const nextNum = maxTimeNum + 1;
+  const newId = `t_${Date.now()}`;
+  
+  // Beregn default start- og sluttid ut fra forrige økt dersom den finnes
+  let lastEnd = "12:00";
+  if (currentSlots.length > 0) {
+    lastEnd = currentSlots[currentSlots.length - 1].end || "12:00";
+  }
+  
+  const [h, m] = lastEnd.split(':').map(Number);
+  const endH = (h + 1).toString().padStart(2, '0');
+  const endStr = `${endH}:${m.toString().padStart(2, '0')}`;
+
+  currentSlots.push({
+    id: newId,
+    label: `${nextNum}. time`,
+    start: lastEnd,
+    end: endStr,
+    time: `${lastEnd.replace(':', '.')} - ${endStr.replace(':', '.')}`,
+    customSubject: "",
+    img: ""
+  });
+
+  buildPlanEditor();
+}
+
+// Slett en valgt økt
+function removeSlot(slotId) {
+  saveCurrentEditState();
+  weekSchedule[editingDay] = weekSchedule[editingDay].filter(s => s.id !== slotId);
+  buildPlanEditor();
+}
+
+
+
 function renderSchedule() {
   const container = document.getElementById('scheduleDisplay') || document.getElementById('bigScheduleContainer');
   if (!container) return;
   container.innerHTML = "";
 
-  const timeSlots = weekSchedule[activeDay] || [];
   const isMinimal = !scheduleViewConfig.showLabels && !scheduleViewConfig.showClock;
+
+// Legg til schedule-list sammen med visningsklassene for å bevare flex-høyden (med 'large' som fallback)
+  container.className = `schedule-list schedule-container schedule-font-${scheduleViewConfig.font || 'standard'} schedule-size-${scheduleViewConfig.fontSize || 'large'} ${isMinimal ? 'schedule-minimal' : ''}`;
+
+  const timeSlots = weekSchedule[activeDay] || [];
 
   timeSlots.forEach(slot => {
     const isToday = getCurrentDayName() === activeDay;
@@ -447,14 +544,6 @@ function renderSchedule() {
       imageHTML = `<img src="${imagePath}" class="schedule-img" alt="${subjectName || slot.label}">`;
     }
 
-    let subjectStyle = "";
-    if (isMinimal) {
-      subjectStyle = "font-size: 2.1rem !important; line-height: 1.1;";
-    } else if (!scheduleViewConfig.showLabels || !scheduleViewConfig.showClock) {
-      subjectStyle = "font-size: 1.85rem !important; line-height: 1.1;";
-    }
-
-    // "NÅ"-knappen genereres her
     const activeBadgeHTML = isActive ? `<span class="active-badge" style="margin-right: 6px; margin-top: 0;">NÅ</span>` : '';
 
     item.innerHTML = `
@@ -462,7 +551,7 @@ function renderSchedule() {
         ${imageHTML}
       </div>
       <div class="schedule-time">
-        ${subjectName ? `<div class="schedule-subject" style="${subjectStyle}">${subjectName}</div>` : ''}
+        ${subjectName ? `<div class="schedule-subject">${subjectName}</div>` : ''}
         ${scheduleViewConfig.showLabels ? `<div class="schedule-label">${slot.label}</div>` : ''}
         ${scheduleViewConfig.showClock ? `<div class="schedule-clock" style="display: flex; align-items: center;">${activeBadgeHTML}${slot.time}</div>` : (isActive ? activeBadgeHTML : '')}
       </div>
@@ -471,11 +560,13 @@ function renderSchedule() {
   });
 }
 
-function toggleScheduleViewOption(optionKey, isChecked) {
-  scheduleViewConfig[optionKey] = isChecked;
+
+function toggleScheduleViewOption(optionKey, value) {
+  scheduleViewConfig[optionKey] = value;
   saveState('dagsplanVisning', scheduleViewConfig);
   renderSchedule();
 }
+
 
 function buildPlanEditor() {
   const table = document.getElementById('planEditTable');
@@ -483,8 +574,13 @@ function buildPlanEditor() {
 
   const labelCb = document.getElementById('showTimeLabelCheckbox');
   const clockCb = document.getElementById('showClockCheckbox');
+  const fontSel = document.getElementById('scheduleFontSelect');
+  const sizeSel = document.getElementById('scheduleFontSizeSelect');
+
   if (labelCb) labelCb.checked = scheduleViewConfig.showLabels;
   if (clockCb) clockCb.checked = scheduleViewConfig.showClock;
+  if (fontSel) fontSel.value = scheduleViewConfig.font || 'standard';
+  if (sizeSel) sizeSel.value = scheduleViewConfig.fontSize || 'large';
 
   const days = [
     { key: 'mandag', name: 'Man' },
@@ -519,42 +615,57 @@ function buildPlanEditor() {
   let tableHTML = `
     <thead>
       <tr style="font-weight:bold; background:#f0f4f8;">
+        <th style="padding:8px; text-align:center; border-bottom:1px solid #cbd5e1; width:24px;"></th>
         <th style="padding:8px; text-align:left; border-bottom:1px solid #cbd5e1;">Økt</th>
         <th style="padding:8px; text-align:left; border-bottom:1px solid #cbd5e1;">Start / Slutt</th>
         <th style="padding:8px; text-align:left; border-bottom:1px solid #cbd5e1;">Fag / Aktivitet</th>
+        <th style="padding:8px; text-align:center; border-bottom:1px solid #cbd5e1; width:30px;"></th>
       </tr>
     </thead>
     <tbody>
   `;
 
   const currentSlots = weekSchedule[editingDay] || [];
-  currentSlots.forEach(slot => {
+  currentSlots.forEach((slot, index) => {
     let options = `<option value="">-- Ingen fag valgt --</option>`;
     options += `<option value="__CUSTOM__">✏️ Skriv fag selv...</option>`;
     
-    // Legg til standardfagene
     availableImages.forEach(imgName => {
       const fileName = `${imgName}.png`;
       const selected = (slot.img === fileName && !slot.customSubject) ? 'selected' : '';
       options += `<option value="${fileName}" ${selected}>${imgName}</option>`;
     });
 
-    // Hvis det finnes et egendefinert fag valgt fra før, ta det med i listen
     if (slot.customSubject) {
       options += `<option value="CUSTOM:${slot.customSubject}|${slot.img}" selected>🌟 ${slot.customSubject}</option>`;
     }
 
+    const isFirst = index === 0;
+    const isLast = index === currentSlots.length - 1;
+
     tableHTML += `
       <tr>
-        <td style="padding:6px; border-bottom:1px solid #f1f5f9;"><b>${slot.label}</b></td>
+        <!-- PILER FOR Å FLYTTE OPP/NED -->
+        <td style="padding:4px 2px; border-bottom:1px solid #f1f5f9; text-align:center;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:1px;">
+            <button type="button" onclick="moveSlot(${index}, -1)" ${isFirst ? 'disabled style="opacity:0.15; cursor:default; border:none; background:none; padding:0; line-height:1;"' : 'style="border:none; background:none; cursor:pointer; font-size:10px; padding:0; line-height:1; color:#475569;"'} title="Flytt opp">▲</button>
+            <button type="button" onclick="moveSlot(${index}, 1)" ${isLast ? 'disabled style="opacity:0.15; cursor:default; border:none; background:none; padding:0; line-height:1;"' : 'style="border:none; background:none; cursor:pointer; font-size:10px; padding:0; line-height:1; color:#475569;"'} title="Flytt ned">▼</button>
+          </div>
+        </td>
+        <td style="padding:6px; border-bottom:1px solid #f1f5f9;">
+          <input type="text" id="label_${slot.id}" value="${slot.label || ''}" style="width:75px; padding:3px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; font-weight:bold;">
+        </td>
         <td style="padding:6px; border-bottom:1px solid #f1f5f9; white-space:nowrap;">
           <input type="time" id="start_${slot.id}" value="${slot.start}" style="padding:3px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px;"> - 
           <input type="time" id="end_${slot.id}" value="${slot.end}" style="padding:3px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px;">
         </td>
         <td style="padding:6px; border-bottom:1px solid #f1f5f9;">
-          <select id="select_${slot.id}" onchange="handleSubjectChange('${slot.id}')">
+          <select id="select_${slot.id}" onchange="handleSubjectChange('${slot.id}')" style="width:100%; padding:3px; font-size:12px; border:1px solid #cbd5e1; border-radius:4px;">
             ${options}
           </select>
+        </td>
+        <td style="padding:6px; border-bottom:1px solid #f1f5f9; text-align:center;">
+          <button type="button" onclick="removeSlot('${slot.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:bold; font-size:14px;" title="Slett økt">✕</button>
         </td>
       </tr>
     `;
@@ -562,6 +673,21 @@ function buildPlanEditor() {
 
   tableHTML += `</tbody>`;
   table.innerHTML = tableHTML;
+}
+
+function moveSlot(index, direction) {
+  saveCurrentEditState();
+  const slots = weekSchedule[editingDay];
+  if (!slots) return;
+
+  const targetIndex = index + direction;
+  if (targetIndex < 0 || targetIndex >= slots.length) return;
+
+  const temp = slots[index];
+  slots[index] = slots[targetIndex];
+  slots[targetIndex] = temp;
+
+  buildPlanEditor();
 }
 
 // Håndterer valg i nedtrekksmenyene
@@ -656,9 +782,14 @@ function saveCurrentEditState() {
   if (!currentSlots) return;
 
   currentSlots.forEach(slot => {
+    const labelInput = document.getElementById(`label_${slot.id}`);
     const startInput = document.getElementById(`start_${slot.id}`);
     const endInput = document.getElementById(`end_${slot.id}`);
     const select = document.getElementById(`select_${slot.id}`);
+
+    if (labelInput) {
+      slot.label = labelInput.value;
+    }
 
     if (startInput && endInput) {
       slot.start = startInput.value;
@@ -733,6 +864,65 @@ function toggleModalBackdrop() {
   const backdrop = document.getElementById('customModalBackdrop');
   if (backdrop) {
     backdrop.classList.toggle('transparent-backdrop');
+  }
+}
+
+// Åpne modalen for tømmingsvalg
+function openResetModal() {
+  saveCurrentEditState();
+  const modal = document.getElementById('resetOptionsModal');
+  if (modal) modal.style.display = 'block';
+}
+
+// Håndtere de fire ulike valgene
+function executeReset(action) {
+  const days = ['mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag'];
+
+  if (action === 'clearDay') {
+    if (weekSchedule[editingDay]) {
+      weekSchedule[editingDay].forEach(slot => {
+        const isPause = slot.customSubject === "Friminutt" || slot.customSubject === "Spising";
+        if (!isPause) {
+          slot.customSubject = "";
+          slot.img = "";
+        }
+      });
+    }
+  } 
+  else if (action === 'resetDay') {
+    if (confirm(`Vil du tilbakestille ${editingDay} til standard oppsett?`)) {
+      weekSchedule[editingDay] = JSON.parse(JSON.stringify(defaultDayStructure));
+    } else {
+      return;
+    }
+  } 
+  else if (action === 'clearAll') {
+    days.forEach(d => {
+      if (weekSchedule[d]) {
+        weekSchedule[d].forEach(slot => {
+          const isPause = slot.customSubject === "Friminutt" || slot.customSubject === "Spising";
+          if (!isPause) {
+            slot.customSubject = "";
+            slot.img = "";
+          }
+        });
+      }
+    });
+  } 
+  else if (action === 'resetAll') {
+    if (confirm("Vil du tilbakestille HELE ukeplanen til standard oppsett?")) {
+      days.forEach(d => {
+        weekSchedule[d] = JSON.parse(JSON.stringify(defaultDayStructure));
+      });
+    } else {
+      return;
+    }
+  }
+
+  closeModal('resetOptionsModal');
+  buildPlanEditor();
+  if (typeof renderSchedule === 'function') {
+    renderSchedule();
   }
 }
 
