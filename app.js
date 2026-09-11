@@ -401,6 +401,9 @@ const defaultDayStructure = [
   { id: "t8", label: "5. time", start: "12:30", end: "13:15", time: "12.30 - 13.15", customSubject: "", img: "" }
 ];
 
+// Kjør sjekken umiddelbart
+checkAppVersion();
+
 function createDefaultWeek() {
   const week = {
     mandag: JSON.parse(JSON.stringify(defaultDayStructure)),
