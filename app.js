@@ -1,40 +1,21 @@
-
-
-// Sett et versjonsnummer for datastrukturen din
-const APP_VERSION = "1.0.1"; 
-
-function checkAppVersion() {
-  // Sjekk om siden kjøres lokalt fra disk (file://)
-  const isLocalFile = window.location.protocol === 'file:';
-
-  // Hvis filen åpnes direkte fra lokal disk, dropper vi automatisk nullstilling
-  if (isLocalFile) {
-    console.log("Kjører fra lokal disk (file://) – hopper over versjonssjekk for å bevare lokal data.");
-    return;
-  }
-
-  const savedVersion = localStorage.getItem('app_version');
-
-  // Hvis brukeren på nettstedet har en eldre versjon, oppdater
-  if (savedVersion !== APP_VERSION) {
-    console.log("Ny versjon oppdaget på nett! Oppdaterer lokal lagring...");
-    
-    if (typeof defaultDayStructure !== 'undefined') {
-      const days = ['mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag'];
-      const updatedSchedule = {};
-      days.forEach(d => {
-        updatedSchedule[d] = JSON.parse(JSON.stringify(defaultDayStructure));
-      });
-      localStorage.setItem('weekSchedule', JSON.stringify(updatedSchedule));
-    }
-
-    localStorage.setItem('app_version', APP_VERSION);
+/* --- LOCALSTORAGE HJELPEFUNKSJONER --- */
+function saveState(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn("Kunne ikke lagre til localStorage (kjører sannsynligvis fra file://):", e);
   }
 }
 
-// Kjør sjekken umiddelbart
-checkAppVersion();
-
+function loadState(key, fallback = null) {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : fallback;
+  } catch (e) {
+    console.warn("Kunne ikke lese fra localStorage (kjører sannsynligvis fra file://):", e);
+    return fallback;
+  }
+}
 
 /* --- DYNAMISKE LENKER --- */
 // Standardlenker dersom brukeren ikke har lagret noe enda
@@ -92,29 +73,6 @@ function renderLinks() {
     container.appendChild(a);
   });
 }
-
-
-
-/* --- HJELPEFUNKSJONER FOR LOCALSTORAGE --- */
-function saveState(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.warn("Kunne ikke lagre til localStorage (kjører sannsynligvis fra file://):", e);
-  }
-}
-
-// Kun ÉN trygg loadState med try/catch
-function loadState(key, fallback = null) {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : fallback;
-  } catch (e) {
-    console.warn("Kunne ikke lese fra localStorage (kjører sannsynligvis fra file://):", e);
-    return fallback;
-  }
-}
-
 
 
 /* --- LENKEREDIGERING (MED 6 PLASSER) --- */
@@ -375,6 +333,7 @@ function visTrinn(trinn) {
 
 
 
+
 /* --- DAGSPLAN LOGIKK M/ EGENDEFINERT FAG OG MODAL --- */
 const availableImages = [
   "Arbeidsplan", "Bibliotek", "DKS", "Engelsk", "Forestilling", "Friminutt", 
@@ -382,13 +341,6 @@ const availableImages = [
   "Matematikk", "Musikk", "Naturfag", "Norsk", "Samfunnsfag", 
   "Samling", "Spising", "Stasjoner", "Stillelesing", "Svømming", "Uteskole"
 ];
-
-let scheduleViewConfig = loadState('dagsplanVisning', {
-  showLabels: true,
-  showClock: true,
-  font: 'standard',
-  fontSize: 'large'
-});
 
 const defaultDayStructure = [
   { id: "t1", label: "1. time", start: "08:30", end: "09:15", time: "08.30 - 09.15", customSubject: "", img: "" },
@@ -401,8 +353,46 @@ const defaultDayStructure = [
   { id: "t8", label: "5. time", start: "12:30", end: "13:15", time: "12.30 - 13.15", customSubject: "", img: "" }
 ];
 
-// Kjør sjekken umiddelbart
+
+/* --- VERSJONSSJEKK (KJØRES TRYGT NÅR ALT OVER ER DEFINERT) --- */
+const APP_VERSION = "1.0.1"; 
+
+function checkAppVersion() {
+  const isLocalFile = window.location.protocol === 'file:';
+  if (isLocalFile) {
+    console.log("Kjører fra lokal disk (file://) – hopper over versjonssjekk.");
+    return;
+  }
+
+  const savedVersion = localStorage.getItem('app_version');
+
+  if (savedVersion !== APP_VERSION) {
+    console.log("Ny versjon oppdaget på nett! Oppdaterer lokal lagring...");
+    
+    if (typeof defaultDayStructure !== 'undefined') {
+      const days = ['mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag'];
+      const updatedSchedule = {};
+      days.forEach(d => {
+        updatedSchedule[d] = JSON.parse(JSON.stringify(defaultDayStructure));
+      });
+      localStorage.setItem('weekSchedule', JSON.stringify(updatedSchedule));
+    }
+
+    localStorage.setItem('app_version', APP_VERSION);
+  }
+}
+
+// NÅ kan vi kjøre sjekken!
 checkAppVersion();
+
+
+/* --- DYNAMISKE LENKER & INNSTILLINGER --- */
+let scheduleViewConfig = loadState('dagsplanVisning', {
+  showLabels: true,
+  showClock: true,
+  font: 'standard',
+  fontSize: 'large'
+});
 
 function createDefaultWeek() {
   const week = {
@@ -515,7 +505,6 @@ function removeSlot(slotId) {
   weekSchedule[editingDay] = weekSchedule[editingDay].filter(s => s.id !== slotId);
   buildPlanEditor();
 }
-
 
 
 function renderSchedule() {
