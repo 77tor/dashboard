@@ -29,7 +29,9 @@ const aktiviteterData = [
   { tittel: "Vaske hendene", bilde: "Aktivitet/vaske.png" },
   { tittel: "Vask hendene og finn maten", bilde: "Aktivitet/vask_mat.png" },
   { tittel: "Finn Fabel Lesebok 1", bilde: "Aktivitet/Fabel1-Lesebok.png" },
+  { tittel: "Ryddetid", bilde: "Aktivitet/Ryddetid.png" },
   { tittel: "Finn lesebok", bilde: "Aktivitet/Stillelesing.png" },
+  { tittel: "Se film", bilde: "Aktivitet/Se_film.png" },
   { tittel: "Hent mat/drikke", bilde: "Aktivitet/Spising.png" }
 ];
 
