@@ -3171,6 +3171,19 @@ function toggleSidebar() {
   }
 }
 
+// Funksjon som tvinger venstremenyen til å lukke seg
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const arrow = document.getElementById('toggleArrow');
+  
+  if (sidebar && !sidebar.classList.contains('collapsed')) {
+    sidebar.classList.add('collapsed');
+    if (arrow) {
+      arrow.textContent = '❯';
+    }
+  }
+}
+
 
 /* --- SAMLET OPPSTARTSLOGIKK --- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -3207,6 +3220,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const secInput = document.getElementById('sec');
   if (minInput && typeof applyInputTime === 'function') minInput.addEventListener('change', applyInputTime);
   if (secInput && typeof applyInputTime === 'function') secInput.addEventListener('change', applyInputTime);
+
+  // AUTOMATISK LUKKING AV VENSTREMENY NÅR NOE VELGES:
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    sidebar.addEventListener('click', (event) => {
+      // Ikke lukk hvis brukeren trykket på selve åpne/lukk-pilen
+      if (event.target.closest('.sidebar-hover-zone')) return;
+
+      // Lukk menyen dersom det trykkes på en knapp, lenke eller et kort
+      if (event.target.closest('button, a, .clickable-card')) {
+        closeSidebar();
+      }
+    });
+  }
 
   // Kjører hvert sekund for å holde klokken, datovedlikehold og "NÅ"-markøren oppdatert
   setInterval(() => {
