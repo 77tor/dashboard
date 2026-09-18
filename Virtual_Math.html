@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtuelle Matteverktøy - Bokhylle</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #3a3f47;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* VENSTREKOLONNE: BOKHYLLE-MENY */
+        .sidebar {
+            width: 440px;
+            min-width: 380px;
+            background-color: #3a3f47;
+            border-right: 3px solid #7c502b;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .shelf-container {
+            width: 100%;
+            background-color: #a87243;
+            border: 8px solid #7c502b;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .category-title {
+            color: #fff;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+
+        /* Fleksibelt rutenett som fyller tomrom automatisk */
+        .shelf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+            gap: 8px;
+            background-color: #c98b55;
+            border-radius: 6px;
+            padding: 8px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .item {
+            background: #ffffff;
+            border: 2px solid #8d5b32;
+            border-radius: 8px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #2c3e50;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 85px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .item:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+            background-color: #f8fafc;
+        }
+
+        .item.active {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+
+        .item-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 11px;
+            line-height: 1.1;
+        }
+
+        .item-source {
+            font-size: 8px;
+            color: #64748b;
+            margin-top: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .top-shelf .item {
+            background: #f1f5f9;
+            border-top: 4px solid #2563eb;
+        }
+
+        /* HØYREKOLONNE: VISNING */
+        .main-view {
+            flex: 1;
+            height: 100%;
+            background-color: #1e293b;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tool-header {
+            background-color: #0f172a;
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #334155;
+        }
+
+        .tool-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .btn-open-external {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.15s;
+        }
+
+        .btn-open-external:hover {
+            background-color: #1d4ed8;
+        }
+
+        .frame-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .math-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #ffffff;
+        }
+
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #94a3b8;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- VENSTREMENY (BOKHYLLE) -->
+        <aside class="sidebar">
+            <h1>📐 Matteverktøy</h1>
+
+            <div class="shelf-container">
+
+                <!-- HYLLE 1: PORTALER / SAMLINGER (ISOLERT TOPPGRUPPE) -->
+                <div>
+                    <div class="category-title">🌐 Hovedsamlinger</div>
+                    <div class="shelf-grid top-shelf">
+                        <div class="item" onclick="window.open('https://toytheater.com/category/teacher-tools/virtual-manipulatives/', '_blank')">
+                            <div class="item-icon">💻</div>
+                            <div class="item-title">Toy Theater</div>
+                            <div class="item-source">Samling</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://www.mathlearningcenter.org/apps', '_blank')">
+                            <div class="item-icon">💻</div>
+                            <div class="item-title">Math Learning</div>
+                            <div class="item-source">Apper</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://polypad.amplify.com/p', '_blank')">
+                            <div class="item-icon">💻</div>
+                            <div class="item-title">Polypad</div>
+                            <div class="item-source">Mathigon</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://www.mathplayground.com/math_manipulatives.html', '_blank')">
+                            <div class="item-icon">💻</div>
+                            <div class="item-title">Math Playgr.</div>
+                            <div class="item-source">Verktøy</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://www.didax.com/math/virtual-manipulatives.html', '_blank')">
+                            <div class="item-icon">💻</div>
+                            <div class="item-title">Didax</div>
+                            <div class="item-source">Verktøy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRUPPE: GEOMETRI & FORM -->
+                <div>
+                    <div class="category-title">📐 Geometri & Form</div>
+                    <div class="shelf-grid">
+                        <div class="item" onclick="loadTool('https://apps.mathlearningcenter.org/geoboard/', 'Geobrett', this)">
+                            <div class="item-icon">📐</div>
+                            <div class="item-title">Geobrett</div>
+                            <div class="item-source">MLC</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://polypad.amplify.com/p#patterns', '_blank')">
+                            <div class="item-icon">⬡</div>
+                            <div class="item-title">Mønsterblokk</div>
+                            <div class="item-source">Polypad</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://polypad.amplify.com/p#tangram', '_blank')">
+                            <div class="item-icon">📐</div>
+                            <div class="item-title">Tangram</div>
+                            <div class="item-source">Polypad</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://polypad.amplify.com/p', '_blank')">
+                            <div class="item-icon">🧩</div>
+                            <div class="item-title">Pentamino</div>
+                            <div class="item-source">Polypad</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://www.didax.com/apps/3d-shapes/', '3D-Figurer', this)">
+                            <div class="item-icon">💎</div>
+                            <div class="item-title">3D-Figurer</div>
+                            <div class="item-source">Didax</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/area-perimeter-explorer/', 'Areal & Omkrets', this)">
+                            <div class="item-icon">🔲</div>
+                            <div class="item-title">Areal/Omkrets</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRUPPE: TALL, TELLING & BRØK -->
+                <div>
+                    <div class="category-title">🧮 Tall, Telling & Brøk</div>
+                    <div class="shelf-grid">
+                        <div class="item" onclick="loadTool('https://www.didax.com/apps/unifix/', 'Unifix-kuber', this)">
+                            <div class="item-icon">🟩</div>
+                            <div class="item-title">Unifix-kuber</div>
+                            <div class="item-source">Didax</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/bear-counters/', 'Tellebjørner', this)">
+                            <div class="item-icon">🧸</div>
+                            <div class="item-title">Tellebjørner</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/two-color-counter-whiteboard/', 'Tofargede brikker', this)">
+                            <div class="item-icon">🔴</div>
+                            <div class="item-title">Brikker</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/marble-jar/', 'Kuler i krukke', this)">
+                            <div class="item-icon">🔮</div>
+                            <div class="item-title">Kulekrukke</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://www.didax.com/apps/ten-frame/', 'Tiervenn-ramme', this)">
+                            <div class="item-icon">🔳</div>
+                            <div class="item-title">Tiervenn</div>
+                            <div class="item-source">Didax</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/hundreds-chart/', 'Hundreramme', this)">
+                            <div class="item-icon">🔢</div>
+                            <div class="item-title">Hundreramme</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://apps.mathlearningcenter.org/number-line/', 'Tallinje', this)">
+                            <div class="item-icon">📈</div>
+                            <div class="item-title">Tallinje</div>
+                            <div class="item-source">MLC</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://apps.mathlearningcenter.org/number-pieces-mini/', 'Base-10 blokker', this)">
+                            <div class="item-icon">🧊</div>
+                            <div class="item-title">Base-10</div>
+                            <div class="item-source">MLC</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/rekenrek/', 'Rekenrek', this)">
+                            <div class="item-icon">🧮</div>
+                            <div class="item-title">Rekenrek</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/abacus/', 'Kuleramme / Abacus', this)">
+                            <div class="item-icon">🧮</div>
+                            <div class="item-title">Abacus</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/place-value-chart/', 'Plassverditabell', this)">
+                            <div class="item-icon">📊</div>
+                            <div class="item-title">Plassverdi</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://polypad.amplify.com/p', '_blank')">
+                            <div class="item-icon">🍕</div>
+                            <div class="item-title">Brøksirkler</div>
+                            <div class="item-source">Polypad</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/fraction-circles/', 'Brøkdeler', this)">
+                            <div class="item-icon">🟣</div>
+                            <div class="item-title">Brøkdeler</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/percentage-strips/', 'Prosent / Brøkstaver', this)">
+                            <div class="item-icon">📏</div>
+                            <div class="item-title">Brøkstaver</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="window.open('https://polypad.amplify.com/p', '_blank')">
+                            <div class="item-icon">🟫</div>
+                            <div class="item-title">Cuisenaire</div>
+                            <div class="item-source">Polypad</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRUPPE: MÅLING, TID & PENGER -->
+                <div>
+                    <div class="category-title">⚖️ Måling, Tid & Penger</div>
+                    <div class="shelf-grid">
+                        <div class="item" onclick="loadTool('https://apps.mathlearningcenter.org/money-pieces/', 'Penger', this)">
+                            <div class="item-icon">💰</div>
+                            <div class="item-title">Penger</div>
+                            <div class="item-source">MLC</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/clock/', 'Klokke', this)">
+                            <div class="item-icon">🕐</div>
+                            <div class="item-title">Klokke</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://www.didax.com/apps/math-balance/', 'Mattevekt', this)">
+                            <div class="item-icon">⚖️</div>
+                            <div class="item-title">Mattevekt</div>
+                            <div class="item-source">Didax</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/thermometer/', 'Gradestokk', this)">
+                            <div class="item-icon">🌡️</div>
+                            <div class="item-title">Gradestokk</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/stopwatch/', 'Stoppeklokke', this)">
+                            <div class="item-icon">⏱️</div>
+                            <div class="item-title">Stoppeklokke</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/hourglass/', 'Timeglass', this)">
+                            <div class="item-icon">⏳</div>
+                            <div class="item-title">Timeglass</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRUPPE: STATISTIKK, VERKTØY & SPILL -->
+                <div>
+                    <div class="category-title">🎯 Statistikk & Verktøy</div>
+                    <div class="shelf-grid">
+                        <div class="item" onclick="loadTool('https://toytheater.com/dice/', 'Terninger', this)">
+                            <div class="item-icon">🎲</div>
+                            <div class="item-title">Terninger</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/spinner/', 'Lykkehjul / Spinner', this)">
+                            <div class="item-icon">🎯</div>
+                            <div class="item-title">Lykkehjul</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://www.mathsisfun.com/data/bar-graph.html', 'Søylediagram', this)">
+                            <div class="item-icon">📊</div>
+                            <div class="item-title">Søylediagram</div>
+                            <div class="item-source">Maths is Fun</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/calculator/', 'Kalkulator', this)">
+                            <div class="item-icon">🔢</div>
+                            <div class="item-title">Kalkulator</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                        <div class="item" onclick="loadTool('https://toytheater.com/multiplication-chart-1-to-12/', 'Gangetabell', this)">
+                            <div class="item-icon">✖️</div>
+                            <div class="item-title">Gangetabell</div>
+                            <div class="item-source">Toy Theater</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- HØYREVINDU -->
+        <main class="main-view">
+            <div class="tool-header" id="toolHeader" style="display: none;">
+                <span class="tool-title" id="currentToolTitle">Velg et verktøy</span>
+                <a href="#" target="_blank" id="externalBtn" class="btn-open-external">
+                    Åpne i ny fane ↗
+                </a>
+            </div>
+            
+            <div class="frame-container">
+                <div id="placeholder" class="placeholder">
+                    <div class="placeholder-icon">📐</div>
+                    <p>Klikk på et verktøy fra bokhyllen til venstre for å laste det inn.</p>
+                </div>
+                <iframe name="mathViewer" id="mathViewer" class="math-frame" style="display: none;"></iframe>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        function loadTool(url, title, element) {
+            // Marker aktiv knapp
+            document.querySelectorAll('.item').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            // Oppdater topp-linje og iframe
+            document.getElementById('currentToolTitle').textContent = title;
+            document.getElementById('externalBtn').href = url;
+            document.getElementById('toolHeader').style.display = 'flex';
+            
+            const iframe = document.getElementById('mathViewer');
+            const placeholder = document.getElementById('placeholder');
+            
+            placeholder.style.display = 'none';
+            iframe.style.display = 'block';
+            iframe.src = url;
+        }
+    </script>
+</body>
+</html>

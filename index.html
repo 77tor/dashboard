@@ -45,22 +45,24 @@
     </div>
   </div>
 
-  <!-- VERKTØY (RUTENETT) -->
-  <div class="card">
-    <span class="card-title">Verktøy</span>
-    <div class="tools-grid">
-      <button type="button" class="btn-tool btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">✏️ Whiteboard</button>
-      <button type="button" class="btn-tool btn-trafikklys" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">🚦 Arbeidsro / Trafikklys</button>
-      <button type="button" class="btn-tool btn-mattemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('matematikk.html');">🔢 Matte-mix</button>
-      <button type="button" class="btn-tool btn-lesemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('lese.html');">📖 Lese-mix</button>
-      <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
-      <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
-      <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
-      <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
-      <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
-      <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
-    </div>
+<!-- VERKTØY (RUTENETT) -->
+<div class="card">
+  <span class="card-title">Verktøy</span>
+  <div class="tools-grid">
+    <button type="button" class="btn-tool btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">✏️ Whiteboard</button>
+    <button type="button" class="btn-tool btn-trafikklys" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">🚦 Arbeidsro / Trafikklys</button>
+    <button type="button" class="btn-tool btn-mattemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('matematikk.html');">🔢 Matte-mix</button>
+    <button type="button" class="btn-tool btn-lesemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('lese.html');">📖 Lese-mix</button>
+    <button type="button" class="btn-tool btn-virtual-math" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('Virtual_Math.html');">📐 Virtuelle Matteverktøy</button>
+    <button type="button" class="btn-tool btn-fabel" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('fabel.html');">📚 Fabel</button>
+    <button type="button" class="btn-tool btn-aktivitet" onclick="genererAktiviteter(); openModal('aktivitetModal');">🎨 Aktivitet</button>
+    <button type="button" class="btn-tool btn-timer" onclick="openModal('timerModal');">⏱️ Tidsur</button>
+    <button type="button" class="btn-tool btn-group" onclick="openModal('groupModal');">👥 Trekke grupper</button>
+    <button type="button" class="btn-tool btn-wheel" onclick="openModal('bigWheelModal');">🎲 Trekke elever</button>
+    <button type="button" class="btn-tool btn-planer" onclick="lastUkeplaner(); openModal('ukeplanModal');">📑 Ukeplaner</button>
+    <button type="button" class="btn-tool btn-file" onclick="openFilePickerModal();">📁 Åpne fil</button>
   </div>
+</div>
 
   <!-- FASTLENKER -->
   <div class="card">
