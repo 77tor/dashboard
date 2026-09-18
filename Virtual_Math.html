@@ -24,12 +24,14 @@
             display: flex;
             width: 100%;
             height: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
         /* VENSTREKOLONNE: BOKHYLLE-MENY */
         .sidebar {
             width: 440px;
-            min-width: 380px;
+            min-width: 440px;
             background-color: #3a3f47;
             border-right: 3px solid #7c502b;
             padding: 15px;
@@ -37,6 +39,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Smooth slide and layout transition */
+            transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.3s ease,
+                        box-shadow 0.35s ease;
+            z-index: 20;
+            position: relative;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+        }
+
+        .sidebar.collapsed {
+            margin-left: -440px;
+            opacity: 0.9;
+            box-shadow: none;
         }
 
         h1 {
@@ -46,6 +61,7 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             text-align: center;
             letter-spacing: 1px;
+            white-space: nowrap;
         }
 
         .shelf-container {
@@ -70,7 +86,6 @@
             opacity: 0.9;
         }
 
-        /* Fleksibelt rutenett som fyller tomrom automatisk */
         .shelf-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
@@ -92,11 +107,12 @@
             justify-content: center;
             text-decoration: none;
             color: #2c3e50;
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s, box-shadow 0.15s, background-color 0.15s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             min-height: 85px;
             text-align: center;
             cursor: pointer;
+            user-select: none;
         }
 
         .item:hover {
@@ -143,6 +159,8 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            min-width: 0; /* Ensures full responsiveness */
+            transition: flex 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .tool-header {
@@ -153,6 +171,64 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid #334155;
+            min-height: 52px;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-btn {
+            background-color: #334155;
+            color: white;
+            border: 1px solid #475569;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+            user-select: none;
+        }
+
+        .toggle-btn:hover {
+            background-color: #475569;
+            border-color: #64748b;
+        }
+
+        .toggle-btn:active {
+            transform: scale(0.97);
+        }
+
+        .floating-toggle-btn {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 30;
+            background-color: #0f172a;
+            color: white;
+            border: 1px solid #334155;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.15s, transform 0.15s;
+        }
+
+        .floating-toggle-btn:hover {
+            background-color: #1e293b;
+            transform: translateY(-1px);
         }
 
         .tool-title {
@@ -203,6 +279,7 @@
             color: #94a3b8;
             text-align: center;
             padding: 20px;
+            position: relative;
         }
 
         .placeholder-icon {
@@ -216,7 +293,7 @@
     <div class="app-container">
 
         <!-- VENSTREMENY (BOKHYLLE) -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <h1>📐 Matteverktøy</h1>
 
             <div class="shelf-container">
@@ -446,8 +523,19 @@
 
         <!-- HØYREVINDU -->
         <main class="main-view">
+            <!-- Flytende knapp når headere/verktøy er skjult -->
+            <button class="floating-toggle-btn" id="floatingToggleBtn" onclick="toggleSidebar()" style="display: none;" title="Vis meny">
+                ☰ Vis meny
+            </button>
+
+            <!-- Hoved-header når et verktøy er aktivt -->
             <div class="tool-header" id="toolHeader" style="display: none;">
-                <span class="tool-title" id="currentToolTitle">Velg et verktøy</span>
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="headerToggleBtn" title="Skjul/vis meny">
+                        ◀ Skjul meny
+                    </button>
+                    <span class="tool-title" id="currentToolTitle">Velg et verktøy</span>
+                </div>
                 <a href="#" target="_blank" id="externalBtn" class="btn-open-external">
                     Åpne i ny fane ↗
                 </a>
@@ -455,6 +543,10 @@
             
             <div class="frame-container">
                 <div id="placeholder" class="placeholder">
+                    <!-- Knapp i velkomstområdet -->
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="placeholderToggleBtn" style="position: absolute; top: 15px; left: 15px;">
+                        ◀ Skjul meny
+                    </button>
                     <div class="placeholder-icon">📐</div>
                     <p>Klikk på et verktøy fra bokhyllen til venstre for å laste det inn.</p>
                 </div>
@@ -465,16 +557,47 @@
     </div>
 
     <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const floatingBtn = document.getElementById('floatingToggleBtn');
+            const toolHeader = document.getElementById('toolHeader');
+            
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            
+            // Update button text across standard buttons
+            const headerBtn = document.getElementById('headerToggleBtn');
+            const placeholderBtn = document.getElementById('placeholderToggleBtn');
+            
+            const btnText = isCollapsed ? '▶ Vis meny' : '◀ Skjul meny';
+            if (headerBtn) headerBtn.innerHTML = btnText;
+            if (placeholderBtn) placeholderBtn.innerHTML = btnText;
+
+            // Handle floating button visibility when tool header is hidden
+            if (toolHeader.style.display === 'none') {
+                if (isCollapsed) {
+                    floatingBtn.style.display = 'inline-flex';
+                } else {
+                    floatingBtn.style.display = 'none';
+                }
+            } else {
+                floatingBtn.style.display = 'none';
+            }
+        }
+
         function loadTool(url, title, element) {
-            // Marker aktiv knapp
+            // Highlight selected bookshelf tool
             document.querySelectorAll('.item').forEach(el => el.classList.remove('active'));
             if (element) element.classList.add('active');
 
-            // Oppdater topp-linje og iframe
+            // Update title, link, and display main tool header
             document.getElementById('currentToolTitle').textContent = title;
             document.getElementById('externalBtn').href = url;
             document.getElementById('toolHeader').style.display = 'flex';
             
+            // Hide floating button since standard header is visible
+            document.getElementById('floatingToggleBtn').style.display = 'none';
+
             const iframe = document.getElementById('mathViewer');
             const placeholder = document.getElementById('placeholder');
             
