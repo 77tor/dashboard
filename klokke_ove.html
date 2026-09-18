@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiv Læreklokke</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            display: flex;
+            min-height: 100vh;
+            color: #334155;
+            user-select: none;
+        }
+
+        /* Hovedlayout: Sidemeny + Klokkeområde */
+        .app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Venstremeny */
+        .sidebar {
+            width: 340px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.03);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar h1 {
+            color: #1e293b;
+            font-size: 22px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .menu-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-section h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .row-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        select, input[type="time"], button {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        select:focus, input[type="time"]:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            width: auto;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        button.secondary {
+            background-color: #059669;
+            width: 100%;
+        }
+        button.secondary:hover {
+            background-color: #047857;
+        }
+
+        button.warning {
+            background-color: #d97706;
+            width: 100%;
+        }
+        button.warning:hover {
+            background-color: #b45309;
+        }
+
+        /* Digital visning i sidemeny */
+        .digital-box {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .digital-display {
+            font-size: 32px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #38bdf8;
+            letter-spacing: 2px;
+        }
+
+        .feedback-message {
+            font-weight: bold;
+            font-size: 14px;
+            min-height: 20px;
+            text-align: center;
+            margin-top: 5px;
+        }
+        .correct { color: #16a34a; }
+        .wrong { color: #dc2626; }
+
+        /* Main Klokkeområde */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .clock-container {
+            background: white;
+            padding: 16px;
+            border-radius: 50%;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.04), 0 12px 35px rgba(0,0,0,0.08);
+            border: 6px solid #ffffff;
+            position: relative;
+            touch-action: none;
+        }
+
+        canvas#learningClock {
+            display: block;
+            cursor: pointer;
+        }
+
+        /* Responsivt for mindre skjermer (mobil) */
+        @media (max-width: 850px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidemeny til venstre -->
+        <aside class="sidebar">
+            <h1>Læreklokke</h1>
+
+            <!-- 1. Visning & Manuell Tid -->
+            <div class="menu-section">
+                <h2>Innstillinger</h2>
+                <div class="control-group">
+                    <label for="viewMode">Visningsmodus:</label>
+                    <select id="viewMode">
+                        <option value="full">Vis alt (Tall + Minutter)</option>
+                        <option value="hours">Vis kun timer</option>
+                        <option value="ticks">Kun streker (uten tall)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="timeInput">Sett manuell tid:</label>
+                    <div class="row-group">
+                        <input type="time" id="timeInput" value="10:10">
+                        <button id="setTimeBtn">Sett</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Verdensbyer -->
+            <div class="menu-section">
+                <h2>Verdensbyer (Sanntid)</h2>
+                <div class="control-group">
+                    <label for="worldClockSelect">Velg tidssone:</label>
+                    <select id="worldClockSelect">
+                        <option value="">-- Manuell styring --</option>
+                        <option value="Pacific/Pago_Pago">Pago Pago (UTC-11)</option>
+                        <option value="Pacific/Honolulu">Honolulu (UTC-10)</option>
+                        <option value="America/Anchorage">Anchorage (UTC-9)</option>
+                        <option value="America/Los_Angeles">Los Angeles (UTC-8)</option>
+                        <option value="America/Denver">Denver (UTC-7)</option>
+                        <option value="America/Chicago">Chicago (UTC-6)</option>
+                        <option value="America/New_York">New York (UTC-5)</option>
+                        <option value="America/Santiago">Santiago (UTC-4)</option>
+                        <option value="America/Buenos_Aires">Buenos Aires (UTC-3)</option>
+                        <option value="Atlantic/South_Georgia">Grytviken (UTC-2)</option>
+                        <option value="Atlantic/Cape_Verde">Praia (UTC-1)</option>
+                        <option value="Europe/London">London (UTC+0)</option>
+                        <option value="Europe/Oslo">Oslo / Paris (UTC+1)</option>
+                        <option value="Europe/Athens">Athen / Kairo (UTC+2)</option>
+                        <option value="Europe/Moscow">Moskva / Nairobi (UTC+3)</option>
+                        <option value="Asia/Dubai">Dubai (UTC+4)</option>
+                        <option value="Asia/Tashkent">Tasjkent (UTC+5)</option>
+                        <option value="Asia/Dhaka">Dhaka (UTC+6)</option>
+                        <option value="Asia/Bangkok">Bangkok (UTC+7)</option>
+                        <option value="Asia/Beijing">Beijing / Singapore (UTC+8)</option>
+                        <option value="Asia/Tokyo">Tokyo (UTC+9)</option>
+                        <option value="Australia/Sydney">Sydney (UTC+10)</option>
+                        <option value="Pacific/Noumea">Nouméa (UTC+11)</option>
+                        <option value="Pacific/Auckland">Auckland (UTC+12)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 3. Digital Visning & Øving -->
+            <div class="menu-section">
+                <h2>Klokkeslett & Øving</h2>
+                <div class="digital-box">
+                    <div class="digital-display" id="digitalClock">10:10:00</div>
+                </div>
+
+                <div class="control-group" style="margin-top: 5px;">
+                    <label for="quizDifficulty">Vanskelighetsgrad:</label>
+                    <select id="quizDifficulty">
+                        <option value="hours">Hele timer</option>
+                        <option value="half">Hel og halv</option>
+                        <option value="quarter">Hel, halv og kvart</option>
+                        <option value="tenMin">Hel, halv, kvart og ti</option>
+                        <option value="all">Alle klokkeslett</option>
+                    </select>
+                </div>
+
+                <button id="newTaskBtn" class="secondary">Ny oppgave</button>
+                <button id="checkTaskBtn" class="warning" style="display:none;">Sjekk svar</button>
+                <div class="feedback-message" id="feedback"></div>
+            </div>
+        </aside>
+
+        <!-- Hovedområde med klokken -->
+        <main class="main-content">
+            <div class="clock-container">
+                <canvas id="learningClock"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("learningClock");
+        const ctx = canvas.getContext("2d");
+
+        // Fargepalett fra 1 til 12
+        const hourColors = {
+            1:  "#D32F2F", 2:  "#E64A19", 3:  "#E67E22", 
+            4:  "#9E9D24", 5:  "#558B2F", 6:  "#2E7D32", 
+            7:  "#388E3C", 8:  "#1976D2", 9:  "#1A237E", 
+            10: "#4A148C", 11: "#880E4F", 12: "#C2185B"
+        };
+
+        // Tilstandsstyring
+        let currentMinutes = 610; 
+        let currentSeconds = 0;
+        let activeHand = null; 
+        let isQuizMode = false;
+        let targetMinutes = 0;
+        let liveTimer = null;
+
+        const LOGICAL_SIZE = 600;
+        let dpr = 1;
+
+        function initCanvas() {
+            dpr = Math.max(window.devicePixelRatio || 1, 2);
+            canvas.width = LOGICAL_SIZE * dpr;
+            canvas.height = LOGICAL_SIZE * dpr;
+            canvas.style.width = LOGICAL_SIZE + "px";
+            canvas.style.height = LOGICAL_SIZE + "px";
+            ctx.scale(dpr, dpr);
+            draw();
+        }
+
+        function draw() {
+            const radius = LOGICAL_SIZE / 2 - 5;
+            ctx.clearRect(0, 0, LOGICAL_SIZE, LOGICAL_SIZE);
+
+            ctx.save();
+            ctx.translate(LOGICAL_SIZE / 2, LOGICAL_SIZE / 2);
+
+            // 1. Ytre mørk ramme
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.lineWidth = 12;
+            ctx.strokeStyle = "#1e293b";
+            ctx.stroke();
+
+            const rInner = radius - 6;
+            const mode = document.getElementById("viewMode").value;
+
+            // 2. Modus: BARE STREKER
+            if (mode === "ticks") {
+                for (let sec = 1; sec <= 60; sec++) {
+                    const angle = (sec * 6 - 90) * Math.PI / 180;
+                    ctx.save();
+                    ctx.rotate(angle + Math.PI / 2);
+
+                    if (sec % 5 === 0) {
+                        // Time-strek
+                        const hourNum = sec / 5;
+                        ctx.beginPath();
+                        ctx.moveTo(0, -rInner);
+                        ctx.lineTo(0, -rInner + 28);
+                        ctx.lineWidth = 6;
+                        ctx.strokeStyle = hourColors[hourNum];
+                        ctx.lineCap = "round";
+                        ctx.stroke();
+                    } else {
+                        // Minutt-strek
+                        ctx.beginPath();
+                        ctx.moveTo(0, -rInner);
+                        ctx.lineTo(0, -rInner + 14);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = "#94a3b8";
+                        ctx.lineCap = "round";
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+            } 
+            else {
+                // Modus: FULL eller HOURS
+                // 2b. Indre 24-timers ring
+                if (mode === "full") {
+                    const r24Outer = rInner * 0.52;
+                    const r24Inner = rInner * 0.39;
+
+                    for (let num = 1; num <= 12; num++) {
+                        const startAngle = ((num - 0.5) * 30 - 90) * Math.PI / 180;
+                        const endAngle = ((num + 0.5) * 30 - 90) * Math.PI / 180;
+                        const color = hourColors[num];
+
+                        ctx.beginPath();
+                        ctx.arc(0, 0, r24Outer, startAngle, endAngle);
+                        ctx.arc(0, 0, r24Inner, endAngle, startAngle, true);
+                        ctx.closePath();
+                        ctx.fillStyle = color;
+                        ctx.fill();
+
+                        ctx.lineWidth = 1.5;
+                        ctx.strokeStyle = "#ffffff";
+                        ctx.stroke();
+
+                        const hour24Val = (num === 12) ? 24 : (num + 12);
+                        const midAngle = (num * 30 - 90) * Math.PI / 180;
+                        const rText = (r24Outer + r24Inner) / 2;
+                        const x = Math.cos(midAngle) * rText;
+                        const y = Math.sin(midAngle) * rText;
+
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "bold 14px Arial";
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(hour24Val.toString(), x, y);
+                    }
+                }
+
+                let r12Circle, circleRadius;
+                if (mode === "hours") {
+                    circleRadius = rInner * 0.16;
+                    r12Circle = rInner - circleRadius - 2; 
+                } else {
+                    r12Circle = rInner * 0.70;
+                    circleRadius = rInner * 0.125;
+                }
+
+                // Ytterste minuttring
+                if (mode === "full") {
+                    const rMinOuter = rInner * 0.99;
+                    const rMinInner = rInner * 0.86;
+                    const rMinuteText = (rMinOuter + rMinInner) / 2;
+
+                    ctx.beginPath();
+                    ctx.arc(0, 0, rMinOuter, 0, 2 * Math.PI);
+                    ctx.arc(0, 0, rMinInner, 0, 2 * Math.PI);
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = "#cbd5e1";
+                    ctx.stroke();
+
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+
+                    for (let sec = 1; sec <= 60; sec++) {
+                        const secAngle = (sec * 6 - 90) * Math.PI / 180;
+                        const lineAngle = (sec * 6 - 93) * Math.PI / 180;
+
+                        if (sec % 5 !== 0) {
+                            ctx.beginPath();
+                            ctx.moveTo(Math.cos(lineAngle) * rMinInner, Math.sin(lineAngle) * rMinInner);
+                            ctx.lineTo(Math.cos(lineAngle) * rMinOuter, Math.sin(lineAngle) * rMinOuter);
+                            ctx.lineWidth = 1;
+                            ctx.strokeStyle = "#cbd5e1";
+                            ctx.stroke();
+
+                            const x = Math.cos(secAngle) * rMinuteText;
+                            const y = Math.sin(secAngle) * rMinuteText;
+                            ctx.fillStyle = "#64748b";
+                            ctx.font = "normal 12px Arial";
+                            ctx.fillText(sec.toString(), x, y);
+                        }
+                    }
+
+                    for (let sec = 5; sec <= 60; sec += 5) {
+                        const secAngle = (sec * 6 - 90) * Math.PI / 180;
+                        let hourIdx = sec / 5;
+                        const color = hourColors[hourIdx];
+
+                        ctx.save();
+                        ctx.rotate(secAngle + Math.PI / 2);
+
+                        const strokeWidth = 2.5;
+                        const pw = 14;
+                        const yTop = -rMinOuter;
+                        const yBase = -rMinInner;
+                        const circleOuterEdge = -(r12Circle + circleRadius);
+                        const gap = 6; 
+                        const yTip = circleOuterEdge - gap; 
+
+                        ctx.beginPath();
+                        ctx.rect(-pw, yTop, pw * 2, yBase - yTop);
+                        ctx.fillStyle = color;
+                        ctx.fill();
+
+                        const cornerX = pw - (strokeWidth / 2);
+                        ctx.beginPath();
+                        ctx.moveTo(-cornerX, yBase);
+                        ctx.lineTo(0, yTip);
+                        ctx.lineTo(cornerX, yBase);
+                        ctx.lineWidth = strokeWidth;
+                        ctx.strokeStyle = color;
+                        ctx.lineCap = "round";
+                        ctx.lineJoin = "round";
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.arc(0, yTip, 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = color;
+                        ctx.fill();
+
+                        ctx.restore();
+
+                        const x = Math.cos(secAngle) * rMinuteText;
+                        const y = Math.sin(secAngle) * rMinuteText;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "bold 14px Arial";
+                        ctx.fillText(sec.toString(), x, y);
+                    }
+                }
+
+                // Store fargede sirkler for timer (1-12)
+                const fontSize = (mode === "hours") ? 48 : 38;
+                for (let num = 1; num <= 12; num++) {
+                    const angle = (num * 30 - 90) * Math.PI / 180;
+                    const x = Math.cos(angle) * r12Circle;
+                    const y = Math.sin(angle) * r12Circle;
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, circleRadius, 0, 2 * Math.PI);
+                    ctx.fillStyle = hourColors[num];
+                    ctx.fill();
+
+                    if (mode === "hours") {
+                        ctx.lineWidth = 2.5;
+                        ctx.strokeStyle = "#ffffff";
+                        ctx.stroke();
+                    }
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(num.toString(), x, y + 2);
+                }
+            }
+
+            // 3. Viser-vinkler og tegning
+            const totalMinutesWithSec = currentMinutes + (currentSeconds / 60);
+            const hours = (totalMinutesWithSec / 60) % 12;
+            const minutes = totalMinutesWithSec % 60;
+
+            const hourAngle = (hours * 30 - 90) * Math.PI / 180;
+            const minuteAngle = (minutes * 6 - 90) * Math.PI / 180;
+
+            // Viserlengder for ulike moduser
+            let hourHandLength = rInner * 0.55;
+            let minuteHandLength = rInner * 0.88;
+
+            if (mode === "hours") {
+                hourHandLength = rInner * 0.45;
+                const r12Circle = rInner - (rInner * 0.16) - 2;
+                minuteHandLength = r12Circle - (rInner * 0.16) - 4;
+            } else if (mode === "ticks") {
+                hourHandLength = rInner * 0.52;
+                minuteHandLength = rInner * 0.82;
+            }
+
+            // Timeviser (Mørkeblå)
+            drawHourHand(ctx, hourAngle, hourHandLength, "#1A237E");
+
+            // Minuttviser (Rød)
+            drawMinuteHand(ctx, minuteAngle, minuteHandLength, "#D32F2F");
+
+            // Sekundviser (hvis sanntid kjører)
+            if (liveTimer) {
+                const secondAngle = (currentSeconds * 6 - 90) * Math.PI / 180;
+                drawSecondHand(ctx, secondAngle, rInner * 0.90, "#e11d48");
+            }
+
+            // Midtknapp
+            ctx.beginPath();
+            ctx.arc(0, 0, 11, 0, 2 * Math.PI);
+            ctx.fillStyle = "#2E7D32";
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#000000";
+            ctx.stroke();
+
+            ctx.restore();
+
+            updateDigitalDisplay();
+        }
+
+        function drawHourHand(ctx, angle, length, color) {
+            ctx.save();
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.beginPath();
+            ctx.moveTo(-12, 0);
+            ctx.lineTo(-12, -length + 50);
+            ctx.lineTo(-24, -length + 50);
+            ctx.lineTo(0, -length);
+            ctx.lineTo(24, -length + 50);
+            ctx.lineTo(12, -length + 50);
+            ctx.lineTo(12, 0);
+            ctx.closePath();
+            
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#000000";
+            ctx.lineJoin = "round";
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawMinuteHand(ctx, angle, length, color) {
+            ctx.save();
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.beginPath();
+            ctx.moveTo(-7, 0);
+            ctx.lineTo(-7, -length + 40);
+            ctx.lineTo(-16, -length + 40);
+            ctx.lineTo(0, -length);
+            ctx.lineTo(16, -length + 40);
+            ctx.lineTo(7, -length + 40);
+            ctx.lineTo(7, 0);
+            ctx.closePath();
+
+            ctx.fillStyle = color;
+            ctx.fill();
+
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#000000";
+            ctx.lineJoin = "round";
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawSecondHand(ctx, angle, length, color) {
+            ctx.save();
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.beginPath();
+            ctx.moveTo(0, 20);
+            ctx.lineTo(0, -length);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(0, 0, 4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function updateDigitalDisplay() {
+            if (isQuizMode) return;
+
+            const hrs = Math.floor(currentMinutes / 60) % 24;
+            const mins = currentMinutes % 60;
+            const secs = currentSeconds;
+
+            let formatted = String(hrs).padStart(2, '0') + ":" + String(mins).padStart(2, '0');
+            if (liveTimer) {
+                formatted += ":" + String(secs).padStart(2, '0');
+            }
+
+            document.getElementById("digitalClock").innerText = formatted;
+        }
+
+        function stopLiveClock() {
+            if (liveTimer) {
+                clearInterval(liveTimer);
+                liveTimer = null;
+            }
+        }
+
+        function startWorldClock(timeZone) {
+            stopLiveClock();
+
+            const update = () => {
+                const now = new Date();
+                const formatter = new Intl.DateTimeFormat("en-US", {
+                    timeZone: timeZone,
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    hour12: false
+                });
+
+                const parts = formatter.formatToParts(now);
+                let h = 0, m = 0, s = 0;
+                
+                parts.forEach(p => {
+                    if (p.type === 'hour') h = parseInt(p.value, 10) % 24;
+                    if (p.type === 'minute') m = parseInt(p.value, 10);
+                    if (p.type === 'second') s = parseInt(p.value, 10);
+                });
+
+                currentMinutes = h * 60 + m;
+                currentSeconds = s;
+                draw();
+            };
+
+            update();
+            liveTimer = setInterval(update, 1000);
+        }
+
+        // Interaktivitet (Manuell draing på visere)
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            return {
+                x: clientX - rect.left - LOGICAL_SIZE / 2,
+                y: clientY - rect.top - LOGICAL_SIZE / 2
+            };
+        }
+
+        function handleStart(e) {
+            stopLiveClock();
+            currentSeconds = 0;
+            document.getElementById("worldClockSelect").value = "";
+
+            const pos = getMousePos(e);
+            const dist = Math.sqrt(pos.x * pos.x + pos.y * pos.y);
+            const radius = LOGICAL_SIZE / 2;
+
+            if (dist < radius * 0.95) {
+                let angle = Math.atan2(pos.y, pos.x) + Math.PI / 2;
+                if (angle < 0) angle += 2 * Math.PI;
+
+                const minAngle = ((currentMinutes % 60) * 6 * Math.PI) / 180;
+                let angleDiffMin = Math.abs(angle - minAngle);
+                if (angleDiffMin > Math.PI) angleDiffMin = 2 * Math.PI - angleDiffMin;
+
+                if (dist > radius * 0.55 || angleDiffMin < 0.3) {
+                    activeHand = 'minute';
+                } else {
+                    activeHand = 'hour';
+                }
+                handleMove(e);
+            }
+        }
+
+        function handleMove(e) {
+            if (!activeHand) return;
+            e.preventDefault();
+
+            const pos = getMousePos(e);
+            let angle = Math.atan2(pos.y, pos.x) + Math.PI / 2;
+            if (angle < 0) angle += 2 * Math.PI;
+
+            if (activeHand === 'minute') {
+                let newMin = Math.round((angle / (2 * Math.PI)) * 60) % 60;
+                let currentMin = currentMinutes % 60;
+                
+                let diff = newMin - currentMin;
+                if (diff < -30) diff += 60;
+                if (diff > 30) diff -= 60;
+
+                currentMinutes = (currentMinutes + diff + 1440) % 1440;
+            } else if (activeHand === 'hour') {
+                let newHour = (angle / (2 * Math.PI)) * 12;
+                let currentHour24 = Math.floor(currentMinutes / 60);
+                let isPM = currentHour24 >= 12;
+                
+                let targetHour = newHour + (isPM ? 12 : 0);
+                currentMinutes = Math.round(targetHour * 60) % 1440;
+            }
+
+            draw();
+        }
+
+        function handleEnd() {
+            activeHand = null;
+        }
+
+        // Event-lyttere
+        canvas.addEventListener("mousedown", handleStart);
+        canvas.addEventListener("mousemove", handleMove);
+        window.addEventListener("mouseup", handleEnd);
+
+        canvas.addEventListener("touchstart", handleStart, { passive: false });
+        canvas.addEventListener("touchmove", handleMove, { passive: false });
+        window.addEventListener("touchend", handleEnd);
+
+        document.getElementById("viewMode").addEventListener("change", draw);
+
+        // Sett manuell tid
+        document.getElementById("setTimeBtn").addEventListener("click", () => {
+            stopLiveClock();
+            currentSeconds = 0;
+            document.getElementById("worldClockSelect").value = "";
+            isQuizMode = false;
+            document.getElementById("checkTaskBtn").style.display = "none";
+            document.getElementById("feedback").innerText = "";
+
+            const val = document.getElementById("timeInput").value;
+            if (val) {
+                const parts = val.split(":");
+                currentMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                draw();
+            }
+        });
+
+        // Velg verdensby
+        document.getElementById("worldClockSelect").addEventListener("change", (e) => {
+            const timeZone = e.target.value;
+            if (timeZone) {
+                isQuizMode = false;
+                document.getElementById("checkTaskBtn").style.display = "none";
+                document.getElementById("feedback").innerText = "";
+                startWorldClock(timeZone);
+            } else {
+                stopLiveClock();
+                currentSeconds = 0;
+                draw();
+            }
+        });
+
+        // Ny oppgave (øving)
+        document.getElementById("newTaskBtn").addEventListener("click", () => {
+            stopLiveClock();
+            currentSeconds = 0;
+            document.getElementById("worldClockSelect").value = "";
+            
+            isQuizMode = true;
+            document.getElementById("checkTaskBtn").style.display = "block";
+            document.getElementById("feedback").innerText = "";
+
+            const difficulty = document.getElementById("quizDifficulty").value;
+            const randomHour = Math.floor(Math.random() * 24);
+            let possibleMinutes = [0];
+
+            if (difficulty === "hours") {
+                possibleMinutes = [0];
+            } else if (difficulty === "half") {
+                possibleMinutes = [0, 30];
+            } else if (difficulty === "quarter") {
+                possibleMinutes = [0, 15, 30, 45];
+            } else if (difficulty === "tenMin") {
+                possibleMinutes = [0, 10, 15, 20, 30, 40, 45, 50];
+            } else if (difficulty === "all") {
+                targetMinutes = randomHour * 60 + Math.floor(Math.random() * 60);
+            }
+
+            if (difficulty !== "all") {
+                const randomMin = possibleMinutes[Math.floor(Math.random() * possibleMinutes.length)];
+                targetMinutes = randomHour * 60 + randomMin;
+            }
+
+            const targetH = Math.floor(targetMinutes / 60);
+            const targetM = targetMinutes % 60;
+
+            const formattedTarget = 
+                String(targetH).padStart(2, '0') + ":" + 
+                String(targetM).padStart(2, '0');
+
+            document.getElementById("digitalClock").innerText = formattedTarget;
+            document.getElementById("feedback").innerText = "Flytt viserne til tiden over!";
+            document.getElementById("feedback").className = "feedback-message";
+
+            currentMinutes = (Math.floor(Math.random() * 12) * 60) % 1440;
+            draw();
+        });
+
+        // Sjekk svar
+        document.getElementById("checkTaskBtn").addEventListener("click", () => {
+            const feedbackEl = document.getElementById("feedback");
+
+            const targetMinOfHour = targetMinutes % 60;
+            const currentMinOfHour = currentMinutes % 60;
+
+            const targetHour12 = Math.floor(targetMinutes / 60) % 12;
+            const currentHour12 = Math.floor(currentMinutes / 60) % 12;
+
+            const difficulty = document.getElementById("quizDifficulty").value;
+
+            const minDiff = Math.abs(targetMinOfHour - currentMinOfHour);
+            const isMinCorrect = (difficulty === "all") ? (minDiff <= 1 || minDiff >= 59) : (targetMinOfHour === currentMinOfHour);
+
+            if (isMinCorrect && targetHour12 === currentHour12) {
+                feedbackEl.innerText = "Riktig! Bra jobba!";
+                feedbackEl.className = "feedback-message correct";
+            } else {
+                feedbackEl.innerText = "Nesten! Prøv litt til.";
+                feedbackEl.className = "feedback-message wrong";
+            }
+        });
+
+        initCanvas();
+    </script>
+</body>
+</html>
