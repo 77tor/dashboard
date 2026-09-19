@@ -337,7 +337,7 @@ function visTrinn(trinn) {
 /* --- DAGSPLAN LOGIKK M/ EGENDEFINERT FAG OG MODAL --- */
 const availableImages = [
   "Arbeidsplan", "Bibliotek", "DKS", "Engelsk", "Forestilling", "Friminutt", 
-  "Gym", "Kartlegging", "Klassens time", "Krle", "Kunst og håndverk", "Lek", 
+  "Gym", "Kartlegging", "Klassens time", "Krle", "Kunst og håndverk", "Lek", "Mat og helse",
   "Matematikk", "Musikk", "Naturfag", "Norsk", "Samfunnsfag", 
   "Samling", "Spising", "Stasjoner", "Stillelesing", "Svømming", "Uteskole"
 ];

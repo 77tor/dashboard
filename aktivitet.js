@@ -32,7 +32,13 @@ const aktiviteterData = [
   { tittel: "Ryddetid", bilde: "Aktivitet/Ryddetid.png" },
   { tittel: "Finn lesebok", bilde: "Aktivitet/Stillelesing.png" },
   { tittel: "Se film", bilde: "Aktivitet/Se_film.png" },
-  { tittel: "Hent mat/drikke", bilde: "Aktivitet/Spising.png" }
+  { tittel: "Hent mat/drikke", bilde: "Aktivitet/Spising.png" },
+
+// Praktiske rutiner
+  { tittel: "Garderobe", bilde: "Aktivitet/Garderobe.png" },
+  { tittel: "Pakk sekken", bilde: "Aktivitet/Pakk_sekken.png" },
+  { tittel: "Lade iPad/PC", bilde: "Aktivitet/Lade.png" },
+  { tittel: "Fyll vannflaske", bilde: "Aktivitet/Vannflaske.png" }
 ];
 
 // Funksjon for å nullstille visningen slik at iframe blir synlig igjen
