@@ -2345,21 +2345,24 @@ function resetTimer() {
 }
 
 function closeTimerModal() {
-  const modal = document.getElementById('timerModal'); // Legg merke til 'r' i timerModal
-  const backdrop = document.getElementById('customModalBackdrop') || document.querySelector('.modal-backdrop');
-
-  // Stopp timerkjøring og alarmer
+  // 1. Stopp timeren og slå av alarmer
   if (typeof stopTimerProcess === 'function') stopTimerProcess();
   if (typeof stopAlarmEffects === 'function') stopAlarmEffects();
 
+  // 2. Hent inn elementene
+  const modal = document.getElementById('timerModal');
+  const backdrop = document.getElementById('customModalBackdrop');
+
+  // 3. Skjul selve tidsur-vinduet
   if (modal) {
-    modal.style.display = 'none';
     modal.classList.remove('active');
+    modal.style.display = 'none';
   }
 
+  // 4. Skjul den mørke bakgrunnen
   if (backdrop) {
+    backdrop.classList.remove('active');
     backdrop.style.display = 'none';
-    backdrop.classList.remove('active', 'transparent-backdrop');
   }
 }
 
@@ -2614,26 +2617,21 @@ function escapeHtml(str) {
 }
 
 function closeTimeModal() {
-  // 1. Stopp timeren og slå av alarmer
-  stopTimerProcess();
-  stopAlarmEffects();
-
-  // 2. Hent inn elementene
-  const modal = document.getElementById('timerModal');
+  const modal = document.getElementById('timeModal');
   const backdrop = document.getElementById('customModalBackdrop');
 
-  // 3. Skjul selve tidsur-vinduet
   if (modal) {
     modal.classList.remove('active');
     modal.style.display = 'none';
   }
 
-  // 4. Skjul den mørke bakgrunnen
   if (backdrop) {
     backdrop.classList.remove('active');
     backdrop.style.display = 'none';
   }
 }
+
+
 
 /* --- NAVIGASJON (HJEM) --- */
 function goHome() {
@@ -3057,6 +3055,30 @@ function makeElementDraggable(elmnt, header) {
   }
 }
 
+
+function aepneKlokkeOving() {
+  // 1. Lukk Tid & Dato-modalen
+  if (typeof closeTimeModal === 'function') {
+    closeTimeModal();
+  } else if (typeof closeModal === 'function') {
+    closeModal('timeModal');
+  }
+
+  // 2. Skjul eventuelle aktivitetsvisninger/bildebokser
+  if (typeof skjulAktivitetDisplay === 'function') {
+    skjulAktivitetDisplay();
+  }
+
+  // 3. Åpne klokke_ove.html i iframe og lagre status dersom funksjonen finnes
+  if (typeof setAndSaveIframeUrl === 'function') {
+    setAndSaveIframeUrl('klokke_ove.html');
+  } else {
+    const iframe = document.getElementById('mainFrame') || document.querySelector('iframe');
+    if (iframe) {
+      iframe.src = 'klokke_ove.html';
+    }
+  }
+}
 
 
 // --- INNSTILLINGER, FONT & VISNINGSSTYRING ---
