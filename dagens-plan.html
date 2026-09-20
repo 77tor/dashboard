@@ -8,554 +8,98 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --accent-color: #3b82f6;
-            --accent-green: #10b981;
-            --accent-purple: #8b5cf6;
-            --accent-amber: #f59e0b;
-            --accent-pink: #ec4899;
-            --accent-red: #ef4444;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-        }
+        /* TEMA 1: Variabler & Reset */
+        :root { --bg-main: #0f172a; --bg-card: #1e293b; --bg-card-hover: #334155; --accent-color: #3b82f6; --accent-green: #10b981; --accent-purple: #8b5cf6; --accent-amber: #f59e0b; --accent-pink: #ec4899; --accent-red: #ef4444; --text-primary: #f8fafc; --text-secondary: #94a3b8; --border-color: #334155; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; padding: 24px; overflow-x: hidden; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
+        /* TEMA 2: Layout & Header */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 14px 24px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); gap: 16px; }
+        .header-titles { display: flex; align-items: center; gap: 20px; }
+        .week-title { font-size: 38px; font-weight: 800; color: var(--accent-amber); letter-spacing: -0.02em; padding-right: 16px; border-right: 2px solid var(--border-color); }
+        .day-date-group { display: flex; flex-direction: column; justify-content: center; }
+        .day-title { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
+        .date-sub { font-size: 15px; color: var(--text-secondary); font-weight: 500; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            overflow-x: hidden;
-        }
+        /* TEMA 3: Komponenter i Header (Ordenselever & Innstillinger-knapp) */
+        .ordens-featured { background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(30, 41, 59, 0.9)); border: 1.5px solid var(--accent-pink); border-radius: 12px; padding: 6px 16px; display: flex; align-items: center; gap: 12px; min-width: 260px; box-shadow: 0 2px 12px rgba(236, 72, 153, 0.2); }
+        .ordens-icon-badge { background: var(--accent-pink); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.4); flex-shrink: 0; }
+        .ordens-body { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+        .ordens-featured-label { font-size: 11px; font-weight: 800; color: var(--accent-pink); text-transform: uppercase; letter-spacing: 0.08em; }
+        .ordens-featured-value { font-size: 16px; font-weight: 700; color: #ffffff; outline: none; padding: 1px 4px; border-radius: 4px; transition: background 0.2s; min-height: 22px; }
+        .ordens-featured-value:focus, .ordens-featured-value:hover { background: rgba(255, 255, 255, 0.1); }
+        .gear-btn { background: transparent; border: 1px solid transparent; color: var(--text-secondary); font-size: 22px; width: 42px; height: 42px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+        .gear-btn:hover { color: var(--text-primary); background: var(--bg-card-hover); border-color: var(--border-color); transform: rotate(30deg); }
 
-        /* HEADER */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background: var(--bg-card);
-            padding: 14px 24px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            gap: 16px;
-        }
+        /* TEMA 4: Dagvelger-faner */
+        .day-selector { display: flex; gap: 8px; margin-bottom: 20px; }
+        .day-tab { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 12px 22px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; flex: 1; text-align: center; }
+        .day-tab:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .day-tab.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
 
-.header-titles {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-/* UKENUMMER - Størst */
-.week-title {
-    font-size: 38px;
-    font-weight: 800;
-    color: var(--accent-amber);
-    letter-spacing: -0.02em;
-    padding-right: 16px;
-    border-right: 2px solid var(--border-color);
-}
-
-.day-date-group {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-/* UKEDAG - Litt mindre enn ukenummer, men større enn dato */
-.day-title {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.1;
-}
-
-/* DATO - Minst */
-.date-sub {
-    font-size: 15px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        /* FREMHEVET ORDENSELEV-RAMME I TOPPLINJEN */
-        .ordens-featured {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(30, 41, 59, 0.9));
-            border: 1.5px solid var(--accent-pink);
-            border-radius: 12px;
-            padding: 6px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 260px;
-            box-shadow: 0 2px 12px rgba(236, 72, 153, 0.2);
-        }
-
-        .ordens-icon-badge {
-            background: var(--accent-pink);
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 2px 6px rgba(236, 72, 153, 0.4);
-            flex-shrink: 0;
-        }
-
-        .ordens-body {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            flex: 1;
-        }
-
-        .ordens-featured-label {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--accent-pink);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .ordens-featured-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
-            outline: none;
-            padding: 1px 4px;
-            border-radius: 4px;
-            transition: background 0.2s;
-            min-height: 22px;
-        }
-
-        .ordens-featured-value:focus, .ordens-featured-value:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* TANNHJUL-KNAPP HELT TIL HØYRE */
-        .gear-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-secondary);
-            font-size: 22px;
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .gear-btn:hover {
-            color: var(--text-primary);
-            background: var(--bg-card-hover);
-            border-color: var(--border-color);
-            transform: rotate(30deg);
-        }
-
-        /* UKEDAG-VELGER */
-        .day-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .day-tab {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 12px 22px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex: 1;
-            text-align: center;
-        }
-
-        .day-tab:hover {
-            background: var(--bg-card-hover);
-            color: var(--text-primary);
-        }
-
-        .day-tab.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
-
-        /* HOVEDGRID FOR ENHETENE */
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 20px;
-            flex: 1;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-/* Læringsmål tilpasset som standard kort på høyre side */
-.card-maal {
-    grid-row: auto;
-}
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
+        /* TEMA 5: Hovedgrid & Kort */
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 20px; flex: 1; }
+        .card { background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); padding: 24px; display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .card-maal { grid-row: auto; }
+        .card-header { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
         .card-maal .card-header { color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3); }
         .card-beskjeder .card-header { color: var(--accent-purple); border-color: rgba(139, 92, 246, 0.3); }
         .card-ukeplan .card-header { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); }
+        .card-content { font-size: 18px; line-height: 1.6; white-space: pre-wrap; color: var(--text-primary); flex: 1; outline: none; border-radius: 8px; padding: 8px; transition: background 0.2s ease, border-color 0.2s ease; }
+        .card-content:hover { background: rgba(255, 255, 255, 0.03); }
+        .card-content:focus { background: rgba(15, 23, 42, 0.5); box-shadow: inset 0 0 0 1px var(--accent-color); }
+        .card-content[data-placeholder]:empty:before { content: attr(data-placeholder); color: var(--text-secondary); font-size: 16px; font-style: italic; }
 
-        /* DIREKTE REDIGERBARE FELTER PÅ TAVLA */
-        .card-content {
-            font-size: 18px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            color: var(--text-primary);
-            flex: 1;
-            outline: none;
-            border-radius: 8px;
-            padding: 8px;
-            transition: background 0.2s ease, border-color 0.2s ease;
-        }
+        /* TEMA 6: Ukeplan Kort & Fullskjerm-visning */
+        .card-ukeplan { grid-row: span 2; position: relative; }
+        .card-preview-frame { width: 100%; flex: 1; border: none; border-radius: 8px; background: #ffffff; }
+        .preview-overlay-hint { position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.9); color: var(--accent-amber); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid var(--border-color); cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); transition: background 0.2s, transform 0.1s; }
+        .preview-overlay-hint:hover { background: var(--accent-amber); color: #000; transform: translateY(-1px); }
+        .ukeplan-view-container { display: none; flex-direction: column; flex: 1; height: 100vh; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; gap: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .ukeplan-view-header { display: flex; justify-content: space-between; align-items: center; }
+        .back-btn { background: var(--accent-amber); color: #000; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.1s ease, background 0.2s; }
+        .back-btn:hover { background: #d97706; color: #fff; transform: translateY(-1px); }
+        .pdf-frame { width: 100%; flex: 1; min-height: 80vh; border: none; border-radius: 10px; background: #ffffff; }
 
-        .card-content:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .card-content:focus {
-            background: rgba(15, 23, 42, 0.5);
-            box-shadow: inset 0 0 0 1px var(--accent-color);
-        }
-
-        .card-content[data-placeholder]:empty:before {
-            content: attr(data-placeholder);
-            color: var(--text-secondary);
-            font-size: 16px;
-            font-style: italic;
-        }
-
-/* FULLSKJERM UKEPLAN-VISNING */
-.ukeplan-view-container {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    height: 100vh;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 16px;
-    gap: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-        .ukeplan-view-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .back-btn {
-            background: var(--accent-amber);
-            color: #000;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform 0.1s ease, background 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #d97706;
-            color: #fff;
-            transform: translateY(-1px);
-        }
-
-.pdf-frame {
-    width: 100%;
-    flex: 1; /* Fyller resten av tilgjengelig vertikal plass */
-    min-height: 80vh;
-    border: none;
-    border-radius: 10px;
-    background: #ffffff;
-}
-
-        /* MODAL FOR REDIGERING */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 20px 24px;
-            background: rgba(15, 23, 42, 0.5);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .close-modal {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 6px;
-        }
-
-        .close-modal:hover {
-            color: var(--text-primary);
-            background: var(--border-color);
-        }
-
-        .modal-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .modal-day-select {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .modal-day-btn {
-            flex: 1;
-            padding: 10px;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .modal-day-btn.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
-
-        .edit-group {
-            margin-bottom: 16px;
-        }
-
-        .edit-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-        }
-
-        .edit-group textarea, .edit-group input {
-            width: 100%;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-primary);
-            padding: 10px 12px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .edit-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .edit-group textarea:focus, .edit-group input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .modal-footer {
-            padding: 16px 24px;
-            background: rgba(15, 23, 42, 0.5);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .clear-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .danger-btn {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--accent-red);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .danger-btn:hover {
-            background: var(--accent-red);
-            color: white;
-        }
-
-        .save-btn {
-            background: var(--accent-green);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .save-btn:hover {
-            background: #059669;
-        }
-
-/* Ukeplan får hel høyde til venstre */
-.card-ukeplan {
-    grid-row: span 2;
-    position: relative;
-    /* Fjernet cursor: pointer fra selve kortet */
-}
-/* Forhåndsvisning av PDF inne i kortet */
-.card-preview-frame {
-    width: 100%;
-    flex: 1;
-    border: none;
-    border-radius: 8px;
-    background: #ffffff;
-    /* pointer-events er fjernet herfra slik at du kan scrolle og merke tekst */
-}
-.preview-overlay-hint {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(15, 23, 42, 0.9);
-    color: var(--accent-amber);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    transition: background 0.2s, transform 0.1s;
-}
-.preview-overlay-hint:hover {
-    background: var(--accent-amber);
-    color: #000;
-    transform: translateY(-1px);
-}
-
+        /* TEMA 7: Modal / Innstillinger */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; width: 90%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); overflow: hidden; }
+        .modal-header { padding: 20px 24px; background: rgba(15, 23, 42, 0.5); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 20px; font-weight: 700; }
+        .close-modal { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 4px; border-radius: 6px; }
+        .close-modal:hover { color: var(--text-primary); background: var(--border-color); }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-day-select { display: flex; gap: 10px; margin-bottom: 20px; }
+        .modal-day-btn { flex: 1; padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 10px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s ease; }
+        .modal-day-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .edit-group { margin-bottom: 16px; }
+        .edit-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+        .edit-group textarea, .edit-group input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); padding: 10px 12px; font-size: 14px; line-height: 1.4; }
+        .edit-group textarea { resize: vertical; min-height: 80px; }
+        .edit-group textarea:focus, .edit-group input:focus { outline: none; border-color: var(--accent-color); }
+        .modal-footer { padding: 16px 24px; background: rgba(15, 23, 42, 0.5); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .clear-actions { display: flex; gap: 10px; }
+        .danger-btn { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .danger-btn:hover { background: var(--accent-red); color: white; }
+        .save-btn { background: var(--accent-green); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease; }
+        .save-btn:hover { background: #059669; }
     </style>
 </head>
 <body>
 
     <!-- TOPPBAR -->
     <header>
-<div class="header-titles">
-    <span class="week-title" id="displayWeekNumber">Uke --</span>
-    <div class="day-date-group">
-        <h1 class="day-title" id="displayDayName">Mandag</h1>
-        <span class="date-sub" id="displayDate">--.--.----</span>
-    </div>
-</div>
+        <div class="header-titles">
+            <span class="week-title" id="displayWeekNumber">Uke --</span>
+            <div class="day-date-group">
+                <h1 class="day-title" id="displayDayName">Mandag</h1>
+                <span class="date-sub" id="displayDate">--.--.----</span>
+            </div>
+        </div>
         
         <div class="header-right">
-            <!-- FREMHEVET ORDENSELEV-RAMME -->
             <div class="ordens-featured">
                 <div class="ordens-icon-badge">⭐️</div>
                 <div class="ordens-body">
@@ -564,7 +108,6 @@
                 </div>
             </div>
 
-            <!-- TANNHJUL-KNAPP -->
             <button class="gear-btn" onclick="openModal()" title="Rediger ukeplan">⚙️</button>
         </div>
     </header>
@@ -578,40 +121,37 @@
         <button class="day-tab" onclick="switchViewDay('Fredag')">Fredag</button>
     </div>
 
-<!-- HOVEDGRID FOR ENHETENE -->
-<div class="grid-container" id="tavleGrid">
-    
-<!-- UKEPLAN (STOR KOLONNE TIL VENSTRE) -->
-    <div class="card card-ukeplan">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <div><span>📅</span> Ukeplan</div>
-            <span id="visValgtTrinnTekst" style="font-size: 0.85em; opacity: 0.8; font-weight: normal;"></span>
-        </div>
+    <!-- HOVEDGRID FOR ENHETENE -->
+    <div class="grid-container" id="tavleGrid">
         
-        <!-- Interaktiv forhåndsvisning inne i kortet (scrolling og merking fungerer) -->
-        <iframe class="card-preview-frame" id="miniPdfFrame" src=""></iframe>
-        
-        <!-- Kun denne knappen åpner fullskjerm -->
-        <div class="preview-overlay-hint" onclick="visKlassensUkeplan()">🔍 Klikk for fullskjerm</div>
-    </div>
-
-    <!-- BESKJER (ØVERST TIL HØYRE) -->
-    <div class="card card-beskjeder">
-        <div class="card-header">
-            <span>📢</span> Beskjeder til klassen
+        <!-- UKEPLAN -->
+        <div class="card card-ukeplan">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div><span>📅</span> Ukeplan</div>
+                <span id="visValgtTrinnTekst" style="font-size: 0.85em; opacity: 0.8; font-weight: normal;"></span>
+            </div>
+            
+            <iframe class="card-preview-frame" id="miniPdfFrame" src=""></iframe>
+            <div class="preview-overlay-hint" onclick="visKlassensUkeplan()">🔍 Klikk for fullskjerm</div>
         </div>
-        <div class="card-content" id="viewBeskjeder" contenteditable="true" data-placeholder="Skriv inn beskjeder til klassen direkte her..." oninput="handleInlineEdit('beskjeder', this.innerText)"></div>
-    </div>
 
-    <!-- LÆRINGSMÅL (NEDERST TIL HØYRE) -->
-    <div class="card card-maal">
-        <div class="card-header">
-            <span>🎯</span> Læringsmål
+        <!-- BESKJEDER -->
+        <div class="card card-beskjeder">
+            <div class="card-header">
+                <span>📢</span> Beskjeder til klassen
+            </div>
+            <div class="card-content" id="viewBeskjeder" contenteditable="true" data-placeholder="Skriv inn beskjeder til klassen direkte her..." oninput="handleInlineEdit('beskjeder', this.innerText)"></div>
         </div>
-        <div class="card-content" id="viewMaal" contenteditable="true" data-placeholder="Skriv inn dagens læringsmål direkte her..." oninput="handleInlineEdit('maal', this.innerText)"></div>
-    </div>
 
-</div>
+        <!-- LÆRINGSMÅL -->
+        <div class="card card-maal">
+            <div class="card-header">
+                <span>🎯</span> Læringsmål
+            </div>
+            <div class="card-content" id="viewMaal" contenteditable="true" data-placeholder="Skriv inn dagens læringsmål direkte her..." oninput="handleInlineEdit('maal', this.innerText)"></div>
+        </div>
+
+    </div>
 
     <!-- VISNING FOR PDF / UKEPLAN INNI SIDEN -->
     <div class="ukeplan-view-container" id="ukeplanView">
@@ -631,7 +171,6 @@
             </div>
             <div class="modal-body">
                 
-                <!-- TRINN-VALG -->
                 <div class="edit-group" style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
                     <label style="font-weight: bold; display: block; margin-bottom: 8px;">🏫 Velg klassens trinn for ukeplaner:</label>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -645,7 +184,6 @@
                     </div>
                 </div>
 
-                <!-- DAG-VELGER I MODAL -->
                 <div class="modal-day-select">
                     <button class="modal-day-btn" onclick="switchEditDay('Mandag')">Mandag</button>
                     <button class="modal-day-btn" onclick="switchEditDay('Tirsdag')">Tirsdag</button>
@@ -654,7 +192,6 @@
                     <button class="modal-day-btn" onclick="switchEditDay('Fredag')">Fredag</button>
                 </div>
 
-                <!-- SKJEMA FOR VALGT DAG -->
                 <div class="edit-group">
                     <label for="inputOrdens">⭐️ Ordenselever (navn)</label>
                     <input type="text" id="inputOrdens" placeholder="f.eks. Kari og Ola">
@@ -682,8 +219,14 @@
     </div>
 
     <script>
+        /* ==========================================================================
+           1. TILSTAND (STATE) & KONSTANTER
+           ========================================================================== */
         const days = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag'];
-        
+        let activeViewDay = 'Mandag';
+        let activeEditDay = 'Mandag';
+        let ukeplanerData = {};
+
         let weekData = {
             'Mandag': { ordens: '', maal: '', beskjeder: '' },
             'Tirsdag': { ordens: '', maal: '', beskjeder: '' },
@@ -692,32 +235,21 @@
             'Fredag': { ordens: '', maal: '', beskjeder: '' }
         };
 
-        let activeViewDay = 'Mandag';
-        let activeEditDay = 'Mandag';
-
-        function loadStorageData() {
-            const saved = localStorage.getItem('tors_dagens_plan_v6');
-            if (saved) {
-                try {
-                    weekData = JSON.parse(saved);
-                } catch(e) {
-                    console.error("Kunne ikke laste data", e);
-                }
-            }
+        /* ==========================================================================
+           2. DATO- OG UKE-BEREGNINGER
+           ========================================================================== */
+        function getWeekNumber(d) {
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dayNum = date.getUTCDay() || 7;
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
         }
 
-        function saveStorageData() {
-            localStorage.setItem('tors_dagens_plan_v6', JSON.stringify(weekData));
-        }
-
-        function getDateForWeekday(dayName) {
+        function getTargetDateForWeekday(dayName) {
             const now = new Date();
-            let dayOfWeek = now.getDay(); 
-
-            let daysToMonday = 0;
-            if (dayOfWeek === 0) daysToMonday = 1;
-            else if (dayOfWeek === 6) daysToMonday = 2;
-            else daysToMonday = 1 - dayOfWeek;
+            let dayOfWeek = now.getDay();
+            let daysToMonday = (dayOfWeek === 0) ? 1 : (dayOfWeek === 6) ? 2 : (1 - dayOfWeek);
 
             const mondayDate = new Date(now);
             mondayDate.setDate(now.getDate() + daysToMonday);
@@ -726,83 +258,61 @@
             const targetDate = new Date(mondayDate);
             targetDate.setDate(mondayDate.getDate() + targetIndex);
 
-            return targetDate.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+            return targetDate;
         }
 
         function setInitialDay() {
             const todayIndex = new Date().getDay();
-            if (todayIndex >= 1 && todayIndex <= 5) {
-                activeViewDay = days[todayIndex - 1];
-            } else {
-                activeViewDay = 'Mandag';
-            }
+            activeViewDay = (todayIndex >= 1 && todayIndex <= 5) ? days[todayIndex - 1] : 'Mandag';
             activeEditDay = activeViewDay;
         }
 
+        /* ==========================================================================
+           3. HOVEDVISNING & INTERAKSJON (MAIN VIEW)
+           ========================================================================== */
+        function switchViewDay(day) {
+            activeViewDay = day;
+            
+            document.querySelectorAll('#dayTabs .day-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === day);
+            });
 
-/* Funksjon for å beregne ukenummer basert på en dato */
-function getWeekNumber(d) {
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-    return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-}
+            const targetDateObj = getTargetDateForWeekday(day);
+            document.getElementById('displayWeekNumber').textContent = `Uke ${getWeekNumber(targetDateObj)}`;
+            document.getElementById('displayDayName').textContent = day;
+            document.getElementById('displayDate').textContent = targetDateObj.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
 
-/* Oppdatert switchViewDay som også setter ukenummer */
-function switchViewDay(day) {
-    activeViewDay = day;
-    
-    const tabs = document.querySelectorAll('#dayTabs .day-tab');
-    tabs.forEach(tab => {
-        tab.classList.toggle('active', tab.textContent === day);
-    });
-
-    // Finn datoen for den valgte ukedagen
-    const targetDateObj = getTargetDateForWeekday(day);
-
-    // Oppdater tekst i headeren
-    document.getElementById('displayWeekNumber').textContent = `Uke ${getWeekNumber(targetDateObj)}`;
-    document.getElementById('displayDayName').textContent = day;
-    document.getElementById('displayDate').textContent = targetDateObj.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
-
-    const dayData = weekData[day] || { ordens: '', maal: '', beskjeder: '' };
-
-    document.getElementById('viewOrdens').innerText = dayData.ordens || '';
-    document.getElementById('viewMaal').innerText = dayData.maal || '';
-    document.getElementById('viewBeskjeder').innerText = dayData.beskjeder || '';
-}
-
-
-/* Hjelpefunksjon som returnerer selve Date-objektet for en ukedag */
-function getTargetDateForWeekday(dayName) {
-    const now = new Date();
-    let dayOfWeek = now.getDay(); 
-
-    let daysToMonday = 0;
-    if (dayOfWeek === 0) daysToMonday = 1;
-    else if (dayOfWeek === 6) daysToMonday = 2;
-    else daysToMonday = 1 - dayOfWeek;
-
-    const mondayDate = new Date(now);
-    mondayDate.setDate(now.getDate() + daysToMonday);
-
-    const targetIndex = days.indexOf(dayName);
-    const targetDate = new Date(mondayDate);
-    targetDate.setDate(mondayDate.getDate() + targetIndex);
-
-    return targetDate;
-}
+            const dayData = weekData[day] || { ordens: '', maal: '', beskjeder: '' };
+            document.getElementById('viewOrdens').innerText = dayData.ordens || '';
+            document.getElementById('viewMaal').innerText = dayData.maal || '';
+            document.getElementById('viewBeskjeder').innerText = dayData.beskjeder || '';
+        }
 
         function handleInlineEdit(field, value) {
             if (!weekData[activeViewDay]) {
                 weekData[activeViewDay] = { ordens: '', maal: '', beskjeder: '' };
             }
-            weekData[activeViewDay][field] = value.trim();
+            weekData[activeViewDay][field] = value;
             saveStorageData();
         }
 
-        // MODAL LOGIKK
+        /* ==========================================================================
+           4. LAGRING (LOCAL STORAGE)
+           ========================================================================== */
+        function loadStorageData() {
+            const saved = localStorage.getItem('tors_dagens_plan_v6');
+            if (saved) {
+                try { weekData = JSON.parse(saved); } catch(e) { console.error("Kunne ikke laste data", e); }
+            }
+        }
+
+        function saveStorageData() {
+            localStorage.setItem('tors_dagens_plan_v6', JSON.stringify(weekData));
+        }
+
+        /* ==========================================================================
+           5. MODAL & INNSTILLINGER
+           ========================================================================== */
         function openModal() {
             activeEditDay = activeViewDay;
             updateModalUI();
@@ -810,6 +320,7 @@ function getTargetDateForWeekday(dayName) {
         }
 
         function closeModal() {
+            saveCurrentEditDay(false);
             document.getElementById('editModal').classList.remove('active');
         }
 
@@ -820,8 +331,7 @@ function getTargetDateForWeekday(dayName) {
         }
 
         function updateModalUI() {
-            const btns = document.querySelectorAll('.modal-day-btn');
-            btns.forEach(btn => {
+            document.querySelectorAll('.modal-day-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.textContent === activeEditDay);
             });
 
@@ -842,7 +352,6 @@ function getTargetDateForWeekday(dayName) {
 
             saveStorageData();
             switchViewDay(activeViewDay);
-
             if (close) closeModal();
         }
 
@@ -855,20 +364,28 @@ function getTargetDateForWeekday(dayName) {
             }
         }
 
-        /* --- LASTE NED OG VISE UKEPLANER --- */
-let ukeplanerData = {};
+        function clearAllDays() {
+            if (confirm('Er du sikker på at du vil slette innholdet for HELE uken (alle dager)?')) {
+                days.forEach(day => { weekData[day] = { ordens: '', maal: '', beskjeder: '' }; });
+                saveStorageData();
+                updateModalUI();
+                switchViewDay(activeViewDay);
+            }
+        }
 
-async function lastUkeplaner() {
-    try {
-        const res = await fetch('https://77tor.github.io/haanes-ukeplaner/ukeplaner.json?t=' + new Date().getTime());
-        if (!res.ok) throw new Error("Fant ikke ukeplaner.json på GitHub");
-        
-        ukeplanerData = await res.json();
-        oppdaterTrinnIModal();
-    } catch (err) {
-        console.error("Feil ved henting av ukeplaner:", err);
-    }
-}
+        /* ==========================================================================
+           6. EKSTERN UKEPLAN / PDF-HÅNDTERING
+           ========================================================================== */
+        async function lastUkeplaner() {
+            try {
+                const res = await fetch('https://77tor.github.io/haanes-ukeplaner/ukeplaner.json?t=' + new Date().getTime());
+                if (!res.ok) throw new Error("Fant ikke ukeplaner.json på GitHub");
+                ukeplanerData = await res.json();
+                oppdaterTrinnIModal();
+            } catch (err) {
+                console.error("Feil ved henting av ukeplaner:", err);
+            }
+        }
 
         function lagreValgtTrinn(trinn) {
             localStorage.setItem('sistValgteTrinn', trinn);
@@ -884,88 +401,81 @@ async function lastUkeplaner() {
             }
         }
 
-function oppdaterTekstPaaKort() {
-    const lagretTrinn = localStorage.getItem('sistValgteTrinn');
-    const tekstEl = document.getElementById('visValgtTrinnTekst');
-    const miniFrame = document.getElementById('miniPdfFrame');
+        function oppdaterTekstPaaKort() {
+            const lagretTrinn = localStorage.getItem('sistValgteTrinn');
+            const tekstEl = document.getElementById('visValgtTrinnTekst');
+            const miniFrame = document.getElementById('miniPdfFrame');
 
-    if (lagretTrinn && ukeplanerData[lagretTrinn]) {
-        if (tekstEl) tekstEl.textContent = `Valgt: ${lagretTrinn}. trinn`;
-        if (miniFrame) miniFrame.src = ukeplanerData[lagretTrinn].pdf_url;
-    } else {
-        if (tekstEl) tekstEl.textContent = "Ingen trinn valgt (velg i ⚙️)";
-        if (miniFrame) miniFrame.src = '';
-    }
-}
-
-
-/* VIS UKEPLAN I HELDEKKENDE VISNING */
-function visKlassensUkeplan() {
-    const lagretTrinn = localStorage.getItem('sistValgteTrinn');
-
-    if (!lagretTrinn) {
-        alert("Du må velge et trinn først! Åpne innstillinger (⚙️) og velg trinn.");
-        openModal();
-        return;
-    }
-
-    const data = ukeplanerData[lagretTrinn];
-
-    if (data && data.pdf_url) {
-        // Skjul toppbaren, ukedagsvelgeren og hovedrutenettet
-        document.querySelector('header').style.display = 'none';
-        document.getElementById('dayTabs').style.display = 'none';
-        document.getElementById('tavleGrid').style.display = 'none';
-        
-        const ukeplanView = document.getElementById('ukeplanView');
-        const pdfFrame = document.getElementById('pdfFrame');
-        const tittel = document.getElementById('ukeplanTittel');
-
-        pdfFrame.src = data.pdf_url;
-        tittel.textContent = `Ukeplan – ${lagretTrinn}. trinn`;
-        ukeplanView.style.display = 'flex';
-    } else {
-        alert(`Ingen ukeplan funnet for ${lagretTrinn}. trinn denne uken.`);
-    }
-}
-
-/* LUKK UKEPLAN OG GÅ TILBAKE TIL DAGENS PLAN */
-function lukkUkeplan() {
-    // Skjul ukeplanvisningen
-    document.getElementById('ukeplanView').style.display = 'none';
-    document.getElementById('pdfFrame').src = ''; 
-
-    // Vis toppbaren, ukedagsvelgeren og hovedrutenettet igjen
-    document.querySelector('header').style.display = 'flex';
-    document.getElementById('dayTabs').style.display = 'flex';
-    document.getElementById('tavleGrid').style.display = 'grid';
-}
-
-
-
-        function clearAllDays() {
-            if (confirm('Er du sikker på at du vil slette innholdet for HELE uken (alle dager)?')) {
-                days.forEach(day => {
-                    weekData[day] = { ordens: '', maal: '', beskjeder: '' };
-                });
-                saveStorageData();
-                updateModalUI();
-                switchViewDay(activeViewDay);
+            if (lagretTrinn && ukeplanerData[lagretTrinn]) {
+                if (tekstEl) tekstEl.textContent = `Valgt: ${lagretTrinn}. trinn`;
+                if (miniFrame) miniFrame.src = ukeplanerData[lagretTrinn].pdf_url;
+            } else {
+                if (tekstEl) tekstEl.textContent = "Ingen trinn valgt (velg i ⚙️)";
+                if (miniFrame) miniFrame.src = '';
             }
         }
 
+        function visKlassensUkeplan() {
+            const lagretTrinn = localStorage.getItem('sistValgteTrinn');
+            if (!lagretTrinn) {
+                alert("Du må velge et trinn først! Åpne innstillinger (⚙️) og velg trinn.");
+                openModal();
+                return;
+            }
+
+            const data = ukeplanerData[lagretTrinn];
+            if (data && data.pdf_url) {
+                document.querySelector('header').style.display = 'none';
+                document.getElementById('dayTabs').style.display = 'none';
+                document.getElementById('tavleGrid').style.display = 'none';
+                
+                document.getElementById('pdfFrame').src = data.pdf_url;
+                document.getElementById('ukeplanTittel').textContent = `Ukeplan – ${lagretTrinn}. trinn`;
+                document.getElementById('ukeplanView').style.display = 'flex';
+            } else {
+                alert(`Ingen ukeplan funnet for ${lagretTrinn}. trinn denne uken.`);
+            }
+        }
+
+        function lukkUkeplan() {
+            document.getElementById('ukeplanView').style.display = 'none';
+            document.getElementById('pdfFrame').src = ''; 
+            document.querySelector('header').style.display = 'flex';
+            document.getElementById('dayTabs').style.display = 'flex';
+            document.getElementById('tavleGrid').style.display = 'grid';
+        }
+
+        /* ==========================================================================
+           7. INITIALISERING OG HENDELSESLYTTERE (EVENT LISTENERS)
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStorageData();
+            setInitialDay();
+            switchViewDay(activeViewDay);
+            lastUkeplaner();
+
+            // Sanitering av innlimt tekst (fjerner unødvendig HTML-formatering ved lim inn)
+            document.querySelectorAll('[contenteditable]').forEach(el => {
+                el.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    const selection = window.getSelection();
+                    if (!selection.rangeCount) return;
+                    selection.deleteFromDocument();
+                    selection.getRangeAt(0).insertNode(document.createTextNode(text));
+                    selection.collapseToEnd();
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+            });
+        });
+
+        // Lukk modaler ved trykk på Escape
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
                 lukkUkeplan();
             }
         });
-
-        // OPPSTART
-        loadStorageData();
-        setInitialDay();
-        switchViewDay(activeViewDay);
-        lastUkeplaner();
     </script>
 </body>
 </html>
