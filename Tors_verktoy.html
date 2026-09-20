@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tors verktøy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #334155;
+            --bg-card-hover: #475569;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --sidebar-width: 320px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* VENSTREMENY / SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            z-index: 20;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            margin-left: calc(-1 * var(--sidebar-width));
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .category-group {
+            margin-bottom: 20px;
+        }
+
+        .category-title {
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .shelf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .item {
+            background: var(--bg-card);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            min-height: 95px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .item:hover {
+            transform: translateY(-2px);
+            background-color: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .item.active {
+            border-color: var(--accent-color);
+            background-color: rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 1px var(--accent-color);
+        }
+
+        .item-icon {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        /* HØYREVINDU / MAIN VIEW */
+        .main-view {
+            flex: 1;
+            height: 100%;
+            background-color: var(--bg-main);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .tool-header {
+            background-color: var(--bg-sidebar);
+            color: var(--text-primary);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            min-height: 56px;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .toggle-btn {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--text-secondary);
+        }
+
+        .floating-toggle-btn {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 30;
+            background-color: var(--bg-sidebar);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .floating-toggle-btn:hover {
+            background-color: var(--bg-card);
+        }
+
+        .tool-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .btn-open-external {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-open-external:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .frame-container {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .math-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #ffffff;
+        }
+
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .placeholder-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .placeholder p {
+            font-size: 15px;
+            max-width: 320px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- VENSTREMENY -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>🧰 Tors verktøy</h1>
+            </div>
+            <div id="shelfContainer">
+                <!-- Verktøy bygges her dynamisk -->
+            </div>
+        </aside>
+
+        <!-- HØYREVINDU -->
+        <main class="main-view">
+            <!-- Flytende knapp når menyen er skjult uten aktivt verktøy -->
+            <button class="floating-toggle-btn" id="floatingToggleBtn" onclick="toggleSidebar()" style="display: none;">
+                ☰ Åpne meny
+            </button>
+
+            <!-- Topplinje for verktøy -->
+            <div class="tool-header" id="toolHeader" style="display: none;">
+                <div class="header-left">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="headerToggleBtn">
+                        ◀ Skjul meny
+                    </button>
+                    <span class="tool-title" id="currentToolTitle">Velg et verktøy</span>
+                </div>
+                <a href="#" target="_blank" id="externalBtn" class="btn-open-external">
+                    Åpne i ny fane ↗
+                </a>
+            </div>
+            
+            <div class="frame-container">
+                <div id="placeholder" class="placeholder">
+                    <button class="toggle-btn" onclick="toggleSidebar()" id="placeholderToggleBtn" style="position: absolute; top: 14px; left: 14px;">
+                        ◀ Skjul meny
+                    </button>
+                    <div class="placeholder-icon">🧰</div>
+                    <p>Velg et verktøy fra menyen til venstre for å starte.</p>
+                </div>
+                <iframe name="mathViewer" id="mathViewer" class="math-frame" style="display: none;"></iframe>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        // =========================================================================
+        // HER LEGGER DU TIL NYE VERKTØY ETTER HVERT:
+        // =========================================================================
+        const toolsData = [
+            {
+                category: "Mine Verktøy",
+                items: [
+                    { title: "Penger", icon: "💰", url: "https://77tor.github.io/Penger/", openExternal: false },
+                    { title: "Klokka", icon: "🕐", url: "https://77tor.github.io/Klokka/", openExternal: false }
+                ]
+            },
+            {
+                category: "Kartlegginger",
+                items: [
+                    { title: "Udir 1. Les", icon: "📚", url: "https://77tor.github.io/Les-1-udir/", openExternal: false },
+                    { title: "Udir 1. Reg", icon: "🧮", url: "https://77tor.github.io/Reg-1-udir/", openExternal: false },
+                    { title: "Udir 3. Les", icon: "📚", url: "https://77tor.github.io/Les-3-udir/", openExternal: false },
+                    { title: "Udir 3. Reg", icon: "🧮", url: "https://77tor.github.io/Reg-3-udir/", openExternal: false },
+                    { title: "NP5-Les", icon: "📚", url: "https://77tor.github.io/NP5-LES-2025/", openExternal: false },
+                    { title: "NP5-Reg", icon: "🧮", url: "https://77tor.github.io/NP5-25-REG/", openExternal: false },
+                    { title: "NP8-Les", icon: "📚", url: "https://77tor.github.io/NP8-25-LES/", openExternal: false },
+                    { title: "NP8-Reg", icon: "🧮", url: "https://77tor.github.io/NP8-25-REG/", openExternal: false }
+                ]
+            }
+        ];
+
+        // Bygg menyen dynamisk ved oppstart
+        function renderShelf() {
+            const container = document.getElementById('shelfContainer');
+            container.innerHTML = '';
+
+            toolsData.forEach(group => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'category-group';
+
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'category-title';
+                titleDiv.textContent = group.category;
+                groupDiv.appendChild(titleDiv);
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'shelf-grid';
+
+                group.items.forEach(tool => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+
+                    if (tool.openExternal) {
+                        itemDiv.onclick = () => window.open(tool.url, '_blank');
+                    } else {
+                        itemDiv.onclick = function() {
+                            loadTool(tool.url, tool.title, this);
+                        };
+                    }
+
+                    itemDiv.innerHTML = `
+                        <div class="item-icon">${tool.icon}</div>
+                        <div class="item-title">${tool.title}</div>
+                    `;
+                    gridDiv.appendChild(itemDiv);
+                });
+
+                groupDiv.appendChild(gridDiv);
+                container.appendChild(groupDiv);
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const floatingBtn = document.getElementById('floatingToggleBtn');
+            const toolHeader = document.getElementById('toolHeader');
+            
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            
+            const headerBtn = document.getElementById('headerToggleBtn');
+            const placeholderBtn = document.getElementById('placeholderToggleBtn');
+            
+            const btnText = isCollapsed ? '▶ Åpne meny' : '◀ Skjul meny';
+            if (headerBtn) headerBtn.innerHTML = btnText;
+            if (placeholderBtn) placeholderBtn.innerHTML = btnText;
+
+            if (toolHeader.style.display === 'none') {
+                floatingBtn.style.display = isCollapsed ? 'inline-flex' : 'none';
+            } else {
+                floatingBtn.style.display = 'none';
+            }
+        }
+
+        function loadTool(url, title, element) {
+            document.querySelectorAll('.item').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            document.getElementById('currentToolTitle').textContent = title;
+            document.getElementById('externalBtn').href = url;
+            document.getElementById('toolHeader').style.display = 'flex';
+            document.getElementById('floatingToggleBtn').style.display = 'none';
+
+            const iframe = document.getElementById('mathViewer');
+            const placeholder = document.getElementById('placeholder');
+            
+            placeholder.style.display = 'none';
+            iframe.style.display = 'block';
+            iframe.src = url;
+        }
+
+        // Oppstart
+        renderShelf();
+    </script>
+</body>
+</html>
