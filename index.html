@@ -49,6 +49,7 @@
 <div class="card">
   <span class="card-title">Verktøy</span>
   <div class="tools-grid">
+    <button type="button" class="btn-tool btn-info" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('dagens-plan.html');">ℹ️ Informasjon</button>
     <button type="button" class="btn-tool btn-whiteboard" onclick="if(typeof nullstillAktivitetsVisning === 'function') nullstillAktivitetsVisning(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('whiteboard.html');">✏️ Whiteboard</button>
     <button type="button" class="btn-tool btn-trafikklys" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('trafikklys.html');">🚦 Arbeidsro / Trafikklys</button>
     <button type="button" class="btn-tool btn-mattemix" onclick="skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') setAndSaveIframeUrl('matematikk.html');">🔢 Matte-mix</button>
