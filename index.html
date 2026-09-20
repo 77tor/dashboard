@@ -111,7 +111,12 @@
 
       <!-- Felles Nedtrekksmeny -->
       <div id="homeDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 170px; overflow: hidden;">
-        <button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+<!-- NY KNAPP ØVERST -->
+        <button type="button" onclick="if(typeof skjulAktivitetDisplay === 'function') skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') { setAndSaveIframeUrl('dagens-plan.html'); } else { const f = document.getElementById('mainFrame') || document.querySelector('iframe'); if(f) f.src = 'dagens-plan.html'; } toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+          ℹ️ Informasjon
+        </button>
+
+        <button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
           🏠 Hjem
         </button>
         <button type="button" onclick="openScreensaver('video'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
