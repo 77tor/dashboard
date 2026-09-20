@@ -38,7 +38,7 @@ const aktiviteterData = [
   { tittel: "Hent mat/drikke", bilde: "Aktivitet/Spising.png" },
 
 // Praktiske rutiner
-  { tittel: "Garderobe", bilde: "Aktivitet/Garderobe.png" },
+  { tittel: "Rydde i garderoben", bilde: "Aktivitet/Garderobe.png" },
   { tittel: "Pakk sekken", bilde: "Aktivitet/Pakk_sekken.png" },
   { tittel: "Lade iPad/PC", bilde: "Aktivitet/Lade.png" },
   { tittel: "Fyll vannflaske", bilde: "Aktivitet/Vannflaske.png" }
