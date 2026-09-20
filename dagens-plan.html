@@ -8,6 +8,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* TEMA 0: Egne Fonter */
+        @font-face {
+            font-family: 'Trykkskrift';
+            src: url('trykkskrift.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Stavskrift';
+            src: url('skogstavskrift.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         /* TEMA 1: Variabler & Reset */
         :root { --bg-main: #0f172a; --bg-card: #1e293b; --bg-card-hover: #334155; --accent-color: #3b82f6; --accent-green: #10b981; --accent-purple: #8b5cf6; --accent-amber: #f59e0b; --accent-pink: #ec4899; --accent-red: #ef4444; --text-primary: #f8fafc; --text-secondary: #94a3b8; --border-color: #334155; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
@@ -22,7 +37,7 @@
         .date-sub { font-size: 15px; color: var(--text-secondary); font-weight: 500; }
         .header-right { display: flex; align-items: center; gap: 16px; }
 
-        /* TEMA 3: Komponenter i Header (Ordenselever & Innstillinger-knapp) */
+        /* TEMA 3: Komponenter i Header */
         .ordens-featured { background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(30, 41, 59, 0.9)); border: 1.5px solid var(--accent-pink); border-radius: 12px; padding: 6px 16px; display: flex; align-items: center; gap: 12px; min-width: 260px; box-shadow: 0 2px 12px rgba(236, 72, 153, 0.2); }
         .ordens-icon-badge { background: var(--accent-pink); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.4); flex-shrink: 0; }
         .ordens-body { display: flex; flex-direction: column; gap: 1px; flex: 1; }
@@ -46,7 +61,7 @@
         .card-maal .card-header { color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3); }
         .card-beskjeder .card-header { color: var(--accent-purple); border-color: rgba(139, 92, 246, 0.3); }
         .card-ukeplan .card-header { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); }
-        .card-content { font-size: 18px; line-height: 1.6; white-space: pre-wrap; color: var(--text-primary); flex: 1; outline: none; border-radius: 8px; padding: 8px; transition: background 0.2s ease, border-color 0.2s ease; }
+        .card-content { font-size: 24px; line-height: 1.5; white-space: pre-wrap; color: var(--text-primary); flex: 1; outline: none; border-radius: 8px; padding: 8px; transition: background 0.2s ease, border-color 0.2s ease; }
         .card-content:hover { background: rgba(255, 255, 255, 0.03); }
         .card-content:focus { background: rgba(15, 23, 42, 0.5); box-shadow: inset 0 0 0 1px var(--accent-color); }
         .card-content[data-placeholder]:empty:before { content: attr(data-placeholder); color: var(--text-secondary); font-size: 16px; font-style: italic; }
@@ -62,28 +77,51 @@
         .back-btn:hover { background: #d97706; color: #fff; transform: translateY(-1px); }
         .pdf-frame { width: 100%; flex: 1; min-height: 80vh; border: none; border-radius: 10px; background: #ffffff; }
 
-        /* TEMA 7: Modal / Innstillinger */
+        /* TEMA 7: Modal Structure & Hovedfaner */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; width: 90%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); overflow: hidden; }
-        .modal-header { padding: 20px 24px; background: rgba(15, 23, 42, 0.5); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { font-size: 20px; font-weight: 700; }
-        .close-modal { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 4px; border-radius: 6px; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; width: 90%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); overflow: hidden; }
+        .modal-header { padding: 16px 24px; background: rgba(15, 23, 42, 0.6); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 18px; font-weight: 700; }
+        .close-modal { background: transparent; border: none; color: var(--text-secondary); font-size: 22px; cursor: pointer; padding: 4px; border-radius: 6px; }
         .close-modal:hover { color: var(--text-primary); background: var(--border-color); }
-        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
-        .modal-day-select { display: flex; gap: 10px; margin-bottom: 20px; }
-        .modal-day-btn { flex: 1; padding: 10px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 10px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s ease; }
+        
+        /* Hovedfaner øverst i modal */
+        .modal-main-tabs { display: flex; background: rgba(15, 23, 42, 0.4); border-bottom: 1px solid var(--border-color); }
+        .modal-main-tab { flex: 1; padding: 12px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .modal-main-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.02); }
+        .modal-main-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); background: rgba(59, 130, 246, 0.05); }
+
+        .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* TEMA 8: Modal Skjema-komponenter */
+        .modal-day-select { display: flex; gap: 8px; margin-bottom: 18px; }
+        .modal-day-btn { flex: 1; padding: 8px 4px; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; transition: all 0.2s ease; }
         .modal-day-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
         .edit-group { margin-bottom: 16px; }
-        .edit-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
-        .edit-group textarea, .edit-group input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); padding: 10px 12px; font-size: 14px; line-height: 1.4; }
-        .edit-group textarea { resize: vertical; min-height: 80px; }
-        .edit-group textarea:focus, .edit-group input:focus { outline: none; border-color: var(--accent-color); }
-        .modal-footer { padding: 16px 24px; background: rgba(15, 23, 42, 0.5); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-        .clear-actions { display: flex; gap: 10px; }
-        .danger-btn { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .label-with-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .label-with-toggle label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        
+        .checkbox-label { font-size: 12px; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; gap: 6px; user-select: none; background: rgba(255,255,255,0.04); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .checkbox-label input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--accent-color); cursor: pointer; }
+
+        .edit-group textarea, .edit-group input[type="text"], .edit-group select { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); padding: 10px 12px; font-size: 14px; line-height: 1.4; }
+        .edit-group textarea { resize: vertical; min-height: 75px; }
+        .edit-group textarea:focus, .edit-group input[type="text"]:focus, .edit-group select:focus { outline: none; border-color: var(--accent-color); }
+
+        .setting-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .setting-card-title { font-size: 13px; font-weight: 700; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+
+        .modal-footer { padding: 14px 24px; background: rgba(15, 23, 42, 0.6); border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .clear-actions { display: flex; gap: 8px; }
+        .danger-btn { background: rgba(239, 68, 68, 0.12); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
         .danger-btn:hover { background: var(--accent-red); color: white; }
-        .save-btn { background: var(--accent-green); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease; }
+        .reset-btn { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; margin-top: 8px; }
+        .reset-btn:hover { background: var(--accent-amber); color: #000; }
+        .save-btn { background: var(--accent-green); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease; }
         .save-btn:hover { background: #059669; }
     </style>
 </head>
@@ -100,7 +138,7 @@
         </div>
         
         <div class="header-right">
-            <div class="ordens-featured">
+            <div class="ordens-featured" id="ordensContainer">
                 <div class="ordens-icon-badge">⭐️</div>
                 <div class="ordens-body">
                     <span class="ordens-featured-label">Ordenselever</span>
@@ -108,7 +146,7 @@
                 </div>
             </div>
 
-            <button class="gear-btn" onclick="openModal()" title="Rediger ukeplan">⚙️</button>
+            <button class="gear-btn" onclick="openModal()" title="Innstillinger & Redigering">⚙️</button>
         </div>
     </header>
 
@@ -125,7 +163,7 @@
     <div class="grid-container" id="tavleGrid">
         
         <!-- UKEPLAN -->
-        <div class="card card-ukeplan">
+        <div class="card card-ukeplan" id="cardUkeplan">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div><span>📅</span> Ukeplan</div>
                 <span id="visValgtTrinnTekst" style="font-size: 0.85em; opacity: 0.8; font-weight: normal;"></span>
@@ -135,20 +173,20 @@
             <div class="preview-overlay-hint" onclick="visKlassensUkeplan()">🔍 Klikk for fullskjerm</div>
         </div>
 
-        <!-- BESKJEDER -->
-        <div class="card card-beskjeder">
+        <!-- BOKS 1 (MÅL / VALGFRI OVERKRIFT) -->
+        <div class="card card-maal" id="cardMaal">
             <div class="card-header">
-                <span>📢</span> Beskjeder til klassen
+                <span>🎯</span> <span id="headerTextMaal">Læringsmål</span>
             </div>
-            <div class="card-content" id="viewBeskjeder" contenteditable="true" data-placeholder="Skriv inn beskjeder til klassen direkte her..." oninput="handleInlineEdit('beskjeder', this.innerText)"></div>
+            <div class="card-content" id="viewMaal" contenteditable="true" data-placeholder="Skriv inn innhold her..." oninput="handleInlineEdit('maal', this.innerText)"></div>
         </div>
 
-        <!-- LÆRINGSMÅL -->
-        <div class="card card-maal">
+        <!-- BOKS 2 (BESKJEDER / VALGFRI OVERSKRIFT) -->
+        <div class="card card-beskjeder" id="cardBeskjeder">
             <div class="card-header">
-                <span>🎯</span> Læringsmål
+                <span>📢</span> <span id="headerTextBeskjeder">Beskjeder til klassen</span>
             </div>
-            <div class="card-content" id="viewMaal" contenteditable="true" data-placeholder="Skriv inn dagens læringsmål direkte her..." oninput="handleInlineEdit('maal', this.innerText)"></div>
+            <div class="card-content" id="viewBeskjeder" contenteditable="true" data-placeholder="Skriv inn beskjeder her..." oninput="handleInlineEdit('beskjeder', this.innerText)"></div>
         </div>
 
     </div>
@@ -162,52 +200,124 @@
         <iframe class="pdf-frame" id="pdfFrame" src=""></iframe>
     </div>
 
-    <!-- MODAL FOR Å REDIGERE HELE UKEN -->
+    <!-- MODAL FOR REDIGERING OG INNSTILLINGER -->
     <div class="modal-overlay" id="editModal">
         <div class="modal">
             <div class="modal-header">
                 <h2>⚙️ Innstillinger & Redigering</h2>
                 <button class="close-modal" onclick="closeModal()">✕</button>
             </div>
+
+            <!-- HOVEDFANER -->
+            <div class="modal-main-tabs">
+                <div class="modal-main-tab active" id="tabBtnContent" onclick="switchModalTab('content')">📝 Rediger innhold per dag</div>
+                <div class="modal-main-tab" id="tabBtnSettings" onclick="switchModalTab('settings')">⚙️ Generelle innstillinger</div>
+            </div>
+
             <div class="modal-body">
                 
-                <div class="edit-group" style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;">🏫 Velg klassens trinn for ukeplaner:</label>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <label><input type="radio" name="trinnValg" value="1" onchange="lagreValgtTrinn('1')"> 1. trinn</label>
-                        <label><input type="radio" name="trinnValg" value="2" onchange="lagreValgtTrinn('2')"> 2. trinn</label>
-                        <label><input type="radio" name="trinnValg" value="3" onchange="lagreValgtTrinn('3')"> 3. trinn</label>
-                        <label><input type="radio" name="trinnValg" value="4" onchange="lagreValgtTrinn('4')"> 4. trinn</label>
-                        <label><input type="radio" name="trinnValg" value="5" onchange="lagreValgtTrinn('5')"> 5. trinn</label>
-                        <label><input type="radio" name="trinnValg" value="6" onchange="lagreValgtTrinn('6')"> 6. trinn</label>
-                        <label><input type="radio" name="trinnValg" value="7" onchange="lagreValgtTrinn('7')"> 7. trinn</label>
+                <!-- FANE 1: REDIGER INNHOLD -->
+                <div class="tab-content active" id="tabContent">
+                    <div class="modal-day-select">
+                        <button class="modal-day-btn" onclick="switchEditDay('Mandag')">Mandag</button>
+                        <button class="modal-day-btn" onclick="switchEditDay('Tirsdag')">Tirsdag</button>
+                        <button class="modal-day-btn" onclick="switchEditDay('Onsdag')">Onsdag</button>
+                        <button class="modal-day-btn" onclick="switchEditDay('Torsdag')">Torsdag</button>
+                        <button class="modal-day-btn" onclick="switchEditDay('Fredag')">Fredag</button>
+                    </div>
+
+                    <div class="edit-group">
+                        <div class="label-with-toggle">
+                            <label for="inputOrdens">⭐️ Ordenselever</label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showOrdens" onchange="toggleBoxVisibility('ordens', this.checked)"> Vis boks
+                            </label>
+                        </div>
+                        <input type="text" id="inputOrdens" placeholder="f.eks. Kari og Ola">
+                    </div>
+
+                    <div class="edit-group">
+                        <div class="label-with-toggle">
+                            <label for="inputMaal" id="labelInputMaal">🎯 Læringsmål</label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showBoxMaal" onchange="toggleBoxVisibility('maal', this.checked)"> Vis boks
+                            </label>
+                        </div>
+                        <textarea id="inputMaal" placeholder="Skriv inn innhold..."></textarea>
+                    </div>
+
+                    <div class="edit-group">
+                        <div class="label-with-toggle">
+                            <label for="inputBeskjeder" id="labelInputBeskjeder">📢 Beskjeder til klassen</label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showBoxBeskjeder" onchange="toggleBoxVisibility('beskjeder', this.checked)"> Vis boks
+                            </label>
+                        </div>
+                        <textarea id="inputBeskjeder" placeholder="Skriv inn innhold..."></textarea>
                     </div>
                 </div>
 
-                <div class="modal-day-select">
-                    <button class="modal-day-btn" onclick="switchEditDay('Mandag')">Mandag</button>
-                    <button class="modal-day-btn" onclick="switchEditDay('Tirsdag')">Tirsdag</button>
-                    <button class="modal-day-btn" onclick="switchEditDay('Onsdag')">Onsdag</button>
-                    <button class="modal-day-btn" onclick="switchEditDay('Torsdag')">Torsdag</button>
-                    <button class="modal-day-btn" onclick="switchEditDay('Fredag')">Fredag</button>
-                </div>
+                <!-- FANE 2: GENERELLE INNSTILLINGER -->
+                <div class="tab-content" id="tabSettings">
+                    
+                    <div class="setting-card">
+                        <div class="setting-card-title">🏫 Klassetrinn for ukeplaner</div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="1" onchange="lagreValgtTrinn('1')"> 1. trinn</label>
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="2" onchange="lagreValgtTrinn('2')"> 2. trinn</label>
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="3" onchange="lagreValgtTrinn('3')"> 3. trinn</label>
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="4" onchange="lagreValgtTrinn('4')"> 4. trinn</label>
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="5" onchange="lagreValgtTrinn('5')"> 5. trinn</label>
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="6" onchange="lagreValgtTrinn('6')"> 6. trinn</label>
+                            <label style="font-size: 13px; cursor: pointer;"><input type="radio" name="trinnValg" value="7" onchange="lagreValgtTrinn('7')"> 7. trinn</label>
+                        </div>
+                    </div>
 
-                <div class="edit-group">
-                    <label for="inputOrdens">⭐️ Ordenselever (navn)</label>
-                    <input type="text" id="inputOrdens" placeholder="f.eks. Kari og Ola">
-                </div>
+                    <div class="setting-card">
+                        <div class="setting-card-title">✏️ Tilpass overskrifter på boksene</div>
+                        
+                        <div class="edit-group">
+                            <label style="font-size: 12px; margin-bottom: 4px; display: block; color: var(--text-secondary);">Overskrift Boks 1:</label>
+                            <input type="text" id="inputTitleMaal" placeholder="Læringsmål" oninput="updateBoxTitles()">
+                        </div>
 
-                <div class="edit-group">
-                    <label for="inputMaal">🎯 Læringsmål</label>
-                    <textarea id="inputMaal" placeholder="Skriv inn dagens læringsmål..."></textarea>
-                </div>
+                        <div class="edit-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; margin-bottom: 4px; display: block; color: var(--text-secondary);">Overskrift Boks 2:</label>
+                            <input type="text" id="inputTitleBeskjeder" placeholder="Beskjeder til klassen" oninput="updateBoxTitles()">
+                        </div>
+                    </div>
 
-                <div class="edit-group">
-                    <label for="inputBeskjeder">📢 Beskjeder til klassen</label>
-                    <textarea id="inputBeskjeder" placeholder="Skriv inn beskjeder..."></textarea>
+                    <div class="setting-card">
+                        <div class="setting-card-title">🔤 Tekststil for boks 1 og boks 2</div>
+                        
+                        <div class="edit-group">
+                            <label style="font-size: 12px; margin-bottom: 4px; display: block; color: var(--text-secondary);">Fontype:</label>
+                            <select id="fontSelect" onchange="updateFontChoice(this.value)">
+                                <option value="Standard">Standard</option>
+                                <option value="Trykkskrift">Trykkskrift</option>
+                                <option value="Stavskrift">Stavskrift</option>
+                            </select>
+                        </div>
+
+                        <div class="edit-group" style="margin-bottom: 0;">
+                            <label style="font-size: 12px; margin-bottom: 4px; display: block; color: var(--text-secondary);">Skriftstørrelse:</label>
+                            <select id="fontSizeSelect" onchange="updateFontSizeChoice(this.value)">
+                                <option value="20px">Liten</option>
+                                <option value="26px">Medium (Standard)</option>
+                                <option value="32px">Stor</option>
+                                <option value="42px">Ekstra stor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="reset-btn" onclick="resetGeneralSettings()">🔄 Tilbakestill innstillinger</button>
+                    </div>
+
                 </div>
 
             </div>
+
             <div class="modal-footer">
                 <div class="clear-actions">
                     <button class="danger-btn" onclick="clearCurrentDay()" id="clearDayBtn">🗑️ Tøm denne dagen</button>
@@ -226,6 +336,18 @@
         let activeViewDay = 'Mandag';
         let activeEditDay = 'Mandag';
         let ukeplanerData = {};
+
+        const DEFAULT_SETTINGS = {
+            titleMaal: 'Læringsmål',
+            titleBeskjeder: 'Beskjeder til klassen',
+            showOrdens: true,
+            showMaal: true,
+            showBeskjeder: true,
+            selectedFont: 'Standard',
+            selectedFontSize: '24px'
+        };
+
+        let appSettings = { ...DEFAULT_SETTINGS };
 
         let weekData = {
             'Mandag': { ordens: '', maal: '', beskjeder: '' },
@@ -297,24 +419,140 @@
         }
 
         /* ==========================================================================
-           4. LAGRING (LOCAL STORAGE)
+           4. LAGRING & KONFIGURASJON (LOCAL STORAGE & SETTINGS)
            ========================================================================== */
         function loadStorageData() {
-            const saved = localStorage.getItem('tors_dagens_plan_v6');
-            if (saved) {
-                try { weekData = JSON.parse(saved); } catch(e) { console.error("Kunne ikke laste data", e); }
+            const savedData = localStorage.getItem('tors_dagens_plan_v6');
+            if (savedData) {
+                try { weekData = JSON.parse(savedData); } catch(e) { console.error("Kunne ikke laste data", e); }
             }
+
+            const savedSettings = localStorage.getItem('tors_dagens_plan_settings');
+            if (savedSettings) {
+                try { appSettings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(savedSettings)); } catch(e) { console.error("Kunne ikke laste innstillinger", e); }
+            }
+            applySettingsToUI();
         }
 
         function saveStorageData() {
             localStorage.setItem('tors_dagens_plan_v6', JSON.stringify(weekData));
+            localStorage.setItem('tors_dagens_plan_settings', JSON.stringify(appSettings));
+        }
+
+        function applySettingsToUI() {
+            // Titler
+            document.getElementById('headerTextMaal').textContent = appSettings.titleMaal || 'Læringsmål';
+            document.getElementById('headerTextBeskjeder').textContent = appSettings.titleBeskjeder || 'Beskjeder til klassen';
+
+            document.getElementById('labelInputMaal').textContent = '🎯 ' + (appSettings.titleMaal || 'Læringsmål');
+            document.getElementById('labelInputBeskjeder').textContent = '📢 ' + (appSettings.titleBeskjeder || 'Beskjeder til klassen');
+
+            // Synlighet (Ordenselever)
+            document.getElementById('ordensContainer').style.display = appSettings.showOrdens ? 'flex' : 'none';
+
+            // Synlighet (Kort & Dynamisk Grid-tilpasning)
+            const cardMaal = document.getElementById('cardMaal');
+            const cardBeskjeder = document.getElementById('cardBeskjeder');
+            const gridContainer = document.getElementById('tavleGrid');
+
+            cardMaal.style.display = appSettings.showMaal ? 'flex' : 'none';
+            cardBeskjeder.style.display = appSettings.showBeskjeder ? 'flex' : 'none';
+
+            if (appSettings.showMaal && !appSettings.showBeskjeder) {
+                cardMaal.style.gridRow = 'span 2';
+            } else if (!appSettings.showMaal && appSettings.showBeskjeder) {
+                cardBeskjeder.style.gridRow = 'span 2';
+            } else {
+                cardMaal.style.gridRow = 'auto';
+                cardBeskjeder.style.gridRow = 'auto';
+            }
+
+            if (!appSettings.showMaal && !appSettings.showBeskjeder) {
+                gridContainer.style.gridTemplateColumns = '1fr';
+            } else {
+                gridContainer.style.gridTemplateColumns = '1fr 1fr';
+            }
+
+            // Font-stilsetting og skriftstørrelse på boks 1 og boks 2
+            const fontMap = {
+                'Standard': "'Inter', system-ui, -apple-system, sans-serif",
+                'Trykkskrift': "'Trykkskrift', 'Inter', sans-serif",
+                'Stavskrift': "'Stavskrift', 'Inter', sans-serif"
+            };
+            const chosenFontFamily = fontMap[appSettings.selectedFont] || fontMap['Standard'];
+            const chosenFontSize = appSettings.selectedFontSize || '24px';
+
+            const box1 = document.getElementById('viewMaal');
+            const box2 = document.getElementById('viewBeskjeder');
+
+            box1.style.fontFamily = chosenFontFamily;
+            box1.style.fontSize = chosenFontSize;
+
+            box2.style.fontFamily = chosenFontFamily;
+            box2.style.fontSize = chosenFontSize;
+        }
+
+        function updateBoxTitles() {
+            appSettings.titleMaal = document.getElementById('inputTitleMaal').value || 'Læringsmål';
+            appSettings.titleBeskjeder = document.getElementById('inputTitleBeskjeder').value || 'Beskjeder til klassen';
+            applySettingsToUI();
+            saveStorageData();
+        }
+
+        function toggleBoxVisibility(box, isVisible) {
+            if (box === 'ordens') appSettings.showOrdens = isVisible;
+            if (box === 'maal') appSettings.showMaal = isVisible;
+            if (box === 'beskjeder') appSettings.showBeskjeder = isVisible;
+            
+            applySettingsToUI();
+            saveStorageData();
+        }
+
+        function updateFontChoice(fontValue) {
+            appSettings.selectedFont = fontValue;
+            applySettingsToUI();
+            saveStorageData();
+        }
+
+        function updateFontSizeChoice(sizeValue) {
+            appSettings.selectedFontSize = sizeValue;
+            applySettingsToUI();
+            saveStorageData();
+        }
+
+        function resetGeneralSettings() {
+            if (confirm('Vil du tilbakestille alle generelle innstillinger (overskrifter, visningsvalg, font og skriftstørrelse) til standard?')) {
+                appSettings = { ...DEFAULT_SETTINGS };
+                saveStorageData();
+                applySettingsToUI();
+                
+                // Oppdater feltene i modalen dersom den er åpen
+                document.getElementById('inputTitleMaal').value = appSettings.titleMaal;
+                document.getElementById('inputTitleBeskjeder').value = appSettings.titleBeskjeder;
+                document.getElementById('fontSelect').value = appSettings.selectedFont;
+                document.getElementById('fontSizeSelect').value = appSettings.selectedFontSize;
+                document.getElementById('showOrdens').checked = appSettings.showOrdens;
+                document.getElementById('showBoxMaal').checked = appSettings.showMaal;
+                document.getElementById('showBoxBeskjeder').checked = appSettings.showBeskjeder;
+            }
         }
 
         /* ==========================================================================
-           5. MODAL & INNSTILLINGER
+           5. MODAL & FANESTYRING
            ========================================================================== */
         function openModal() {
             activeEditDay = activeViewDay;
+            
+            // Fyll ut globale innstillinger
+            document.getElementById('inputTitleMaal').value = appSettings.titleMaal;
+            document.getElementById('inputTitleBeskjeder').value = appSettings.titleBeskjeder;
+            document.getElementById('fontSelect').value = appSettings.selectedFont || 'Standard';
+            document.getElementById('fontSizeSelect').value = appSettings.selectedFontSize || '24px';
+            document.getElementById('showOrdens').checked = appSettings.showOrdens;
+            document.getElementById('showBoxMaal').checked = appSettings.showMaal;
+            document.getElementById('showBoxBeskjeder').checked = appSettings.showBeskjeder;
+
+            switchModalTab('content');
             updateModalUI();
             document.getElementById('editModal').classList.add('active');
         }
@@ -322,6 +560,14 @@
         function closeModal() {
             saveCurrentEditDay(false);
             document.getElementById('editModal').classList.remove('active');
+        }
+
+        function switchModalTab(tab) {
+            document.getElementById('tabBtnContent').classList.toggle('active', tab === 'content');
+            document.getElementById('tabBtnSettings').classList.toggle('active', tab === 'settings');
+            
+            document.getElementById('tabContent').classList.toggle('active', tab === 'content');
+            document.getElementById('tabSettings').classList.toggle('active', tab === 'settings');
         }
 
         function switchEditDay(day) {
@@ -454,7 +700,7 @@
             switchViewDay(activeViewDay);
             lastUkeplaner();
 
-            // Sanitering av innlimt tekst (fjerner unødvendig HTML-formatering ved lim inn)
+            // Sanitering av innlimt tekst
             document.querySelectorAll('[contenteditable]').forEach(el => {
                 el.addEventListener('paste', (e) => {
                     e.preventDefault();
