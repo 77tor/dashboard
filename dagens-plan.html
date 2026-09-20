@@ -61,7 +61,7 @@
         .card-maal .card-header { color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3); }
         .card-beskjeder .card-header { color: var(--accent-purple); border-color: rgba(139, 92, 246, 0.3); }
         .card-ukeplan .card-header { color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); }
-        .card-content { font-size: 24px; line-height: 1.5; white-space: pre-wrap; color: var(--text-primary); flex: 1; outline: none; border-radius: 8px; padding: 8px; transition: background 0.2s ease, border-color 0.2s ease; }
+        .card-content { font-size: 26px; line-height: 1.5; white-space: pre-wrap; color: var(--text-primary); flex: 1; outline: none; border-radius: 8px; padding: 8px; transition: background 0.2s ease, border-color 0.2s ease; }
         .card-content:hover { background: rgba(255, 255, 255, 0.03); }
         .card-content:focus { background: rgba(15, 23, 42, 0.5); box-shadow: inset 0 0 0 1px var(--accent-color); }
         .card-content[data-placeholder]:empty:before { content: attr(data-placeholder); color: var(--text-secondary); font-size: 16px; font-style: italic; }
@@ -344,7 +344,7 @@
             showMaal: true,
             showBeskjeder: true,
             selectedFont: 'Standard',
-            selectedFontSize: '24px'
+            selectedFontSize: '26px'
         };
 
         let appSettings = { ...DEFAULT_SETTINGS };
@@ -480,7 +480,7 @@
                 'Stavskrift': "'Stavskrift', 'Inter', sans-serif"
             };
             const chosenFontFamily = fontMap[appSettings.selectedFont] || fontMap['Standard'];
-            const chosenFontSize = appSettings.selectedFontSize || '24px';
+            const chosenFontSize = appSettings.selectedFontSize || '26px';
 
             const box1 = document.getElementById('viewMaal');
             const box2 = document.getElementById('viewBeskjeder');
@@ -547,7 +547,7 @@
             document.getElementById('inputTitleMaal').value = appSettings.titleMaal;
             document.getElementById('inputTitleBeskjeder').value = appSettings.titleBeskjeder;
             document.getElementById('fontSelect').value = appSettings.selectedFont || 'Standard';
-            document.getElementById('fontSizeSelect').value = appSettings.selectedFontSize || '24px';
+            document.getElementById('fontSizeSelect').value = appSettings.selectedFontSize || '26px';
             document.getElementById('showOrdens').checked = appSettings.showOrdens;
             document.getElementById('showBoxMaal').checked = appSettings.showMaal;
             document.getElementById('showBoxBeskjeder').checked = appSettings.showBeskjeder;
