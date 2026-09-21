@@ -52,35 +52,48 @@
       border: 3px solid #e2e8f0;
       width: 100%;
       max-width: 750px;
-      padding: 40px;
+      padding: 30px 40px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 16px;
-      transition: all 0.2s ease;
     }
 
-    .slide-time {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #2563eb;
-      background: #eff6ff;
-      padding: 6px 18px;
+    /* Betydelig større bilde */
+    .slide-img {
+      max-height: 260px;
+      width: auto;
+      object-fit: contain;
       border-radius: 12px;
     }
 
+    /* Ryddig oppstilling av tekst */
     .slide-title {
-      font-size: 2.8rem;
+      font-size: 3rem;
       font-weight: 900;
       color: #0f172a;
-      line-height: 1.2;
+      line-height: 1.1;
+      margin-top: 8px;
     }
 
-    .slide-desc {
+    .slide-subtitle {
       font-size: 1.3rem;
-      color: #475569;
-      font-weight: 600;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .slide-time {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #2563eb;
+      background: #eff6ff;
+      padding: 6px 20px;
+      border-radius: 12px;
+      display: inline-block;
     }
 
     .nav-btn {
@@ -114,12 +127,6 @@
     }
     .prev-btn { left: 24px; }
     .next-btn { right: 24px; }
-
-    .slide-img {
-      max-height: 180px;
-      object-fit: contain;
-      border-radius: 12px;
-    }
 
     footer {
       padding: 16px;
@@ -168,50 +175,47 @@
     function hentDataFraScheduleDisplay() {
       dagsplanData = [];
 
-      // Finn hoveddokumentet (enten parent-vinduet eller dette dokumentet)
       const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
       const scheduleContainer = targetDoc.getElementById('scheduleDisplay');
 
-      if (!scheduleContainer) {
-        console.warn("Fant ikke #scheduleDisplay");
-        return;
-      }
+      if (!scheduleContainer) return;
 
-      // Hent alle barne-elementene (kortene) i scheduleDisplay
       const kortListe = scheduleContainer.children;
 
       for (let kort of kortListe) {
-        // Hent bilde dersom det finnes
         const imgEl = kort.querySelector('img');
         const bilde = imgEl ? imgEl.src : null;
 
-        // Finn alle tekstlinjer/elementer i kortet
-        const tekster = Array.from(kort.querySelectorAll('h1, h2, h3, h4, h5, div, span, p, strong, b'))
-                             .map(el => el.innerText.trim())
-                             .filter(t => t.length > 0);
+        // Hent alle rene tekstlinjer og skille dem ut
+        const råTekst = kort.innerText ? kort.innerText.trim() : '';
+        const linjer = råTekst.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'NÅ');
 
-        // Hent tittel, tid og beskrivelse basert på elementene i kortet
-        let tittel = "";
-        let tid = "";
-        let undertittel = "";
+        let tittel = linjer[0] || '';
+        let undertittel = '';
+        let tid = '';
 
-        // Plukk ut tittel
-        const tittelEl = kort.querySelector('h1, h2, h3, h4, h5, .title, strong, b');
-        if (tittelEl) {
-          tittel = tittelEl.innerText.trim();
-        } else if (tekster.length > 0) {
-          tittel = tekster[0];
-        }
-
-        // Se etter tidsrom (f.eks "1. TIME" eller "08:30 - 09:15")
-        const timeEl = kort.querySelector('.time, .sub, small, p');
-        if (timeEl && timeEl.innerText.trim() !== tittel) {
-          tid = timeEl.innerText.trim();
+        // Skille ut time (f.eks "1. TIME") og klokkeslett (f.eks "08.30 - 09.15")
+        for (let i = 1; i < linjer.length; i++) {
+          const line = linjer[i];
+          if (line.includes(':') || line.includes('-') || line.includes('.')) {
+            if (/\d/.test(line)) {
+              if (line.toUpperCase().includes('TIME') || line.toUpperCase().includes('SPISING') || line.toUpperCase().includes('FRIMINUTT')) {
+                undertittel = line;
+              } else {
+                tid = line;
+              }
+            } else {
+              undertittel = line;
+            }
+          } else {
+            undertittel = line;
+          }
         }
 
         if (tittel) {
           dagsplanData.push({
             tittel: tittel,
+            undertittel: undertittel,
             tid: tid,
             bilde: bilde
           });
@@ -225,7 +229,6 @@
       if (!dagsplanData || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
           <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
-          <div class="slide-desc">Fant ingen kort i dagsplanen på høyre side.</div>
         `;
         document.getElementById('prevBtn').style.display = 'none';
         document.getElementById('nextBtn').style.display = 'none';
@@ -247,9 +250,10 @@
       const card = document.getElementById('slideCard');
 
       card.innerHTML = `
-        ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
         ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" alt="">` : ''}
         <div class="slide-title">${økt.tittel}</div>
+        ${økt.undertittel ? `<div class="slide-subtitle">${økt.undertittel}</div>` : ''}
+        ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
       `;
 
       document.getElementById('prevBtn').disabled = (currentIndex === 0);
@@ -276,7 +280,6 @@
       });
     }
 
-    // Tastaturnavigasjon (Pil venstre / høyre)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') endreSlide(-1);
       if (e.key === 'ArrowRight') endreSlide(1);
