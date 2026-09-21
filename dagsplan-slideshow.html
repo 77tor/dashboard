@@ -41,32 +41,32 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 10px 20px;
       position: relative;
     }
 
-    /* Større og romsligere kort */
+    /* Større kort som utnytter tilgjengelig plass */
     .slide-card {
       background: #ffffff;
       border-radius: 28px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       border: 3px solid #e2e8f0;
       width: 100%;
-      max-width: 900px;
-      height: calc(100vh - 170px);
-      max-height: 620px;
-      padding: 24px 30px;
+      max-width: 950px;
+      height: calc(100vh - 140px);
+      padding: 20px 30px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      gap: 10px;
     }
 
-    /* Betydelig større bilde */
+    /* Tvinger bildet til å bli tildelt fast stor plass */
     .slide-img {
-      flex: 1;
-      max-height: 360px;
+      height: 380px !important;
+      max-height: 50vh;
       width: auto;
       max-width: 100%;
       object-fit: contain;
@@ -77,19 +77,18 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      margin-top: 10px;
+      gap: 4px;
     }
 
     .slide-title {
-      font-size: 3rem;
+      font-size: 2.8rem;
       font-weight: 900;
       color: #0f172a;
       line-height: 1.1;
     }
 
     .slide-subtitle {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 800;
       color: #64748b;
       text-transform: uppercase;
@@ -97,13 +96,14 @@
     }
 
     .slide-time {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #2563eb;
       background: #eff6ff;
-      padding: 6px 22px;
+      padding: 4px 20px;
       border-radius: 12px;
       display: inline-block;
+      margin-top: 2px;
     }
 
     .nav-btn {
@@ -139,7 +139,7 @@
     .next-btn { right: 24px; }
 
     footer {
-      padding: 16px;
+      padding: 14px;
       background: #ffffff;
       border-top: 1px solid #e2e8f0;
       display: flex;
