@@ -654,7 +654,7 @@
 
             if (lagretTrinn && ukeplanerData[lagretTrinn]) {
                 if (tekstEl) tekstEl.textContent = `Valgt: ${lagretTrinn}. trinn`;
-                if (miniFrame) miniFrame.src = ukeplanerData[lagretTrinn].pdf_url;
+                if (miniFrame) miniFrame.src = ukeplanerData[lagretTrinn].pdf_url + '#sidebar=0&view=FitH';
             } else {
                 if (tekstEl) tekstEl.textContent = "Ingen trinn valgt (velg i ⚙️)";
                 if (miniFrame) miniFrame.src = '';
@@ -675,7 +675,7 @@
                 document.getElementById('dayTabs').style.display = 'none';
                 document.getElementById('tavleGrid').style.display = 'none';
                 
-                document.getElementById('pdfFrame').src = data.pdf_url;
+                document.getElementById('pdfFrame').src = data.pdf_url + '#sidebar=0';
                 document.getElementById('ukeplanTittel').textContent = `Ukeplan – ${lagretTrinn}. trinn`;
                 document.getElementById('ukeplanView').style.display = 'flex';
             } else {
