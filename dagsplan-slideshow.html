@@ -222,15 +222,14 @@
   <footer id="indicatorContainer"></footer>
 
   <script>
-    const dager = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"];
-    const dagerKort = ["man", "tir", "ons", "tor", "fre", "lør", "søn"];
+    const dager = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag"];
+    const dagerKort = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"];
     let valdDagIndex = 0;
     let dagsplanData = [];
     let currentIndex = 0;
 
     function initDag() {
-      const iDag = new Date().getDay();
-      // Sett til mandag (0) til fredag (4), fallback til mandag i helgen
+      const iDag = new Date().getDay(); // 1 = Mandag, 5 = Fredag
       valdDagIndex = (iDag >= 1 && iDag <= 5) ? iDag - 1 : 0;
       oppdaterDagVisning();
     }
@@ -250,34 +249,40 @@
         const targetWin = window.parent || window;
         const targetStorage = targetWin.localStorage || localStorage;
 
-        const valgtDagKort = dagerKort[valdDagIndex]; // e.g. 'man', 'tir'
-        const valgtDagFull = dager[valdDagIndex];     // e.g. 'Mandag'
+        const valgtDagNokkel = dagerKort[valdDagIndex]; // e.g. 'mandag', 'tirsdag'
 
-        // 1. Prøv 'weekSchedule'
-        let rawWeek = targetStorage.getItem('weekSchedule');
-        if (!rawWeek) rawWeek = targetStorage.getItem('dagsplanUkesplan');
-        if (!rawWeek) rawWeek = targetStorage.getItem('tors_dagens_plan_v6');
-
-        if (rawWeek) {
-          const parsed = JSON.parse(rawWeek);
-          
-          // Finnlisten for valgt dag
-          let dagListe = parsed[valgtDagKort] || parsed[valgtDagFull] || parsed[valgtDagKort.toUpperCase()] || parsed[valdDagIndex];
+        let raw = targetStorage.getItem('dagsplanUkesplan') || targetStorage.getItem('weekSchedule');
+        
+        if (raw) {
+          const ukesplanObj = JSON.parse(raw);
+          const dagListe = ukesplanObj[valgtDagNokkel];
 
           if (dagListe && Array.isArray(dagListe)) {
             const nyData = [];
+
             dagListe.forEach(item => {
-              const tittel = item.fag || item.aktivitet || item.tittel || item.subject || item.title || '';
-              const undertittel = item.okt || item.time || item.period || (item.timeNr ? `${item.timeNr}. TIME` : '');
+              // Utled fag/tittel
+              let tittel = item.customSubject || '';
               
-              let tid = '';
-              if (item.start && item.slutt) {
-                tid = `${item.start} - ${item.slutt}`;
-              } else if (item.tid) {
-                tid = item.tid;
+              if (!tittel && item.img) {
+                // Fjerner '.png' / '.jpg' fra bildet for å få navnet på faget (f.eks "Engelsk.png" -> "Engelsk")
+                tittel = item.img.replace(/\.[^/.]+$/, "");
               }
 
-              const bilde = item.bilde || item.icon || item.image || item.bildeUrl || null;
+              const undertittel = item.label || '';
+              
+              let tid = '';
+              if (item.start && item.end) {
+                tid = `${item.start} - ${item.end}`;
+              } else if (item.time) {
+                tid = item.time;
+              }
+
+              // Bygg billedadresse dersom bilde finnes
+              let bilde = null;
+              if (item.img) {
+                bilde = item.img.startsWith('http') ? item.img : `./images/${item.img}`;
+              }
 
               if (tittel) {
                 nyData.push({ tittel, undertittel, tid, bilde });
@@ -291,73 +296,18 @@
           }
         }
       } catch (e) {
-        console.error("Feil under uthenting fra localStorage:", e);
+        console.error("Feil ved lesing av ukesplan:", e);
       }
 
-      return false;
-    }
-
-    // Fallback dersom dagens dag vises direkte i sidemenyen #scheduleDisplay
-    function hentDataFraScheduleDisplay() {
-      const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
-      const scheduleContainer = targetDoc.getElementById('scheduleDisplay');
-
-      if (!scheduleContainer || scheduleContainer.children.length === 0) return false;
-
-      const kortListe = scheduleContainer.children;
-      const nyData = [];
-
-      for (let kort of kortListe) {
-        const imgEl = kort.querySelector('img');
-        const bilde = imgEl ? imgEl.src : null;
-        const råTekst = kort.innerText ? kort.innerText.trim() : '';
-        if (!råTekst) continue;
-
-        const linjer = råTekst.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'NÅ');
-        let tittel = linjer[0] || '';
-        let undertittel = '';
-        let tid = '';
-
-        for (let i = 1; i < linjer.length; i++) {
-          const line = linjer[i];
-          if (line.includes(':') || line.includes('-') || line.includes('.')) {
-            if (/\d/.test(line)) {
-              if (line.toUpperCase().includes('TIME') || line.toUpperCase().includes('SPISING') || line.toUpperCase().includes('FRIMINUTT')) {
-                undertittel = line;
-              } else {
-                tid = line;
-              }
-            } else {
-              undertittel = line;
-            }
-          } else {
-            undertittel = line;
-          }
-        }
-
-        if (tittel) {
-          nyData.push({ tittel, undertittel, tid, bilde });
-        }
-      }
-
-      if (nyData.length > 0) {
-        dagsplanData = nyData;
-        return true;
-      }
       return false;
     }
 
     function lastInnhold() {
-      let suksess = hentDataFraLocalStorage();
-      
-      // Hvis vi ikke fant data i ukeplan-minnet, prøv sidevisningen
-      if (!suksess) {
-        suksess = hentDataFraScheduleDisplay();
-      }
+      const suksess = hentDataFraLocalStorage();
 
       if (!suksess || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
-          <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
+          <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet for ${dager[valdDagIndex]}</div>
         `;
         document.getElementById('prevBtn').style.display = 'none';
         document.getElementById('nextBtn').style.display = 'none';
@@ -379,7 +329,7 @@
       const card = document.getElementById('slideCard');
 
       card.innerHTML = `
-        ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" alt="">` : ''}
+        ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" onerror="this.style.display='none'" alt="">` : ''}
         <div class="slide-title">${økt.tittel}</div>
         ${økt.undertittel ? `<div class="slide-subtitle">${økt.undertittel}</div>` : ''}
         ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
