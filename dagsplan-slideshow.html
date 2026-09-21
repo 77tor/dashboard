@@ -61,10 +61,10 @@
       gap: 12px;
     }
 
-    /* Veldig stort bilde */
+    /* Stort bilde */
     .slide-img {
       height: 320px;
-      max-height: 45vh;
+      max-height: 48vh;
       width: auto;
       max-width: 100%;
       object-fit: contain;
@@ -162,7 +162,9 @@
   <main>
     <button class="nav-btn prev-btn" id="prevBtn" onclick="endreSlide(-1)">❮</button>
 
-    <div class="slide-card" id="slideCard"></div>
+    <div class="slide-card" id="slideCard">
+      <div class="slide-title" style="font-size: 2rem;">Laster dagsplan...</div>
+    </div>
 
     <button class="nav-btn next-btn" id="nextBtn" onclick="endreSlide(1)">❯</button>
   </main>
@@ -174,20 +176,23 @@
     let currentIndex = 0;
 
     function hentDataFraScheduleDisplay() {
-      dagsplanData = [];
-
       const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
       const scheduleContainer = targetDoc.getElementById('scheduleDisplay');
 
-      if (!scheduleContainer) return;
+      if (!scheduleContainer || scheduleContainer.children.length === 0) {
+        return false;
+      }
 
       const kortListe = scheduleContainer.children;
+      const nyData = [];
 
       for (let kort of kortListe) {
         const imgEl = kort.querySelector('img');
         const bilde = imgEl ? imgEl.src : null;
 
         const råTekst = kort.innerText ? kort.innerText.trim() : '';
+        if (!råTekst) continue;
+
         const linjer = råTekst.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'NÅ');
 
         let tittel = linjer[0] || '';
@@ -212,7 +217,7 @@
         }
 
         if (tittel) {
-          dagsplanData.push({
+          nyData.push({
             tittel: tittel,
             undertittel: undertittel,
             tid: tid,
@@ -220,12 +225,18 @@
           });
         }
       }
+
+      if (nyData.length > 0) {
+        dagsplanData = nyData;
+        return true;
+      }
+      return false;
     }
 
     function lastInnhold() {
-      hentDataFraScheduleDisplay();
+      const funnetData = hentDataFraScheduleDisplay();
 
-      if (!dagsplanData || dagsplanData.length === 0) {
+      if (!funnetData || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
           <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
         `;
@@ -284,7 +295,22 @@
       if (e.key === 'ArrowRight') endreSlide(1);
     });
 
-    window.onload = lastInnhold;
+    // Sjekker flere ganger etter at siden har lastet slik at vi fanger opp treg innlasting
+    window.addEventListener('DOMContentLoaded', () => {
+      lastInnhold();
+      
+      let forsøk = 0;
+      const intervall = setInterval(() => {
+        forsøk++;
+        const suksess = hentDataFraScheduleDisplay();
+        if (suksess) {
+          lastInnhold();
+          clearInterval(intervall);
+        } else if (forsøk > 20) {
+          clearInterval(intervall);
+        }
+      }, 500);
+    });
   </script>
 </body>
 </html>
