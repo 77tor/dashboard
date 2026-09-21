@@ -244,21 +244,29 @@
       lastInnhold();
     }
 
-    function byggBildeUrl(imgNavn) {
+    function finnBildeUrl(imgNavn) {
       if (!imgNavn) return null;
       if (imgNavn.startsWith('http://') || imgNavn.startsWith('https://') || imgNavn.startsWith('data:')) {
         return imgNavn;
       }
-      
-      // Zoek naar de basis-URL van het dashboard
-      const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-      const cleanImgName = imgNavn.startsWith('/') ? imgNavn.substring(1) : imgNavn;
-      
-      // Probeer de afbeelding op te halen vanuit de map 'images' van het dashboard
-      if (!cleanImgName.includes('/')) {
-        return `${baseUrl}images/${cleanImgName}`;
+
+      const renFilnavn = imgNavn.split('/').pop();
+
+      // 1. Sjekk om bildet allerede finnes på hovedsiden/sidemenyen
+      try {
+        const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
+        const bilder = targetDoc.querySelectorAll('img');
+        for (let img of bilder) {
+          if (img.src && img.src.toLowerCase().includes(renFilnavn.toLowerCase())) {
+            return img.src;
+          }
+        }
+      } catch (e) {
+        console.log("Kunne ikke lese fra foreldredokument:", e);
       }
-      return `${baseUrl}${cleanImgName}`;
+
+      // 2. Pek direkte til 'Bilder'-mappen
+      return `./Bilder/${renFilnavn}`;
     }
 
     function hentDataFraLocalStorage() {
@@ -293,10 +301,10 @@
                 tid = item.time;
               }
 
-              const bilde = byggBildeUrl(item.img);
+              const bilde = finnBildeUrl(item.img);
 
               if (tittel) {
-                nyData.push({ tittel, undertittel, tid, bilde });
+                nyData.push({ tittel, undertittel, tid, bilde, originalImg: item.img });
               }
             });
 
@@ -338,9 +346,10 @@
 
       const økt = dagsplanData[currentIndex];
       const card = document.getElementById('slideCard');
+      const renFilnavn = økt.originalImg ? økt.originalImg.split('/').pop() : '';
 
       card.innerHTML = `
-        ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" onerror="this.style.display='none'" alt="">` : ''}
+        ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" onerror="this.onerror=null; this.src='Bilder/${renFilnavn}';" alt="">` : ''}
         <div class="slide-title">${økt.tittel}</div>
         ${økt.undertittel ? `<div class="slide-subtitle">${økt.undertittel}</div>` : ''}
         ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
