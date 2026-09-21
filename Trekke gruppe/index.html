@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trekke grupper</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+<header>
+    <div>
+      <h1>
+        <img src="logo.svg" alt="Logo" class="header-logo">
+        Trekke grupper
+      </h1>
+      <div class="subtitle">Verktøy for rettferdig og fleksibel gruppeinndeling</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="app-card">
+      
+      <!-- TAB NAVIGATION -->
+      <div class="tab-bar">
+        <button id="tabAdminBtn" class="tab-btn active" onclick="switchGroupTab('admin')">
+          ⚙️ Admin (Oppsett, Kjønn & Regler)
+        </button>
+        <button id="tabStudentBtn" class="tab-btn" onclick="switchGroupTab('student')">
+          📺 Visning (Trekning)
+        </button>
+      </div>
+
+      <div class="tab-content">
+        
+        <!-- ADMIN VIEW -->
+        <div id="adminGroupView">
+          <div class="group-admin-grid">
+            
+            <!-- LEFT COL: ELEVER OG KLASSER -->
+            <div class="admin-col">
+              <h3>1. Velg Elever & Klasser</h3>
+              
+              <div id="fileSelectBox">
+                <label>Velg forhåndsdefinerte klasser:</label>
+                <div id="classCheckboxContainer" class="class-box" style="margin-top: 4px;"></div>
+              </div>
+
+              <div>
+                <label style="margin-top: 4px; display: block;">Eller last opp fra fil (.txt / .csv):</label>
+                <input type="file" id="fileUploadInput" accept=".txt, .csv" onchange="uploadStudentFile(event)" style="margin-top: 4px;">
+              </div>
+
+              <div>
+                <label>Personer / Elever (én per linje, f.eks: <code>Ola (g)</code> / <code>Kari (j)</code>):</label>
+                <textarea id="studentsInput" oninput="handleStudentsInputChanged()" placeholder="Kari (j)&#10;Ola (g)&#10;Per" style="margin-top: 4px;"></textarea>
+                <span id="studentCountBadge" class="badge">0 personer registrert</span>
+              </div>
+
+              <div>
+                <label style="margin-top: 4px; display: block;">Kjønnsredigering (G/J):</label>
+                <div id="genderEditorList" class="gender-editor-box">
+                  <div style="font-size: 0.8rem; color: #94a3b8; font-style: italic;">Ingen elever i listen.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COL: REGLER / FORBEHOLD -->
+            <div class="admin-col">
+              <h3>2. Legg til forbehold (Skjult i trekning)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">
+                Sett opp særskilte regler dersom personer MÅ eller IKKE FÅR være på samme gruppe.
+              </p>
+
+              <div class="rule-builder">
+                <input type="text" id="person1" placeholder="Person 1 (f.eks. Ola)">
+                <select id="ruleType">
+                  <option value="MUST_NOT">⛔️ SKAL IKKE være sammen</option>
+                  <option value="MUST">✅ MÅ være sammen</option>
+                </select>
+                <input type="text" id="person2" placeholder="Person 2 (f.eks. Kari)">
+                <button class="btn btn-secondary" onclick="addRule()">+ Legg til regel</button>
+              </div>
+              
+              <label style="margin-top: 8px;">Aktive regler:</label>
+              <div id="rulesList" class="rules-list-container">
+                <div style="font-size: 0.85rem; color: #94a3b8; font-style: italic;">Ingen regler lagt til ennå.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- STUDENT / VISNINGS VIEW -->
+        <div id="studentGroupView" style="display: none;">
+          
+          <div id="balanceClassesOption" class="balance-option" style="display: none;">
+            <input type="checkbox" id="balanceClassesToggle" checked style="width: auto;">
+            <label for="balanceClassesToggle">
+              ⚖️ <b>Fordel klassene jevnt mellom gruppene</b> (prøver å spre elever fra samme klasse)
+            </label>
+          </div>
+
+          <div class="controls-bar">
+            
+            <div class="control-group">
+              <label id="numberLabel">Totalt antall grupper:</label>
+              <input type="number" id="numberInput" value="3" min="1">
+            </div>
+
+            <div class="control-group">
+              <label>Inndelingsmodus:</label>
+              <select id="modeSelect" onchange="toggleMode()">
+                <option value="numGroups" selected>Totalt antall grupper</option>
+                <option value="perGroup">Elever per gruppe</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Kjønnsfordeling:</label>
+              <select id="genderFilterSelect">
+                <option value="random" selected>🎲 Blandet / Tilfeldig</option>
+                <option value="balanced">⚖️ Jevn fordeling (Gutter & Jenter)</option>
+                <option value="girlsOnly">👧 Kun jenter</option>
+                <option value="boysOnly">👦 Kun gutter</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>Gruppe-temaer:</label>
+              <select id="namingSelect" onchange="toggleCustomNaming()">
+                <option value="animals" selected>🦁 Dyr</option>
+                <option value="numbers">🔢 Nummerert (Gruppe 1, 2...)</option>
+                <option value="letters">🔤 Bokstaver (Gruppe A, B...)</option>
+                <option value="colors">🎨 Farger</option>
+                <option value="shapes">🔹 Former</option>
+                <option value="custom">✏️ Egne navn...</option>
+              </select>
+            </div>
+
+            <button onclick="generateGroups()" class="btn btn-primary" style="margin-top: auto; padding: 10px 24px; font-size: 1rem;">
+              🎲 Trekk Grupper
+            </button>
+          </div>
+
+          <div id="customNamingContainer" style="display: none; margin-bottom: 15px;">
+            <label>Skriv inn egne gruppenavn (separert med komma):</label>
+            <input type="text" id="customNamesInput" placeholder="f.eks: Alpha, Bravo, Charlie, Delta" style="margin-top: 4px;">
+          </div>
+
+          <div id="studentResults" class="group-grid">
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">🎲</span>
+              <p>Trykk på <b>"Trekk Grupper"</b> for å starte trekningen!</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Gruppetrekker Pro &bull; Laget med HTML, CSS og JS</p>
+  </footer>
+
+  <script src="Klasser.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
