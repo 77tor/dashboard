@@ -45,55 +45,60 @@
       position: relative;
     }
 
+    /* Økt høyde og bredde på kortet */
     .slide-card {
       background: #ffffff;
       border-radius: 24px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       border: 3px solid #e2e8f0;
       width: 100%;
-      max-width: 750px;
+      max-width: 800px;
+      min-height: 480px;
       padding: 30px 40px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 12px;
     }
 
-    /* Betydelig større bilde */
+    /* Stort og tydelig bilde */
     .slide-img {
-      max-height: 260px;
+      max-height: 240px;
       width: auto;
       object-fit: contain;
       border-radius: 12px;
+      margin-bottom: 8px;
     }
 
-    /* Ryddig oppstilling av tekst */
+    /* Ren tittel */
     .slide-title {
-      font-size: 3rem;
+      font-size: 3.2rem;
       font-weight: 900;
       color: #0f172a;
       line-height: 1.1;
-      margin-top: 8px;
     }
 
+    /* Undertittel (f.eks. 1. TIME) */
     .slide-subtitle {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
+    /* Klokkeslett i egen ramme */
     .slide-time {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: #2563eb;
       background: #eff6ff;
-      padding: 6px 20px;
+      padding: 6px 22px;
       border-radius: 12px;
       display: inline-block;
+      margin-top: 4px;
     }
 
     .nav-btn {
@@ -183,32 +188,51 @@
       const kortListe = scheduleContainer.children;
 
       for (let kort of kortListe) {
+        // 1. Hent bilde
         const imgEl = kort.querySelector('img');
         const bilde = imgEl ? imgEl.src : null;
 
-        // Hent alle rene tekstlinjer og skille dem ut
-        const råTekst = kort.innerText ? kort.innerText.trim() : '';
-        const linjer = råTekst.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'NÅ');
-
-        let tittel = linjer[0] || '';
+        // 2. Les de direkte HTML-elementene inne i kortet i stedet for samlet tekst
+        const overskriftEl = kort.querySelector('h1, h2, h3, h4, h5, strong, b, .title') || kort.firstElementChild;
+        
+        let tittel = '';
         let undertittel = '';
         let tid = '';
 
-        // Skille ut time (f.eks "1. TIME") og klokkeslett (f.eks "08.30 - 09.15")
-        for (let i = 1; i < linjer.length; i++) {
-          const line = linjer[i];
-          if (line.includes(':') || line.includes('-') || line.includes('.')) {
-            if (/\d/.test(line)) {
-              if (line.toUpperCase().includes('TIME') || line.toUpperCase().includes('SPISING') || line.toUpperCase().includes('FRIMINUTT')) {
-                undertittel = line;
-              } else {
-                tid = line;
-              }
+        // Hent tittel direkte fra overskriftselementet
+        if (overskriftEl) {
+          tittel = overskriftEl.innerText.replace('NÅ', '').trim();
+        }
+
+        // Hent alle øvrige tekst-tagger i kortet (p, span, div, small)
+        const subElements = Array.from(kort.querySelectorAll('p, span, div, small, .sub, .time'));
+        
+        for (let el of subElements) {
+          const tekst = el.innerText.replace('NÅ', '').trim();
+          if (!tekst || tekst === tittel) continue;
+
+          // Sjekk om teksten inneholder et klokkeslett (f.eks "08.30 - 09.15")
+          if (/\d{1,2}[\.\:]\d{2}/.test(tekst)) {
+            tid = tekst;
+          } else if (!undertittel) {
+            undertittel = tekst;
+          }
+        }
+
+        // Hvis alt ble liggende i én streng, oppsøk og splitt manuelt
+        if (!undertittel && !tid && tittel.includes(' ')) {
+          const deler = tittel.split(/\s+(?=\d+\.\s*TIME|\d{1,2}[\.\:]\d{2})/i);
+          if (deler.length > 1) {
+            tittel = deler[0].trim();
+            const rest = deler.slice(1).join(' ');
+            
+            const tidMatch = rest.match(/\d{1,2}[\.\:]\d{2}\s*-\s*\d{1,2}[\.\:]\d{2}/);
+            if (tidMatch) {
+              tid = tidMatch[0];
+              undertittel = rest.replace(tidMatch[0], '').trim();
             } else {
-              undertittel = line;
+              undertittel = rest;
             }
-          } else {
-            undertittel = line;
           }
         }
 
