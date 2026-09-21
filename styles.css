@@ -384,7 +384,7 @@ body.font-size-large .timer-display { font-size: 3rem !important; }
 /* Styrker lesbarheten på timetall og klokke i valgt font */
 .schedule-label {
   font-weight: 900 !important;
-  color: #1e293b !important;
+  color: #32913D !important;
 }
 
 .schedule-clock {
