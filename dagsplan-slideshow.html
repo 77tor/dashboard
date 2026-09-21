@@ -197,45 +197,60 @@
       return 0; // Mandag for helger
     }
 
-    function hentDagsplanForDag(dagNavn) {
-      let listen = [];
+function hentDagsplanForDag(dagNavn) {
+      let resultater = [];
 
-      // 1. Les først fra weekSchedule i localStorage
+      // 1. Hent det faktiske faginnholdet fra f.eks. mandag_dagens_plan_v6
+      const dagPlanRaw = localStorage.getItem(`${dagNavn}_dagens_plan_v6`);
+      let fagListe = [];
+      if (dagPlanRaw) {
+        try {
+          const parsed = JSON.parse(dagPlanRaw);
+          fagListe = Array.isArray(parsed) ? parsed : Object.values(parsed);
+        } catch(e) {}
+      }
+
+      // 2. Hent rammene fra weekSchedule
       const weekRaw = localStorage.getItem('weekSchedule');
+      let malListe = [];
       if (weekRaw) {
         try {
           const weekData = JSON.parse(weekRaw);
-          if (weekData && weekData[dagNavn]) {
-            listen = weekData[dagNavn];
-          }
+          malListe = weekData[dagNavn] || [];
         } catch(e) {}
       }
 
-      // 2. Les fag/detaljer fra dagens spesifikke nøkkel (f.eks. mandag_dagens_plan_v6)
-      const dagPlanRaw = localStorage.getItem(`${dagNavn}_dagens_plan_v6`);
-      let fagMap = {};
-      if (dagPlanRaw) {
-        try {
-          fagMap = JSON.parse(dagPlanRaw);
-        } catch(e) {}
+      // Hvis vi har fagInnhold fra dagens plan, prioriterer vi å vise det!
+      if (fagListe.length > 0) {
+        return fagListe.map((fag, idx) => {
+          const mal = malListe[idx] || {};
+
+          // Hent tittel (sjekker alle mulige felter der fagnavnet lagres)
+          const tittel = fag.bittelMaal || fag.fag || fag.tittel || fag.label || mal.customSubject || mal.label || `Økt ${idx + 1}`;
+          
+          // Hent bilde
+          const bilde = fag.img || fag.bilde || mal.img || null;
+          
+          // Hent tid eller label (f.eks. "1. time")
+          const tid = fag.time || mal.time || (mal.start && mal.end ? `${mal.start} - ${mal.end}` : '');
+          const label = mal.label && mal.label !== tittel ? mal.label : '';
+
+          return {
+            tittel: tittel,
+            tid: tid,
+            label: label,
+            bilde: bilde
+          };
+        });
       }
 
-      // 3. Kombiner weekSchedule med fag-navn fra fagMap
-      return listen.map((item, idx) => {
-        const fagDetalj = fagMap[idx + 1] || fagMap[item.id] || {};
-        
-        const tittel = fagDetalj.bittelMaal || item.customSubject || item.label || `Økt ${idx + 1}`;
-        const bilde = item.img || fagDetalj.img || null;
-        const tid = item.time || (item.start && item.end ? `${item.start} - ${item.end}` : '');
-        const undertittel = item.label && item.customSubject ? item.label : '';
-
-        return {
-          tittel: tittel,
-          tid: tid,
-          label: undertittel,
-          bilde: bilde
-        };
-      });
+      // Hvis dagens plan er tom, fyll inn fra weekSchedule-malen
+      return malListe.map((item, idx) => ({
+        tittel: item.customSubject || item.label || `Økt ${idx + 1}`,
+        tid: item.time || `${item.start || ''} - ${item.end || ''}`,
+        label: item.customSubject ? item.label : '',
+        bilde: item.img || null
+      }));
     }
 
     function lastInnhold() {
