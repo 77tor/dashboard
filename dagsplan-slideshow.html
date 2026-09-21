@@ -27,28 +27,13 @@
     }
     header h1 { font-size: 1.5rem; font-weight: 800; }
     
-    .day-selector {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #334155;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-    .day-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 2px 8px;
-    }
     .day-badge {
       font-size: 1.1rem;
       font-weight: 800;
       color: #60a5fa;
-      min-width: 90px;
-      text-align: center;
+      background: #334155;
+      padding: 4px 16px;
+      border-radius: 20px;
     }
 
     main {
@@ -92,12 +77,10 @@
       line-height: 1.2;
     }
 
-    .slide-label {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    .slide-desc {
+      font-size: 1.3rem;
+      color: #475569;
+      font-weight: 600;
     }
 
     .nav-btn {
@@ -133,7 +116,7 @@
     .next-btn { right: 24px; }
 
     .slide-img {
-      max-height: 160px;
+      max-height: 180px;
       object-fit: contain;
       border-radius: 12px;
     }
@@ -165,11 +148,7 @@
 
   <header>
     <h1>📅 Dagsplan</h1>
-    <div class="day-selector">
-      <button class="day-btn" onclick="endreDag(-1)">❮</button>
-      <div class="day-badge" id="dayBadge">Mandag</div>
-      <button class="day-btn" onclick="endreDag(1)">❯</button>
-    </div>
+    <div class="day-badge" id="dayBadge">Dagsplan</div>
   </header>
 
   <main>
@@ -183,87 +162,70 @@
   <footer id="indicatorContainer"></footer>
 
   <script>
-    const arbeidsdager = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"];
-    let valgtDagIndex = 0;
     let dagsplanData = [];
     let currentIndex = 0;
 
-    function finnGjeldendeDagIndex() {
-      const d = new Date();
-      const dagNr = d.getDay(); // 0 = søndag, 1 = mandag ...
-      if (dagNr >= 1 && dagNr <= 5) {
-        return dagNr - 1;
-      }
-      return 0; // Mandag for helger
-    }
+    function hentDataFraScheduleDisplay() {
+      dagsplanData = [];
 
-function hentDagsplanForDag(dagNavn) {
-      let resultater = [];
+      // Finn hoveddokumentet (enten parent-vinduet eller dette dokumentet)
+      const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
+      const scheduleContainer = targetDoc.getElementById('scheduleDisplay');
 
-      // 1. Hent det faktiske faginnholdet fra f.eks. mandag_dagens_plan_v6
-      const dagPlanRaw = localStorage.getItem(`${dagNavn}_dagens_plan_v6`);
-      let fagListe = [];
-      if (dagPlanRaw) {
-        try {
-          const parsed = JSON.parse(dagPlanRaw);
-          fagListe = Array.isArray(parsed) ? parsed : Object.values(parsed);
-        } catch(e) {}
+      if (!scheduleContainer) {
+        console.warn("Fant ikke #scheduleDisplay");
+        return;
       }
 
-      // 2. Hent rammene fra weekSchedule
-      const weekRaw = localStorage.getItem('weekSchedule');
-      let malListe = [];
-      if (weekRaw) {
-        try {
-          const weekData = JSON.parse(weekRaw);
-          malListe = weekData[dagNavn] || [];
-        } catch(e) {}
-      }
+      // Hent alle barne-elementene (kortene) i scheduleDisplay
+      const kortListe = scheduleContainer.children;
 
-      // Hvis vi har fagInnhold fra dagens plan, prioriterer vi å vise det!
-      if (fagListe.length > 0) {
-        return fagListe.map((fag, idx) => {
-          const mal = malListe[idx] || {};
+      for (let kort of kortListe) {
+        // Hent bilde dersom det finnes
+        const imgEl = kort.querySelector('img');
+        const bilde = imgEl ? imgEl.src : null;
 
-          // Hent tittel (sjekker alle mulige felter der fagnavnet lagres)
-          const tittel = fag.bittelMaal || fag.fag || fag.tittel || fag.label || mal.customSubject || mal.label || `Økt ${idx + 1}`;
-          
-          // Hent bilde
-          const bilde = fag.img || fag.bilde || mal.img || null;
-          
-          // Hent tid eller label (f.eks. "1. time")
-          const tid = fag.time || mal.time || (mal.start && mal.end ? `${mal.start} - ${mal.end}` : '');
-          const label = mal.label && mal.label !== tittel ? mal.label : '';
+        // Finn alle tekstlinjer/elementer i kortet
+        const tekster = Array.from(kort.querySelectorAll('h1, h2, h3, h4, h5, div, span, p, strong, b'))
+                             .map(el => el.innerText.trim())
+                             .filter(t => t.length > 0);
 
-          return {
+        // Hent tittel, tid og beskrivelse basert på elementene i kortet
+        let tittel = "";
+        let tid = "";
+        let undertittel = "";
+
+        // Plukk ut tittel
+        const tittelEl = kort.querySelector('h1, h2, h3, h4, h5, .title, strong, b');
+        if (tittelEl) {
+          tittel = tittelEl.innerText.trim();
+        } else if (tekster.length > 0) {
+          tittel = tekster[0];
+        }
+
+        // Se etter tidsrom (f.eks "1. TIME" eller "08:30 - 09:15")
+        const timeEl = kort.querySelector('.time, .sub, small, p');
+        if (timeEl && timeEl.innerText.trim() !== tittel) {
+          tid = timeEl.innerText.trim();
+        }
+
+        if (tittel) {
+          dagsplanData.push({
             tittel: tittel,
             tid: tid,
-            label: label,
             bilde: bilde
-          };
-        });
+          });
+        }
       }
-
-      // Hvis dagens plan er tom, fyll inn fra weekSchedule-malen
-      return malListe.map((item, idx) => ({
-        tittel: item.customSubject || item.label || `Økt ${idx + 1}`,
-        tid: item.time || `${item.start || ''} - ${item.end || ''}`,
-        label: item.customSubject ? item.label : '',
-        bilde: item.img || null
-      }));
     }
 
     function lastInnhold() {
-      const dagNavn = arbeidsdager[valgtDagIndex];
-      const visningsNavn = dagNavn.charAt(0).toUpperCase() + dagNavn.slice(1);
-      document.getElementById('dayBadge').innerText = visningsNavn;
-
-      dagsplanData = hentDagsplanForDag(dagNavn);
+      hentDataFraScheduleDisplay();
 
       if (!dagsplanData || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
-          <div class="slide-title" style="font-size: 2rem;">Ingen økter</div>
-          <div class="slide-desc">Ingen timeplan funnet for ${visningsNavn}.</div>
+          <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
+          <div class="slide-desc">Fant ingen kort i dagsplanen på høyre side.</div>
         `;
         document.getElementById('prevBtn').style.display = 'none';
         document.getElementById('nextBtn').style.display = 'none';
@@ -285,7 +247,6 @@ function hentDagsplanForDag(dagNavn) {
       const card = document.getElementById('slideCard');
 
       card.innerHTML = `
-        ${økt.label ? `<div class="slide-label">${økt.label}</div>` : ''}
         ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
         ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" alt="">` : ''}
         <div class="slide-title">${økt.tittel}</div>
@@ -304,11 +265,6 @@ function hentDagsplanForDag(dagNavn) {
       visSlide(currentIndex + retning);
     }
 
-    function endreDag(retning) {
-      valgtDagIndex = (valgtDagIndex + retning + arbeidsdager.length) % arbeidsdager.length;
-      lastInnhold();
-    }
-
     function byggPrikker() {
       const container = document.getElementById('indicatorContainer');
       container.innerHTML = '';
@@ -320,18 +276,13 @@ function hentDagsplanForDag(dagNavn) {
       });
     }
 
-    // Tastaturnavigasjon (Pil venstre / høyre for økter, Opp / Ned for å bytte dager)
+    // Tastaturnavigasjon (Pil venstre / høyre)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') endreSlide(-1);
       if (e.key === 'ArrowRight') endreSlide(1);
-      if (e.key === 'ArrowUp') endreDag(-1);
-      if (e.key === 'ArrowDown') endreDag(1);
     });
 
-    window.onload = () => {
-      valgtDagIndex = finnGjeldendeDagIndex();
-      lastInnhold();
-    };
+    window.onload = lastInnhold;
   </script>
 </body>
 </html>
