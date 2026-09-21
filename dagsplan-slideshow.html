@@ -19,21 +19,52 @@
     header {
       background: #1e293b;
       color: white;
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
+      gap: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     header h1 { font-size: 1.4rem; font-weight: 800; }
     
-    .day-badge {
-      font-size: 1rem;
+    /* Ukedagvelger i header */
+    .day-picker {
+      display: flex;
+      align-items: center;
+      background: #334155;
+      border-radius: 20px;
+      padding: 2px 8px;
+      border: 1px solid #475569;
+    }
+
+    .day-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 50%;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .day-btn:hover {
+      color: #ffffff;
+      background: #475569;
+    }
+
+    .day-title {
+      font-size: 0.95rem;
       font-weight: 800;
       color: #60a5fa;
-      background: #334155;
-      padding: 4px 16px;
-      border-radius: 20px;
+      padding: 0 10px;
+      min-width: 100px;
+      text-align: center;
+      user-select: none;
     }
 
     main {
@@ -140,7 +171,6 @@
       flex-wrap: wrap;
     }
 
-    /* Nye oversiktsbokser nederst */
     .indicator-box {
       background: #f1f5f9;
       color: #475569;
@@ -174,7 +204,11 @@
 
   <header>
     <h1>📅 Dagsplan</h1>
-    <div class="day-badge" id="dayBadge">Dagsplan</div>
+    <div class="day-picker">
+      <button class="day-btn" onclick="endreDag(-1)">❮</button>
+      <span class="day-title" id="dayTitle">Mandag</span>
+      <button class="day-btn" onclick="endreDag(1)">❯</button>
+    </div>
   </header>
 
   <main>
@@ -190,8 +224,38 @@
   <footer id="indicatorContainer"></footer>
 
   <script>
+    const dager = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"];
+    let valdDagIndex = 0;
     let dagsplanData = [];
     let currentIndex = 0;
+
+    // Sett dagens ukedag som utgangspunkt (Mandag = 0, Søndag = 6)
+    function initDag() {
+      const iDag = new Date().getDay(); // 0 = Søndag, 1 = Mandag ...
+      valdDagIndex = (iDag === 0) ? 6 : iDag - 1; // Konverter til Mandag=0
+      oppdaterDagVisning();
+    }
+
+    function oppdaterDagVisning() {
+      document.getElementById('dayTitle').textContent = dager[valdDagIndex];
+    }
+
+    function endreDag(retning) {
+      valdDagIndex = (valdDagIndex + retning + dager.length) % dager.length;
+      oppdaterDagVisning();
+      
+      // Prøv å klikke tilsvarende dag i hovedsiden dersom det finnes en dagsvelger der
+      try {
+        const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
+        const dagKnapper = targetDoc.querySelectorAll('.day-selector button, .day-btn, [data-day]');
+        if (dagKnapper && dagKnapper[valdDagIndex]) {
+          dagKnapper[valdDagIndex].click();
+        }
+      } catch(e) {}
+
+      // Last på nytt etter dagbytte
+      setTimeout(lastInnhold, 200);
+    }
 
     function hentDataFraScheduleDisplay() {
       const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
@@ -315,6 +379,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', () => {
+      initDag();
       lastInnhold();
       
       let forsøk = 0;
