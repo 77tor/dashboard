@@ -19,16 +19,16 @@
     header {
       background: #1e293b;
       color: white;
-      padding: 14px 24px;
+      padding: 12px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    header h1 { font-size: 1.5rem; font-weight: 800; }
+    header h1 { font-size: 1.4rem; font-weight: 800; }
     
     .day-badge {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 800;
       color: #60a5fa;
       background: #334155;
@@ -41,43 +41,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 20px;
+      padding: 16px;
       position: relative;
     }
 
-    /* Større kort som utnytter tilgjengelig plass */
     .slide-card {
       background: #ffffff;
       border-radius: 28px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       border: 3px solid #e2e8f0;
       width: 100%;
-      max-width: 950px;
-      height: calc(100vh - 140px);
-      padding: 20px 30px;
+      max-width: 850px;
+      padding: 24px 30px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    /* Tvinger bildet til å bli tildelt fast stor plass */
+    /* Veldig stort bilde */
     .slide-img {
-      height: 380px !important;
-      max-height: 50vh;
+      height: 320px;
+      max-height: 45vh;
       width: auto;
       max-width: 100%;
       object-fit: contain;
       border-radius: 16px;
-    }
-
-    .slide-text-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
     }
 
     .slide-title {
@@ -88,7 +79,7 @@
     }
 
     .slide-subtitle {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 800;
       color: #64748b;
       text-transform: uppercase;
@@ -96,14 +87,14 @@
     }
 
     .slide-time {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: #2563eb;
       background: #eff6ff;
-      padding: 4px 20px;
+      padding: 6px 22px;
       border-radius: 12px;
       display: inline-block;
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
     .nav-btn {
@@ -113,9 +104,9 @@
       background: #ffffff;
       border: 2px solid #cbd5e1;
       border-radius: 50%;
-      width: 64px;
-      height: 64px;
-      font-size: 1.8rem;
+      width: 60px;
+      height: 60px;
+      font-size: 1.6rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -139,7 +130,7 @@
     .next-btn { right: 24px; }
 
     footer {
-      padding: 14px;
+      padding: 12px;
       background: #ffffff;
       border-top: 1px solid #e2e8f0;
       display: flex;
@@ -196,42 +187,27 @@
         const imgEl = kort.querySelector('img');
         const bilde = imgEl ? imgEl.src : null;
 
-        const overskriftEl = kort.querySelector('h1, h2, h3, h4, h5, strong, b, .title') || kort.firstElementChild;
-        
-        let tittel = '';
+        const råTekst = kort.innerText ? kort.innerText.trim() : '';
+        const linjer = råTekst.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'NÅ');
+
+        let tittel = linjer[0] || '';
         let undertittel = '';
         let tid = '';
 
-        if (overskriftEl) {
-          tittel = overskriftEl.innerText.replace('NÅ', '').trim();
-        }
-
-        const subElements = Array.from(kort.querySelectorAll('p, span, div, small, .sub, .time'));
-        
-        for (let el of subElements) {
-          const tekst = el.innerText.replace('NÅ', '').trim();
-          if (!tekst || tekst === tittel) continue;
-
-          if (/\d{1,2}[\.\:]\d{2}/.test(tekst)) {
-            tid = tekst;
-          } else if (!undertittel) {
-            undertittel = tekst;
-          }
-        }
-
-        if (!undertittel && !tid && tittel.includes(' ')) {
-          const deler = tittel.split(/\s+(?=\d+\.\s*TIME|\d{1,2}[\.\:]\d{2})/i);
-          if (deler.length > 1) {
-            tittel = deler[0].trim();
-            const rest = deler.slice(1).join(' ');
-            
-            const tidMatch = rest.match(/\d{1,2}[\.\:]\d{2}\s*-\s*\d{1,2}[\.\:]\d{2}/);
-            if (tidMatch) {
-              tid = tidMatch[0];
-              undertittel = rest.replace(tidMatch[0], '').trim();
+        for (let i = 1; i < linjer.length; i++) {
+          const line = linjer[i];
+          if (line.includes(':') || line.includes('-') || line.includes('.')) {
+            if (/\d/.test(line)) {
+              if (line.toUpperCase().includes('TIME') || line.toUpperCase().includes('SPISING') || line.toUpperCase().includes('FRIMINUTT')) {
+                undertittel = line;
+              } else {
+                tid = line;
+              }
             } else {
-              undertittel = rest;
+              undertittel = line;
             }
+          } else {
+            undertittel = line;
           }
         }
 
@@ -274,11 +250,9 @@
 
       card.innerHTML = `
         ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" alt="">` : ''}
-        <div class="slide-text-container">
-          <div class="slide-title">${økt.tittel}</div>
-          ${økt.undertittel ? `<div class="slide-subtitle">${økt.undertittel}</div>` : ''}
-          ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
-        </div>
+        <div class="slide-title">${økt.tittel}</div>
+        ${økt.undertittel ? `<div class="slide-subtitle">${økt.undertittel}</div>` : ''}
+        ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
       `;
 
       document.getElementById('prevBtn').disabled = (currentIndex === 0);
