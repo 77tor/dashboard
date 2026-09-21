@@ -229,10 +229,24 @@
     let dagsplanData = [];
     let currentIndex = 0;
 
-    // Sett dagens ukedag som utgangspunkt (Mandag = 0, Søndag = 6)
     function initDag() {
-      const iDag = new Date().getDay(); // 0 = Søndag, 1 = Mandag ...
-      valdDagIndex = (iDag === 0) ? 6 : iDag - 1; // Konverter til Mandag=0
+      // Hent aktiv dag direkte fra overskriften på hovedsiden dersom den finnes
+      try {
+        const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
+        const mainDateEl = targetDoc.querySelector('header, .header, top-bar, body');
+        if (mainDateEl) {
+          const match = dager.find(d => mainDateEl.innerText.includes(d));
+          if (match) {
+            valdDagIndex = dager.indexOf(match);
+            oppdaterDagVisning();
+            return;
+          }
+        }
+      } catch(e) {}
+
+      // Fallback til dagens ukedag
+      const iDag = new Date().getDay();
+      valdDagIndex = (iDag === 0) ? 6 : iDag - 1;
       oppdaterDagVisning();
     }
 
@@ -244,17 +258,27 @@
       valdDagIndex = (valdDagIndex + retning + dager.length) % dager.length;
       oppdaterDagVisning();
       
-      // Prøv å klikke tilsvarende dag i hovedsiden dersom det finnes en dagsvelger der
       try {
         const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
-        const dagKnapper = targetDoc.querySelectorAll('.day-selector button, .day-btn, [data-day]');
-        if (dagKnapper && dagKnapper[valdDagIndex]) {
-          dagKnapper[valdDagIndex].click();
+        
+        // Finn navigeringsknappene for dato/dag i topplinjen på hovedsiden
+        const altKnapper = Array.from(targetDoc.querySelectorAll('button, div, span, a'));
+        const navKnapper = altKnapper.filter(el => {
+          const txt = el.innerText ? el.innerText.trim() : '';
+          return (txt === '❮' || txt === '❯' || txt === '<' || txt === '>' || txt === '«' || txt === '»') && el.offsetParent !== null;
+        });
+
+        if (retning === -1 && navKnapper.length >= 1) {
+          navKnapper[0].click();
+        } else if (retning === 1 && navKnapper.length >= 2) {
+          navKnapper[1].click();
+        } else if (retning === 1 && navKnapper.length === 1) {
+          navKnapper[0].click();
         }
       } catch(e) {}
 
-      // Last på nytt etter dagbytte
-      setTimeout(lastInnhold, 200);
+      // Vent på at hovedsiden har lastet inn de nye timene før vi henter på nytt
+      setTimeout(lastInnhold, 300);
     }
 
     function hentDataFraScheduleDisplay() {
