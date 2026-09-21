@@ -44,6 +44,12 @@
             overflow: hidden;
         }
 
+.item-icon img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
         /* VENSTREMENY / SIDEBAR */
         .sidebar {
             width: var(--sidebar-width);
@@ -337,7 +343,8 @@
                 category: "Mine Verktøy",
                 items: [
                     { title: "Penger", icon: "💰", url: "https://77tor.github.io/Penger/", openExternal: false },
-                    { title: "Klokka", icon: "🕐", url: "https://77tor.github.io/Klokka/", openExternal: false }
+                    { title: "Klokka", icon: "🕐", url: "https://77tor.github.io/Klokka/", openExternal: false },
+                    { title: "Trekke grupper", icon: "Trekke gruppe/logo.svg", url: "Trekke gruppe/index.html", openExternal: false }
                 ]
             },
             {
@@ -384,10 +391,14 @@
                         };
                     }
 
-                    itemDiv.innerHTML = `
-                        <div class="item-icon">${tool.icon}</div>
-                        <div class="item-title">${tool.title}</div>
-                    `;
+const iconContent = tool.icon.endsWith('.svg') || tool.icon.endsWith('.png')
+    ? `<img src="${tool.icon}" alt="${tool.title}">`
+    : tool.icon;
+
+itemDiv.innerHTML = `
+    <div class="item-icon">${iconContent}</div>
+    <div class="item-title">${tool.title}</div>
+`;
                     gridDiv.appendChild(itemDiv);
                 });
 
