@@ -16,26 +16,41 @@
       overflow: hidden;
     }
 
-    /* Toppmeny */
     header {
       background: #1e293b;
       color: white;
-      padding: 16px 24px;
+      padding: 14px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     header h1 { font-size: 1.5rem; font-weight: 800; }
-    .day-badge {
-      background: #3b82f6;
-      padding: 6px 16px;
+    
+    .day-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #334155;
+      padding: 4px 12px;
       border-radius: 20px;
-      font-size: 1rem;
-      font-weight: 700;
+    }
+    .day-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 2px 8px;
+    }
+    .day-badge {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #60a5fa;
+      min-width: 90px;
+      text-align: center;
     }
 
-    /* Hovedområde for Slideshow */
     main {
       flex: 1;
       display: flex;
@@ -45,7 +60,6 @@
       position: relative;
     }
 
-    /* Kort/Slide */
     .slide-card {
       background: #ffffff;
       border-radius: 24px;
@@ -58,18 +72,17 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      transition: all 0.2s ease-in-out;
+      gap: 16px;
+      transition: all 0.2s ease;
     }
 
     .slide-time {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #2563eb;
       background: #eff6ff;
-      padding: 8px 20px;
+      padding: 6px 18px;
       border-radius: 12px;
-      display: inline-block;
     }
 
     .slide-title {
@@ -79,13 +92,14 @@
       line-height: 1.2;
     }
 
-    .slide-desc {
-      font-size: 1.4rem;
-      color: #475569;
-      font-weight: 600;
+    .slide-label {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    /* Navigasjonsknapper */
     .nav-btn {
       position: absolute;
       top: 50%;
@@ -101,7 +115,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
+      transition: all 0.2s;
       color: #334155;
     }
     .nav-btn:hover {
@@ -111,21 +125,19 @@
       transform: translateY(-50%) scale(1.08);
     }
     .nav-btn:disabled {
-      opacity: 0.3;
+      opacity: 0.2;
       cursor: not-allowed;
       transform: translateY(-50%);
     }
     .prev-btn { left: 24px; }
     .next-btn { right: 24px; }
 
-    /* Bilde-visning dersom økten har bilde */
     .slide-img {
-      max-height: 180px;
+      max-height: 160px;
       object-fit: contain;
       border-radius: 12px;
     }
 
-    /* Bjelke nederst med status / prikker */
     footer {
       padding: 16px;
       background: #ffffff;
@@ -133,7 +145,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .indicator {
       width: 14px;
@@ -153,15 +165,17 @@
 
   <header>
     <h1>📅 Dagsplan</h1>
-    <div class="day-badge" id="dayBadge">Mandag</div>
+    <div class="day-selector">
+      <button class="day-btn" onclick="endreDag(-1)">❮</button>
+      <div class="day-badge" id="dayBadge">Mandag</div>
+      <button class="day-btn" onclick="endreDag(1)">❯</button>
+    </div>
   </header>
 
   <main>
     <button class="nav-btn prev-btn" id="prevBtn" onclick="endreSlide(-1)">❮</button>
 
-    <div class="slide-card" id="slideCard">
-      <!-- Innhold fylles dynamically av JavaScript -->
-    </div>
+    <div class="slide-card" id="slideCard"></div>
 
     <button class="nav-btn next-btn" id="nextBtn" onclick="endreSlide(1)">❯</button>
   </main>
@@ -169,68 +183,79 @@
   <footer id="indicatorContainer"></footer>
 
   <script>
+    const arbeidsdager = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag"];
+    let valgtDagIndex = 0;
     let dagsplanData = [];
     let currentIndex = 0;
 
-    const dagerNorsk = ["Søndag", "Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag"];
-
-    function finnGjeldendeDag() {
+    function finnGjeldendeDagIndex() {
       const d = new Date();
-      let dagNavn = dagerNorsk[d.getDay()];
-      // Hvis det er helg, vis Mandag
-      if (dagNavn === "Lørdag" || dagNavn === "Søndag") dagNavn = "Mandag";
-      return dagNavn;
+      const dagNr = d.getDay(); // 0 = søndag, 1 = mandag ...
+      if (dagNr >= 1 && dagNr <= 5) {
+        return dagNr - 1;
+      }
+      return 0; // Mandag for helger
     }
 
-function lastDagsplan() {
-      const aktivDag = finnGjeldendeDag();
-      document.getElementById('dayBadge').innerText = aktivDag;
+    function hentDagsplanForDag(dagNavn) {
+      let listen = [];
 
-      dagsplanData = [];
-
-      // 1. Prøv å hente fra ukeplan / ukeplanData / dagsplan i localStorage
-      const muligeNøkler = ['dagsplan', 'dagsplanData', 'ukeplan', 'ukeplanData', 'dagsplan_' + aktivDag.toLowerCase()];
-      
-      for (let nøkkel of muligeNøkler) {
-        const raw = localStorage.getItem(nøkkel);
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw);
-            
-            // Sjekk om det er et objekt med dager (f.eks. parsed["Mandag"])
-            if (parsed[aktivDag]) {
-              dagsplanData = parsed[aktivDag];
-              break;
-            } else if (parsed[aktivDag.toLowerCase()]) {
-              dagsplanData = parsed[aktivDag.toLowerCase()];
-              break;
-            } else if (Array.isArray(parsed)) {
-              dagsplanData = parsed;
-              break;
-            }
-          } catch(e) {
-            console.error("Feil ved parsing av " + nøkkel, e);
+      // 1. Les først fra weekSchedule i localStorage
+      const weekRaw = localStorage.getItem('weekSchedule');
+      if (weekRaw) {
+        try {
+          const weekData = JSON.parse(weekRaw);
+          if (weekData && weekData[dagNavn]) {
+            listen = weekData[dagNavn];
           }
-        }
+        } catch(e) {}
       }
 
-      // 2. Hvis dagsplanData er et objekt istedenfor liste (f.eks. timer/økter)
-      if (dagsplanData && !Array.isArray(dagsplanData) && typeof dagsplanData === 'object') {
-        dagsplanData = Object.values(dagsplanData);
+      // 2. Les fag/detaljer fra dagens spesifikke nøkkel (f.eks. mandag_dagens_plan_v6)
+      const dagPlanRaw = localStorage.getItem(`${dagNavn}_dagens_plan_v6`);
+      let fagMap = {};
+      if (dagPlanRaw) {
+        try {
+          fagMap = JSON.parse(dagPlanRaw);
+        } catch(e) {}
       }
 
-      // 3. Ingen data funnet
-      if (!Array.isArray(dagsplanData) || dagsplanData.length === 0) {
+      // 3. Kombiner weekSchedule med fag-navn fra fagMap
+      return listen.map((item, idx) => {
+        const fagDetalj = fagMap[idx + 1] || fagMap[item.id] || {};
+        
+        const tittel = fagDetalj.bittelMaal || item.customSubject || item.label || `Økt ${idx + 1}`;
+        const bilde = item.img || fagDetalj.img || null;
+        const tid = item.time || (item.start && item.end ? `${item.start} - ${item.end}` : '');
+        const undertittel = item.label && item.customSubject ? item.label : '';
+
+        return {
+          tittel: tittel,
+          tid: tid,
+          label: undertittel,
+          bilde: bilde
+        };
+      });
+    }
+
+    function lastInnhold() {
+      const dagNavn = arbeidsdager[valgtDagIndex];
+      const visningsNavn = dagNavn.charAt(0).toUpperCase() + dagNavn.slice(1);
+      document.getElementById('dayBadge').innerText = visningsNavn;
+
+      dagsplanData = hentDagsplanForDag(dagNavn);
+
+      if (!dagsplanData || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
-          <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
-          <div class="slide-desc">Fant ingen lagret dagsplan for ${aktivDag}. Legg inn aktiviteter i dagsplanen til høyre og prøv igjen.</div>
+          <div class="slide-title" style="font-size: 2rem;">Ingen økter</div>
+          <div class="slide-desc">Ingen timeplan funnet for ${visningsNavn}.</div>
         `;
         document.getElementById('prevBtn').style.display = 'none';
         document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('indicatorContainer').innerHTML = '';
         return;
       }
 
-      // Vis fremste knappene og start på første slide
       document.getElementById('prevBtn').style.display = 'flex';
       document.getElementById('nextBtn').style.display = 'flex';
       visSlide(0);
@@ -244,24 +269,16 @@ function lastDagsplan() {
       const økt = dagsplanData[currentIndex];
       const card = document.getElementById('slideCard');
 
-      // Tidspunkter (f.eks. "08:30 - 09:15" eller "Klokkeslett")
-      const tidTekst = økt.tid || økt.klokkeslett || økt.time || '';
-      const tittelTekst = økt.tittel || økt.fag || økt.navn || 'Aktivitet';
-      const beskrTekst = økt.beskrivelse || økt.info || økt.tekst || '';
-      const bildeUrl = økt.bilde || økt.icon || null;
-
       card.innerHTML = `
-        ${tidTekst ? `<div class="slide-time">⏰ ${tidTekst}</div>` : ''}
-        ${bildeUrl ? `<img src="${bildeUrl}" class="slide-img" alt="${tittelTekst}">` : ''}
-        <div class="slide-title">${tittelTekst}</div>
-        ${beskrTekst ? `<div class="slide-desc">${beskrTekst}</div>` : ''}
+        ${økt.label ? `<div class="slide-label">${økt.label}</div>` : ''}
+        ${økt.tid ? `<div class="slide-time">⏰ ${økt.tid}</div>` : ''}
+        ${økt.bilde ? `<img src="${økt.bilde}" class="slide-img" alt="">` : ''}
+        <div class="slide-title">${økt.tittel}</div>
       `;
 
-      // Oppdater knappestatus
       document.getElementById('prevBtn').disabled = (currentIndex === 0);
       document.getElementById('nextBtn').disabled = (currentIndex === dagsplanData.length - 1);
 
-      // Oppdater prikker
       const prikker = document.querySelectorAll('.indicator');
       prikker.forEach((prikk, i) => {
         prikk.classList.toggle('active', i === currentIndex);
@@ -270,6 +287,11 @@ function lastDagsplan() {
 
     function endreSlide(retning) {
       visSlide(currentIndex + retning);
+    }
+
+    function endreDag(retning) {
+      valgtDagIndex = (valgtDagIndex + retning + arbeidsdager.length) % arbeidsdager.length;
+      lastInnhold();
     }
 
     function byggPrikker() {
@@ -283,14 +305,18 @@ function lastDagsplan() {
       });
     }
 
-    // Støtte for tastaturnavigasjon (Pil venstre / venstre piltast)
+    // Tastaturnavigasjon (Pil venstre / høyre for økter, Opp / Ned for å bytte dager)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') endreSlide(-1);
       if (e.key === 'ArrowRight') endreSlide(1);
+      if (e.key === 'ArrowUp') endreDag(-1);
+      if (e.key === 'ArrowDown') endreDag(1);
     });
 
-    // Start når siden lastes
-    window.onload = lastDagsplan;
+    window.onload = () => {
+      valgtDagIndex = finnGjeldendeDagIndex();
+      lastInnhold();
+    };
   </script>
 </body>
 </html>
