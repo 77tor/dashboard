@@ -229,7 +229,7 @@
     let currentIndex = 0;
 
     function initDag() {
-      const iDag = new Date().getDay(); // 1 = Mandag, 5 = Fredag
+      const iDag = new Date().getDay();
       valdDagIndex = (iDag >= 1 && iDag <= 5) ? iDag - 1 : 0;
       oppdaterDagVisning();
     }
@@ -244,12 +244,29 @@
       lastInnhold();
     }
 
+    function byggBildeUrl(imgNavn) {
+      if (!imgNavn) return null;
+      if (imgNavn.startsWith('http://') || imgNavn.startsWith('https://') || imgNavn.startsWith('data:')) {
+        return imgNavn;
+      }
+      
+      // Zoek naar de basis-URL van het dashboard
+      const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+      const cleanImgName = imgNavn.startsWith('/') ? imgNavn.substring(1) : imgNavn;
+      
+      // Probeer de afbeelding op te halen vanuit de map 'images' van het dashboard
+      if (!cleanImgName.includes('/')) {
+        return `${baseUrl}images/${cleanImgName}`;
+      }
+      return `${baseUrl}${cleanImgName}`;
+    }
+
     function hentDataFraLocalStorage() {
       try {
         const targetWin = window.parent || window;
         const targetStorage = targetWin.localStorage || localStorage;
 
-        const valgtDagNokkel = dagerKort[valdDagIndex]; // e.g. 'mandag', 'tirsdag'
+        const valgtDagNokkel = dagerKort[valdDagIndex];
 
         let raw = targetStorage.getItem('dagsplanUkesplan') || targetStorage.getItem('weekSchedule');
         
@@ -261,11 +278,9 @@
             const nyData = [];
 
             dagListe.forEach(item => {
-              // Utled fag/tittel
               let tittel = item.customSubject || '';
               
               if (!tittel && item.img) {
-                // Fjerner '.png' / '.jpg' fra bildet for å få navnet på faget (f.eks "Engelsk.png" -> "Engelsk")
                 tittel = item.img.replace(/\.[^/.]+$/, "");
               }
 
@@ -278,11 +293,7 @@
                 tid = item.time;
               }
 
-              // Bygg billedadresse dersom bilde finnes
-              let bilde = null;
-              if (item.img) {
-                bilde = item.img.startsWith('http') ? item.img : `./images/${item.img}`;
-              }
+              const bilde = byggBildeUrl(item.img);
 
               if (tittel) {
                 nyData.push({ tittel, undertittel, tid, bilde });
