@@ -112,10 +112,10 @@
       <!-- Felles Nedtrekksmeny -->
       <div id="homeDropdown" style="display: none; position: absolute; right: 0; top: 120%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 170px; overflow: hidden;">
 
-        <button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+<button type="button" onclick="triggerGoHome(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
           🏠 Hjem
         </button>        
-        <button type="button" onclick="if(typeof skjulAktivitetDisplay === 'function') skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') { setAndSaveIframeUrl('dagens-plan.html'); } else { const f = document.getElementById('mainFrame') || document.querySelector('iframe'); if(f) f.src = 'dagens-plan.html'; } toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
+        <button type="button" onclick="if(typeof skjulAktivitetDisplay === 'function') skjulAktivitetDisplay(); if(typeof setAndSaveIframeUrl === 'function') { setAndSaveIframeUrl('dagens-plan.html'); } else { const f = document.getElementById('mainFrame') || document.querySelector('iframe'); if(f) f.src = 'dagens-plan.html'; } toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; font-weight: 600; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
           ℹ️ Informasjon
         </button>
         <button type="button" onclick="openScreensaver('video'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #1e293b; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">
@@ -134,8 +134,21 @@
           🎨 Aktiviteter
         </button>
 
-        <!-- NULLSTILL (med tydelig rød farge og ekstra skillelinje) -->
-        <button type="button" onclick="openModal('resetConfirmModal'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #dc2626; font-weight: 600; border-top: 2px solid #e2e8f0;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'">
+        <!-- EKSPORTER OPPSETT -->
+        <button type="button" onclick="eksporterOppsett(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #0369a1; border-top: 2px solid #e2e8f0; font-weight: 500;" onmouseover="this.style.background='#f0f9ff'" onmouseout="this.style.background='none'">
+          📥 Eksporter oppsett
+        </button>
+
+        <!-- IMPORTER OPPSETT -->
+        <button type="button" onclick="document.getElementById('importFileInput').click(); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #15803d; border-top: 1px solid #f1f5f9; font-weight: 500;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='none'">
+          📤 Importer oppsett
+        </button>
+        
+        <!-- Skjult filvelger som blir utløst av importer-knappen -->
+        <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importerOppsett(event)">
+
+        <!-- NULLSTILL -->
+        <button type="button" onclick="openModal('resetConfirmModal'); toggleHomeMenu();" style="display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; font-size: 0.85rem; cursor: pointer; color: #dc2626; font-weight: 600; border-top: 1px solid #f1f5f9;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='none'">
           ⚠️ Nullstill all data
         </button>
       </div>

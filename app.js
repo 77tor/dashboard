@@ -74,6 +74,55 @@ function renderLinks() {
   });
 }
 
+/* --- EKSPORTER/IMPORTER --- */
+function eksporterOppsett() {
+  // Samle sammen alle nøkler fra localStorage
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    data[key] = localStorage.getItem(key);
+  }
+
+  // Konverter til tekst og lag en nedlastbar lenke
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  
+  // Filnavn med dagens dato
+  const dato = new Date().toISOString().split('T')[0];
+  downloadAnchor.setAttribute("download", `dashbord_oppsett_${dato}.json`);
+  
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+// 2. Funksjon for å importere oppsett fra en valt JSON-fil
+function importerOppsett(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      // Lagre alt inn i localStorage på den nye maskinen
+      Object.keys(data).forEach(key => {
+        localStorage.setItem(key, data[key]);
+      });
+
+      alert("Oppsettet ble importert! Siden vil nå oppdatere seg.");
+      window.location.reload(); // Laster siden på nytt for å ta i bruk det nye oppsettet
+    } catch (err) {
+      alert("Feil ved lesing av filen. Pass på at du valgte en gyldig .json-oppsettsfil.");
+      console.error(err);
+    }
+  };
+
+  reader.readAsText(file);
+}
+
 
 /* --- LENKEREDIGERING (MED 6 PLASSER) --- */
 function buildLinkEditor() {
