@@ -28,7 +28,6 @@
     }
     header h1 { font-size: 1.4rem; font-weight: 800; }
     
-    /* Ukedagvelger i header */
     .day-picker {
       display: flex;
       align-items: center;
@@ -231,7 +230,8 @@
 
     function initDag() {
       const iDag = new Date().getDay();
-      valdDagIndex = (iDag === 0) ? 6 : iDag - 1;
+      // Sett til mandag (0) til fredag (4), fallback til mandag i helgen
+      valdDagIndex = (iDag >= 1 && iDag <= 5) ? iDag - 1 : 0;
       oppdaterDagVisning();
     }
 
@@ -245,56 +245,64 @@
       lastInnhold();
     }
 
-    // Henter data direkte fra lagrede modale innstillinger/localStorage
-    function hentDataFraStorage() {
-      let data = [];
-      const dagNokkel = dagerKort[valdDagIndex]; // e.g. 'man', 'tir'
-
+    function hentDataFraLocalStorage() {
       try {
-        // Sjekk localStorage eller globale variabler på foreldrevinduet
         const targetWin = window.parent || window;
         const targetStorage = targetWin.localStorage || localStorage;
 
-        let råData = targetStorage.getItem('dagsplan') || 
-                     targetStorage.getItem('schedule') || 
-                     targetStorage.getItem('timetable') || 
-                     targetStorage.getItem('modalData');
+        const valgtDagKort = dagerKort[valdDagIndex]; // e.g. 'man', 'tir'
+        const valgtDagFull = dager[valdDagIndex];     // e.g. 'Mandag'
 
-        if (råData) {
-          const parsed = JSON.parse(råData);
-          const dagData = parsed[dagNokkel] || parsed[dager[valdDagIndex]] || parsed[valdDagIndex];
+        // 1. Prøv 'weekSchedule'
+        let rawWeek = targetStorage.getItem('weekSchedule');
+        if (!rawWeek) rawWeek = targetStorage.getItem('dagsplanUkesplan');
+        if (!rawWeek) rawWeek = targetStorage.getItem('tors_dagens_plan_v6');
 
-          if (Array.isArray(dagData)) {
-            dagData.forEach(item => {
-              data.push({
-                tittel: item.fag || item.tittel || item.subject || item.title || '',
-                undertittel: item.okt || item.time || item.period || '',
-                tid: (item.start && item.slutt) ? `${item.start} - ${item.slutt}` : (item.tid || ''),
-                bilde: item.bilde || item.icon || item.image || null
-              });
+        if (rawWeek) {
+          const parsed = JSON.parse(rawWeek);
+          
+          // Finnlisten for valgt dag
+          let dagListe = parsed[valgtDagKort] || parsed[valgtDagFull] || parsed[valgtDagKort.toUpperCase()] || parsed[valdDagIndex];
+
+          if (dagListe && Array.isArray(dagListe)) {
+            const nyData = [];
+            dagListe.forEach(item => {
+              const tittel = item.fag || item.aktivitet || item.tittel || item.subject || item.title || '';
+              const undertittel = item.okt || item.time || item.period || (item.timeNr ? `${item.timeNr}. TIME` : '');
+              
+              let tid = '';
+              if (item.start && item.slutt) {
+                tid = `${item.start} - ${item.slutt}`;
+              } else if (item.tid) {
+                tid = item.tid;
+              }
+
+              const bilde = item.bilde || item.icon || item.image || item.bildeUrl || null;
+
+              if (tittel) {
+                nyData.push({ tittel, undertittel, tid, bilde });
+              }
             });
+
+            if (nyData.length > 0) {
+              dagsplanData = nyData;
+              return true;
+            }
           }
         }
-      } catch(e) {
-        console.log("Feil ved lesing av lagret ukeplan data", e);
+      } catch (e) {
+        console.error("Feil under uthenting fra localStorage:", e);
       }
 
-      // Fallback: Dersom valgt dag er den aktive dagen på dashbordet, prøv #scheduleDisplay
-      if (data.length === 0) {
-        return hentDataFraScheduleDisplay();
-      }
-
-      dagsplanData = data.filter(d => d.tittel !== '');
-      return dagsplanData.length > 0;
+      return false;
     }
 
+    // Fallback dersom dagens dag vises direkte i sidemenyen #scheduleDisplay
     function hentDataFraScheduleDisplay() {
       const targetDoc = (window.parent && window.parent.document) ? window.parent.document : document;
       const scheduleContainer = targetDoc.getElementById('scheduleDisplay');
 
-      if (!scheduleContainer || scheduleContainer.children.length === 0) {
-        return false;
-      }
+      if (!scheduleContainer || scheduleContainer.children.length === 0) return false;
 
       const kortListe = scheduleContainer.children;
       const nyData = [];
@@ -302,12 +310,10 @@
       for (let kort of kortListe) {
         const imgEl = kort.querySelector('img');
         const bilde = imgEl ? imgEl.src : null;
-
         const råTekst = kort.innerText ? kort.innerText.trim() : '';
         if (!råTekst) continue;
 
         const linjer = råTekst.split('\n').map(l => l.trim()).filter(l => l.length > 0 && l !== 'NÅ');
-
         let tittel = linjer[0] || '';
         let undertittel = '';
         let tid = '';
@@ -330,12 +336,7 @@
         }
 
         if (tittel) {
-          nyData.push({
-            tittel: tittel,
-            undertittel: undertittel,
-            tid: tid,
-            bilde: bilde
-          });
+          nyData.push({ tittel, undertittel, tid, bilde });
         }
       }
 
@@ -347,9 +348,14 @@
     }
 
     function lastInnhold() {
-      const funnetData = hentDataFraStorage();
+      let suksess = hentDataFraLocalStorage();
+      
+      // Hvis vi ikke fant data i ukeplan-minnet, prøv sidevisningen
+      if (!suksess) {
+        suksess = hentDataFraScheduleDisplay();
+      }
 
-      if (!funnetData || dagsplanData.length === 0) {
+      if (!suksess || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
           <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
         `;
