@@ -120,10 +120,10 @@ button:hover { background: #1d4ed8; }
 .schedule-subject { font-weight: 900 !important; color: #0f172a !important; line-height: 1.1; margin-bottom: 2px; order: 1; }
 
 /* Timenummer */
-.schedule-label { font-weight: 800 !important; color: #64748b !important; text-transform: uppercase; line-height: 1.1; order: 2; }
+.schedule-label { font-weight: 800 !important; color: #32913D !important; text-transform: uppercase; line-height: 1.1; order: 2; }
 
 /* Klokkeslett */
-.schedule-clock { font-weight: 700 !important; color: #334155 !important; order: 3; }
+.schedule-clock { font-weight: 700 !important; color: #8E4839 !important; order: 3; }
 
 /* Aktiv time (NÅ) */
 .schedule-card.active-now { opacity: 1 !important; background: #f0fdf4 !important; border: 2.5px solid #16a34a !important; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15); }
