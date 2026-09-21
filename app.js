@@ -1182,6 +1182,7 @@ function openScheduleModal() {
   }
 }
 
+/* --- ÅPNE DAGSPLAN-HTML --- */
 function closeScheduleModal() {
   const modal = document.getElementById('scheduleModal');
   const backdrop = document.getElementById('customModalBackdrop');
@@ -1190,6 +1191,20 @@ function closeScheduleModal() {
   if (backdrop) backdrop.style.display = 'none';
 }
 
+function aepneDagsplanSlideshow() {
+  if (typeof skjulAktivitetDisplay === 'function') {
+    skjulAktivitetDisplay();
+  }
+  
+  if (typeof setAndSaveIframeUrl === 'function') {
+    setAndSaveIframeUrl('dagsplan-slideshow.html');
+  } else {
+    const iframe = document.getElementById('mainFrame') || document.querySelector('iframe');
+    if (iframe) {
+      iframe.src = 'dagsplan-slideshow.html';
+    }
+  }
+}
 
 
 
