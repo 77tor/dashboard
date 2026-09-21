@@ -182,33 +182,57 @@
       return dagNavn;
     }
 
-    function lastDagsplan() {
+function lastDagsplan() {
       const aktivDag = finnGjeldendeDag();
       document.getElementById('dayBadge').innerText = aktivDag;
 
-      // Hent plan fra localStorage (prøv ulike nøkler basert på hvordan appen din lagrer)
-      const lagretPlan = localStorage.getItem('dagsplanData') || localStorage.getItem('dagsplan_' + aktivDag.toLowerCase());
+      dagsplanData = [];
+
+      // 1. Prøv å hente fra ukeplan / ukeplanData / dagsplan i localStorage
+      const muligeNøkler = ['dagsplan', 'dagsplanData', 'ukeplan', 'ukeplanData', 'dagsplan_' + aktivDag.toLowerCase()];
       
-      if (lagretPlan) {
-        try {
-          const altData = JSON.parse(lagretPlan);
-          dagsplanData = altData[aktivDag] || altData[aktivDag.toLowerCase()] || altData;
-        } catch(e) {
-          console.error(e);
+      for (let nøkkel of muligeNøkler) {
+        const raw = localStorage.getItem(nøkkel);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            
+            // Sjekk om det er et objekt med dager (f.eks. parsed["Mandag"])
+            if (parsed[aktivDag]) {
+              dagsplanData = parsed[aktivDag];
+              break;
+            } else if (parsed[aktivDag.toLowerCase()]) {
+              dagsplanData = parsed[aktivDag.toLowerCase()];
+              break;
+            } else if (Array.isArray(parsed)) {
+              dagsplanData = parsed;
+              break;
+            }
+          } catch(e) {
+            console.error("Feil ved parsing av " + nøkkel, e);
+          }
         }
       }
 
-      // Hvis ingen data, vis standard dummy-melding
+      // 2. Hvis dagsplanData er et objekt istedenfor liste (f.eks. timer/økter)
+      if (dagsplanData && !Array.isArray(dagsplanData) && typeof dagsplanData === 'object') {
+        dagsplanData = Object.values(dagsplanData);
+      }
+
+      // 3. Ingen data funnet
       if (!Array.isArray(dagsplanData) || dagsplanData.length === 0) {
         document.getElementById('slideCard').innerHTML = `
-          <div class="slide-title">Ingen aktiviteter</div>
-          <div class="slide-desc">Det er ikke lagt inn noen dagsplan for ${aktivDag}.</div>
+          <div class="slide-title" style="font-size: 2rem;">Ingen aktiviteter funnet</div>
+          <div class="slide-desc">Fant ingen lagret dagsplan for ${aktivDag}. Legg inn aktiviteter i dagsplanen til høyre og prøv igjen.</div>
         `;
         document.getElementById('prevBtn').style.display = 'none';
         document.getElementById('nextBtn').style.display = 'none';
         return;
       }
 
+      // Vis fremste knappene og start på første slide
+      document.getElementById('prevBtn').style.display = 'flex';
+      document.getElementById('nextBtn').style.display = 'flex';
       visSlide(0);
       byggPrikker();
     }
