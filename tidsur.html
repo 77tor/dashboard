@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="no" class="h-full dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tidsur</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .preset-btn.active {
+      background-color: rgba(14, 165, 233, 0.3);
+      color: #38bdf8;
+      border-color: #0284c7;
+    }
+    @keyframes bounceShort {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-short {
+      animation: bounceShort 0.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center selection:bg-sky-500 selection:text-white transition-colors duration-300 antialiased overflow-x-hidden p-4">
+
+  <!-- Hovedbeholder -->
+  <div class="max-w-4xl w-full mx-auto flex flex-col gap-3 relative">
+    
+    <!-- TOPPBAR / HEADER -->
+    <header class="flex items-center justify-between gap-3 pb-2 border-b border-slate-800 shrink-0">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-sky-600 text-white rounded-xl shadow-md">
+          <i class="fa-solid fa-hourglass-half text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">
+            Tidsur
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium">Interaktivt tidsur for skolen</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- HOVEDINNHOLD: Tidsur og Styringskontroller -->
+    <main class="flex flex-col relative">
+      
+      <!-- Visualisering Card -->
+      <section class="w-full flex flex-col items-center glass-card rounded-3xl p-3 sm:p-4 shadow-xl relative overflow-hidden">
+        
+        <!-- KONTROLLBAR TOPP: Modusvelger + Styring + Hamburgermeny -->
+        <div class="w-full flex items-center justify-between gap-2 border-b border-slate-700/60 pb-3 z-10 shrink-0 flex-wrap sm:flex-nowrap">
+          
+          <!-- Visningsmodus Velger -->
+          <div class="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl text-xs font-medium">
+            <button data-mode="hourglass" class="mode-btn px-3 py-1.5 rounded-lg transition-all bg-slate-700 text-sky-400 shadow-sm">Timeglass</button>
+            <button data-mode="circle" class="mode-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-100 transition">Sirkel</button>
+            <button data-mode="line" class="mode-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-100 transition">Linje</button>
+            <button data-mode="digital" class="mode-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-100 transition">Digital</button>
+          </div>
+
+          <!-- Boks: STYR TIMEREN -->
+          <div class="flex items-center gap-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700 shadow-inner">
+            <button id="startPauseBtn" class="py-1.5 px-4 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shadow-sm">
+              <i id="startPauseIcon" class="fa-solid fa-play text-xs"></i> <span id="startPauseText">Start</span>
+            </button>
+            <button id="resetBtn" class="py-1.5 px-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition flex items-center gap-1 border border-slate-600">
+              <i class="fa-solid fa-rotate-left text-[10px]"></i> Nullstill
+            </button>
+            <button id="addOneMinBtn" class="py-1.5 px-3 rounded-lg bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 font-semibold text-xs transition flex items-center gap-1 border border-sky-800">
+              <i class="fa-solid fa-plus text-[10px]"></i> 1 min
+            </button>
+          </div>
+
+          <!-- HAMBURGERMENY KNAPP -->
+          <div class="relative">
+            <button id="menuToggleBtn" title="Åpne innstillinger" class="p-2.5 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 transition flex items-center gap-2 border border-slate-700">
+              <span id="statusBadge" class="inline-flex items-center text-[11px] font-semibold text-slate-300">
+                <span id="statusDot" class="w-2 h-2 rounded-full bg-slate-400 mr-1.5"></span> <span id="statusText">Klar</span>
+              </span>
+              <i class="fa-solid fa-bars text-base ml-1"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- VISNINGSOMRÅDE FOR TIDSUR -->
+        <div class="w-full flex items-center justify-center relative pt-2 overflow-hidden">
+          
+          <!-- MODE 1: TIMEGLASS CANVAS -->
+          <div id="viewHourglass" class="view-mode w-full h-[480px] flex items-center justify-center relative">
+            <canvas id="hourglassCanvas" class="w-full h-full block"></canvas>
+          </div>
+
+          <!-- MODE 2: SIRKEL -->
+          <div id="viewCircle" class="view-mode hidden w-full h-[480px] flex items-center justify-center relative p-2">
+            <div class="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke-width="8" class="stroke-slate-700/60 fill-none"/>
+                <circle id="circleProgress" cx="50" cy="50" r="42" stroke-width="8" stroke-dasharray="263.89" stroke-dashoffset="0" stroke-linecap="round" class="stroke-sky-400 fill-none transition-all duration-300"/>
+              </svg>
+              <div class="absolute flex flex-col items-center justify-center">
+                <span id="circleTimeDisplay" class="text-4xl sm:text-6xl font-extrabold tracking-tight font-mono text-slate-100">05:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODE 3: LINJE -->
+          <div id="viewLine" class="view-mode hidden w-full h-[480px] flex flex-col items-center justify-center px-6 max-w-2xl">
+            <div class="w-full mb-6 text-center">
+              <span id="lineTimeDisplay" class="text-7xl font-extrabold font-mono text-slate-100">05:00</span>
+            </div>
+            <div class="w-full bg-slate-700 h-8 rounded-full overflow-hidden p-1 shadow-inner relative border border-slate-600">
+              <div id="lineProgressBar" class="bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full transition-all duration-300 w-full"></div>
+            </div>
+          </div>
+
+          <!-- MODE 4: DIGITAL ONLY -->
+          <div id="viewDigital" class="view-mode hidden w-full h-[480px] flex items-center justify-center">
+            <div class="p-8 rounded-3xl bg-slate-900 text-sky-400 font-mono text-7xl sm:text-9xl font-black tracking-wider shadow-2xl border-4 border-slate-800">
+              <span id="digitalTimeDisplay">05:00</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- HAMBURGER SIDEMENY -->
+      <aside id="sideMenuPanel" class="hidden absolute top-14 right-4 h-auto max-h-[90vh] w-80 z-30 bg-slate-900/95 backdrop-blur-md p-5 rounded-3xl shadow-2xl border border-slate-700 flex flex-col gap-4 overflow-y-auto transition-all">
+        
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h2 class="font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-gear text-sky-500"></i> Innstillinger
+          </h2>
+          <button id="closeMenuBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- 1. Hurtigvalg -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-amber-500"></i> Hurtigvalg
+          </h3>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button data-time="60" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">1 min</button>
+            <button data-time="180" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">3 min</button>
+            <button data-time="300" class="preset-btn active py-1.5 rounded-lg bg-sky-900/30 text-sky-300 font-bold text-xs border border-sky-800 transition">5 min</button>
+            <button data-time="600" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">10 min</button>
+            <button data-time="900" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">15 min</button>
+            <button data-time="1200" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">20 min</button>
+            <button data-time="1800" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">30 min</button>
+            <button data-time="2700" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-400 text-slate-300 font-bold text-xs border border-slate-700 transition">45 min</button>
+          </div>
+        </div>
+
+        <!-- 2. Egendefinert tid -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-sky-500"></i> Egendefinert tid
+          </h3>
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Minutter</label>
+              <input id="inputMinutes" type="number" min="0" max="180" value="5" class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 font-semibold focus:ring-1 focus:ring-sky-500">
+            </div>
+            <div class="flex-1">
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Sekunder</label>
+              <input id="inputSeconds" type="number" min="0" max="59" value="0" class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 font-semibold focus:ring-1 focus:ring-sky-500">
+            </div>
+            <button id="setCustomTimeBtn" class="py-1.5 px-3 bg-slate-200 hover:bg-white text-slate-900 rounded-lg font-bold text-xs transition">
+              Sett
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Lyd -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-indigo-500"></i> Lydinnstillinger
+          </h3>
+          <div class="space-y-2">
+            <select id="soundSelect" class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 font-semibold transition">
+              <option value="schoolbell">Skoleklokke</option>
+              <option value="fanfare">Fanfare</option>
+              <option value="digital">Digital Pip</option>
+              <option value="shiphorn">Skipssignal</option>
+              <option value="scifi">Sci-Fi Signal</option>
+            </select>
+            
+            <div class="flex items-center gap-2 p-1.5 bg-slate-800 rounded-lg border border-slate-700">
+              <i class="fa-solid fa-volume-low text-slate-400 text-xs pl-1"></i>
+              <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="0.7" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+              <i class="fa-solid fa-volume-high text-slate-400 text-xs pr-1"></i>
+            </div>
+
+            <button id="testSoundBtn" class="w-full py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition flex items-center justify-center gap-1.5 border border-slate-700">
+              <i class="fa-solid fa-play text-[10px]"></i> Test lyd
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+  </div>
+
+  <!-- Alarm Modal -->
+  <div id="alarmModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-all">
+    <div class="glass-card bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border-2 border-rose-500 animate-bounce-short">
+      <div class="w-16 h-16 bg-rose-900/40 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+        <i class="fa-solid fa-bell text-3xl"></i>
+      </div>
+      <h3 class="text-2xl font-black text-slate-100 mb-1">Tiden er ute!</h3>
+      <p class="text-slate-300 text-xs mb-5">Nedtellingen er ferdig.</p>
+      
+      <!-- KNAPPER -->
+      <div class="flex flex-col gap-2.5">
+        <button id="btnStopAlarmOnly" class="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-volume-xmark"></i>
+          <span>Stopp alarm</span>
+        </button>
+
+        <button id="btnRestartTimer" class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Kjør samme tid på nytt</span>
+        </button>
+
+        <button id="btnCloseModal" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl transition transform active:scale-95">
+          Lukk
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // --- ELEMENTER ---
+      const menuBtn = document.getElementById("menuToggleBtn");
+      const sideMenu = document.getElementById("sideMenuPanel");
+      const closeBtn = document.getElementById("closeMenuBtn");
+      const modeBtns = document.querySelectorAll(".mode-btn");
+      const viewModes = document.querySelectorAll(".view-mode");
+      
+      const startPauseBtn = document.getElementById("startPauseBtn");
+      const startPauseIcon = document.getElementById("startPauseIcon");
+      const startPauseText = document.getElementById("startPauseText");
+      const resetBtn = document.getElementById("resetBtn");
+      const addOneMinBtn = document.getElementById("addOneMinBtn");
+      
+      const statusDot = document.getElementById("statusDot");
+      const statusText = document.getElementById("statusText");
+
+      const circleTimeDisplay = document.getElementById("circleTimeDisplay");
+      const circleProgress = document.getElementById("circleProgress");
+      const lineTimeDisplay = document.getElementById("lineTimeDisplay");
+      const lineProgressBar = document.getElementById("lineProgressBar");
+      const digitalTimeDisplay = document.getElementById("digitalTimeDisplay");
+
+      const presetBtns = document.querySelectorAll(".preset-btn");
+      const inputMinutes = document.getElementById("inputMinutes");
+      const inputSeconds = document.getElementById("inputSeconds");
+      const setCustomTimeBtn = document.getElementById("setCustomTimeBtn");
+
+      const alarmModal = document.getElementById("alarmModal");
+      const btnStopAlarmOnly = document.getElementById("btnStopAlarmOnly");
+      const btnRestartTimer = document.getElementById("btnRestartTimer");
+      const btnCloseModal = document.getElementById("btnCloseModal");
+
+      const soundSelect = document.getElementById("soundSelect");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const testSoundBtn = document.getElementById("testSoundBtn");
+
+      const canvas = document.getElementById('hourglassCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // --- TIMER TILSTAND ---
+      let durationSeconds = 300; // Standard: 5 min
+      let remainingSeconds = 300;
+      let isRunning = false;
+      let lastTimestamp = null;
+      let particles = [];
+      let currentAudio = null;
+
+      // --- MODUS-BYTTE ---
+      modeBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          modeBtns.forEach(b => {
+            b.classList.remove("bg-slate-700", "text-sky-400", "shadow-sm");
+            b.classList.add("text-slate-400");
+          });
+          btn.classList.add("bg-slate-700", "text-sky-400", "shadow-sm");
+          btn.classList.remove("text-slate-400");
+
+          const mode = btn.getAttribute("data-mode");
+          viewModes.forEach(v => v.classList.add("hidden"));
+
+          if (mode === "hourglass") document.getElementById("viewHourglass").classList.remove("hidden");
+          else if (mode === "circle") document.getElementById("viewCircle").classList.remove("hidden");
+          else if (mode === "line") document.getElementById("viewLine").classList.remove("hidden");
+          else if (mode === "digital") document.getElementById("viewDigital").classList.remove("hidden");
+
+          resizeCanvas();
+          drawHourglass();
+        });
+      });
+
+      // --- SIDEMENY LOGIKK ---
+      if (menuBtn && sideMenu) {
+        menuBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          sideMenu.classList.toggle("hidden");
+        });
+      }
+      if (closeBtn && sideMenu) {
+        closeBtn.addEventListener("click", () => sideMenu.classList.add("hidden"));
+      }
+      document.addEventListener("click", (e) => {
+        if (sideMenu && !sideMenu.classList.contains("hidden")) {
+          if (!sideMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+            sideMenu.classList.add("hidden");
+          }
+        }
+      });
+
+      // --- TIDSKONTROLLER ---
+      function formatTime(seconds) {
+        const secs = Math.max(0, Math.ceil(seconds));
+        const m = Math.floor(secs / 60).toString().padStart(2, '0');
+        const s = (secs % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+      }
+
+      function updateDisplays() {
+        const timeStr = formatTime(remainingSeconds);
+        circleTimeDisplay.textContent = timeStr;
+        lineTimeDisplay.textContent = timeStr;
+        digitalTimeDisplay.textContent = timeStr;
+
+        const progress = durationSeconds > 0 ? remainingSeconds / durationSeconds : 0;
+        
+        // Sirkel-fremdrift
+        const circumference = 263.89;
+        circleProgress.style.strokeDashoffset = circumference * (1 - progress);
+
+        // Linje-fremdrift
+        lineProgressBar.style.width = `${progress * 100}%`;
+
+        // Status-indikator
+        if (isRunning) {
+          statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse";
+          statusText.textContent = "Kjører";
+          startPauseIcon.className = "fa-solid fa-pause text-xs";
+          startPauseText.textContent = "Pause";
+        } else if (remainingSeconds === 0) {
+          statusDot.className = "w-2 h-2 rounded-full bg-rose-500 mr-1.5";
+          statusText.textContent = "Ferdig";
+          startPauseIcon.className = "fa-solid fa-play text-xs";
+          startPauseText.textContent = "Start";
+        } else {
+          statusDot.className = "w-2 h-2 rounded-full bg-slate-400 mr-1.5";
+          statusText.textContent = "Klar";
+          startPauseIcon.className = "fa-solid fa-play text-xs";
+          startPauseText.textContent = "Start";
+        }
+      }
+
+      function togglePlay() {
+        if (remainingSeconds <= 0) {
+          remainingSeconds = durationSeconds;
+        }
+        isRunning = !isRunning;
+        updateDisplays();
+      }
+
+      function resetTimer() {
+        isRunning = false;
+        remainingSeconds = durationSeconds;
+        particles = [];
+        stopSound();
+        alarmModal.classList.add("hidden");
+        alarmModal.classList.remove("flex");
+        updateDisplays();
+        drawHourglass();
+      }
+
+      function setDuration(secs) {
+        durationSeconds = secs;
+        remainingSeconds = secs;
+        inputMinutes.value = Math.floor(secs / 60);
+        inputSeconds.value = secs % 60;
+        resetTimer();
+      }
+
+      startPauseBtn.addEventListener("click", togglePlay);
+      resetBtn.addEventListener("click", resetTimer);
+      addOneMinBtn.addEventListener("click", () => {
+        durationSeconds += 60;
+        remainingSeconds += 60;
+        updateDisplays();
+        drawHourglass();
+      });
+
+      // Preset-knapper
+      presetBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          presetBtns.forEach(b => b.classList.remove("active", "bg-sky-900/30", "text-sky-300", "border-sky-800"));
+          btn.classList.add("active");
+          const secs = parseInt(btn.getAttribute("data-time"), 10);
+          setDuration(secs);
+        });
+      });
+
+      // Egendefinert tid
+      setCustomTimeBtn.addEventListener("click", () => {
+        const mins = parseInt(inputMinutes.value, 10) || 0;
+        const secs = parseInt(inputSeconds.value, 10) || 0;
+        const totalSecs = (mins * 60) + secs;
+        if (totalSecs > 0) {
+          presetBtns.forEach(b => b.classList.remove("active"));
+          setDuration(totalSecs);
+        }
+      });
+
+      // --- LYDFUNKSJONER ---
+      function playSound() {
+        stopSound();
+        const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+        const vol = parseFloat(volumeSlider.value);
+        const type = soundSelect.value;
+
+        if (type === "schoolbell") {
+          let count = 0;
+          const interval = setInterval(() => {
+            const osc = ctxAudio.createOscillator();
+            const gain = ctxAudio.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(800, ctxAudio.currentTime);
+            gain.gain.setValueAtTime(vol, ctxAudio.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(ctxAudio.destination);
+            osc.start();
+            osc.stop(ctxAudio.currentTime + 0.15);
+            count++;
+            if (count > 15) clearInterval(interval);
+          }, 120);
+        } else if (type === "fanfare") {
+          const notes = [261.63, 329.63, 392.00, 523.25];
+          notes.forEach((freq, idx) => {
+            const osc = ctxAudio.createOscillator();
+            const gain = ctxAudio.createGain();
+            osc.frequency.setValueAtTime(freq, ctxAudio.currentTime + idx * 0.15);
+            gain.gain.setValueAtTime(vol, ctxAudio.currentTime + idx * 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + idx * 0.15 + 0.3);
+            osc.connect(gain);
+            gain.connect(ctxAudio.destination);
+            osc.start(ctxAudio.currentTime + idx * 0.15);
+            osc.stop(ctxAudio.currentTime + idx * 0.15 + 0.3);
+          });
+        } else if (type === "digital") {
+          let count = 0;
+          const interval = setInterval(() => {
+            const osc = ctxAudio.createOscillator();
+            const gain = ctxAudio.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(1000, ctxAudio.currentTime);
+            gain.gain.setValueAtTime(vol * 0.5, ctxAudio.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(ctxAudio.destination);
+            osc.start();
+            osc.stop(ctxAudio.currentTime + 0.1);
+            count++;
+            if (count >= 4) clearInterval(interval);
+          }, 200);
+        } else if (type === "shiphorn") {
+          const osc = ctxAudio.createOscillator();
+          const gain = ctxAudio.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(120, ctxAudio.currentTime);
+          gain.gain.setValueAtTime(vol, ctxAudio.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + 1.5);
+          osc.connect(gain);
+          gain.connect(ctxAudio.destination);
+          osc.start();
+          osc.stop(ctxAudio.currentTime + 1.5);
+        } else if (type === "scifi") {
+          const osc = ctxAudio.createOscillator();
+          const gain = ctxAudio.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(300, ctxAudio.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1200, ctxAudio.currentTime + 0.8);
+          gain.gain.setValueAtTime(vol, ctxAudio.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + 0.8);
+          osc.connect(gain);
+          gain.connect(ctxAudio.destination);
+          osc.start();
+          osc.stop(ctxAudio.currentTime + 0.8);
+        }
+      }
+
+      function stopSound() {
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio = null;
+        }
+      }
+
+      testSoundBtn.addEventListener("click", playSound);
+
+      // --- ALARM MODAL HANDLERS ---
+      function triggerAlarm() {
+        isRunning = false;
+        remainingSeconds = 0;
+        updateDisplays();
+        playSound();
+        alarmModal.classList.remove("hidden");
+        alarmModal.classList.add("flex");
+      }
+
+      btnStopAlarmOnly.addEventListener("click", () => {
+        stopSound();
+        alarmModal.classList.add("hidden");
+        alarmModal.classList.remove("flex");
+      });
+
+      btnRestartTimer.addEventListener("click", () => {
+        resetTimer();
+        togglePlay();
+      });
+
+      btnCloseModal.addEventListener("click", () => {
+        stopSound();
+        alarmModal.classList.add("hidden");
+        alarmModal.classList.remove("flex");
+      });
+
+      // --- TIMEGLASS CANVAS RENDERER ---
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        drawHourglass();
+      });
+
+      function getUpperBulbWidthAtY(y, topY, neckY, glassWidth, neckWidth, pillarHeight) {
+        const maxRadius = glassWidth / 2 - 8;
+        const minRadius = neckWidth / 2;
+        const straightEndY = topY + pillarHeight;
+
+        if (y <= straightEndY) {
+          return maxRadius * 2;
+        } else {
+          const t = Math.max(0, Math.min(1, (y - straightEndY) / (neckY - straightEndY)));
+          const radius = maxRadius * Math.pow(1 - t, 0.7) + minRadius * Math.pow(t, 1.2);
+          return radius * 2;
+        }
+      }
+
+      function drawHourglass() {
+        const rect = canvas.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const progress = durationSeconds > 0 ? Math.max(0, Math.min(1, remainingSeconds / durationSeconds)) : 0;
+        const elapsed = 1 - progress;
+
+        const centerX = w / 2;
+        const topY = 12;
+        const bottomY = h - 12;
+        const neckY = h / 2;
+        
+        // Justert bredde-forhold slik at timeglasset får en naturlig, slank form
+        const glassWidth = Math.min(w * 0.55, (bottomY - topY) * 0.55); 
+        const streamWidth = 4;
+        const neckWidth = streamWidth + 4;
+        const pillarHeight = (bottomY - topY) * 0.05;
+
+        const woodDark = '#1e293b';
+        const woodLight = '#334155';
+        const woodBase = '#0f172a';
+        const sandColor = '#38bdf8';
+        const sandDark = '#0284c7';
+        const sandHighlight = '#bae6fd';
+
+        const topPillarEndY = topY + pillarHeight;
+        const bottomPillarStartY = bottomY - pillarHeight;
+
+        // ØVRE KAMMER SAND
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(centerX - glassWidth / 2 + 8, topY + 4);
+        ctx.lineTo(centerX - glassWidth / 2 + 8, topPillarEndY);
+        ctx.bezierCurveTo(
+          centerX - glassWidth / 2 + 8, topPillarEndY + (neckY - topPillarEndY) * 0.5,
+          centerX - neckWidth / 2, neckY - 12,
+          centerX - neckWidth / 2, neckY
+        );
+        ctx.lineTo(centerX + neckWidth / 2, neckY);
+        ctx.bezierCurveTo(
+          centerX + neckWidth / 2, neckY - 12,
+          centerX + glassWidth / 2 - 8, topPillarEndY + (neckY - topPillarEndY) * 0.5,
+          centerX + glassWidth / 2 - 8, topPillarEndY
+        );
+        ctx.lineTo(centerX + glassWidth / 2 - 8, topY + 4);
+        ctx.closePath();
+        ctx.clip();
+
+        const topTotalHeight = neckY - topY;
+        const topSandFillY = topY + (topTotalHeight * elapsed);
+
+        if (progress > 0.001) {
+          const currentChamberWidth = getUpperBulbWidthAtY(topSandFillY, topY, neckY, glassWidth, neckWidth, pillarHeight);
+          const halfW = currentChamberWidth / 2;
+
+          ctx.fillStyle = sandColor;
+          ctx.beginPath();
+          ctx.moveTo(centerX - halfW, topSandFillY);
+          ctx.lineTo(centerX + halfW, topSandFillY);
+          ctx.lineTo(centerX + glassWidth, neckY + 10);
+          ctx.lineTo(centerX - glassWidth, neckY + 10);
+          ctx.closePath();
+          ctx.fill();
+
+          const funnelDip = Math.sin(progress * Math.PI) * 12 * Math.sqrt(progress);
+          
+          ctx.fillStyle = sandDark;
+          ctx.beginPath();
+          ctx.moveTo(centerX - halfW, topSandFillY);
+          ctx.quadraticCurveTo(centerX, topSandFillY + funnelDip * 1.8, centerX + halfW, topSandFillY);
+          ctx.quadraticCurveTo(centerX, topSandFillY + funnelDip * 0.6, centerX - halfW, topSandFillY);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = sandHighlight;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(centerX - halfW + 1, topSandFillY);
+          ctx.quadraticCurveTo(centerX, topSandFillY + funnelDip * 0.6, centerX + halfW - 1, topSandFillY);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // NEDRE KAMMER SAND
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(centerX - neckWidth / 2, neckY);
+        ctx.bezierCurveTo(
+          centerX - neckWidth / 2, neckY + 12,
+          centerX - glassWidth / 2 + 8, bottomPillarStartY - (bottomPillarStartY - neckY) * 0.5,
+          centerX - glassWidth / 2 + 8, bottomPillarStartY
+        );
+        ctx.lineTo(centerX - glassWidth / 2 + 8, bottomY - 4);
+        ctx.lineTo(centerX + glassWidth / 2 - 8, bottomY - 4);
+        ctx.lineTo(centerX + glassWidth / 2 - 8, bottomPillarStartY);
+        ctx.bezierCurveTo(
+          centerX + glassWidth / 2 - 8, bottomPillarStartY - (bottomPillarStartY - neckY) * 0.5,
+          centerX + neckWidth / 2, neckY + 12,
+          centerX + neckWidth / 2, neckY
+        );
+        ctx.closePath();
+        ctx.clip();
+
+        const bottomMaxHeight = (bottomY - neckY) * 0.88; 
+        const peakHeight = Math.pow(elapsed, 0.7) * bottomMaxHeight;
+        const peakY = bottomY - peakHeight;
+        const sideFillLevel = Math.max(0, Math.pow(elapsed, 1.4) - 0.1) * (bottomMaxHeight * 0.75);
+        const sideY = bottomY - sideFillLevel;
+
+        if (elapsed > 0.001) {
+          ctx.fillStyle = sandColor;
+          ctx.beginPath();
+          ctx.moveTo(centerX - glassWidth, bottomY + 10);
+          ctx.lineTo(centerX - glassWidth / 2, sideY);
+          ctx.quadraticCurveTo(centerX - glassWidth * 0.22, (sideY + peakY) / 2 - 2, centerX, peakY);
+          ctx.quadraticCurveTo(centerX + glassWidth * 0.22, (sideY + peakY) / 2 - 2, centerX + glassWidth / 2, sideY);
+          ctx.lineTo(centerX + glassWidth, bottomY + 10);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = sandDark;
+          ctx.beginPath();
+          ctx.moveTo(centerX, peakY);
+          ctx.quadraticCurveTo(centerX + glassWidth * 0.22, (sideY + peakY) / 2 - 2, centerX + glassWidth / 2, sideY);
+          ctx.lineTo(centerX, bottomY + 10);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.strokeStyle = sandHighlight;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(centerX, peakY + 2);
+          ctx.quadraticCurveTo(centerX - glassWidth * 0.1, peakY + (sideY - peakY) * 0.4, centerX - glassWidth * 0.25, sideY);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // STRØM & PARTIKLER
+        if (isRunning && remainingSeconds > 0 && progress > 0.001) {
+          ctx.strokeStyle = sandColor;
+          ctx.lineWidth = streamWidth;
+          ctx.beginPath();
+          ctx.moveTo(centerX, neckY - 2);
+          ctx.lineTo(centerX, Math.max(neckY, peakY));
+          ctx.stroke();
+
+          ctx.fillStyle = sandDark;
+          particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+
+        // GLASS-KONTUR
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+        ctx.beginPath();
+        
+        ctx.moveTo(centerX - glassWidth / 2 + 5, topY + 2);
+        ctx.lineTo(centerX - glassWidth / 2 + 5, topPillarEndY);
+        ctx.bezierCurveTo(
+          centerX - glassWidth / 2 + 5, topPillarEndY + (neckY - topPillarEndY) * 0.5,
+          centerX - neckWidth / 2 - 1, neckY - 10,
+          centerX - neckWidth / 2 - 1, neckY
+        );
+        ctx.bezierCurveTo(
+          centerX - neckWidth / 2 - 1, neckY + 10,
+          centerX - glassWidth / 2 + 5, bottomPillarStartY - (bottomPillarStartY - neckY) * 0.5,
+          centerX - glassWidth / 2 + 5, bottomPillarStartY
+        );
+        ctx.lineTo(centerX - glassWidth / 2 + 5, bottomY - 2);
+
+        ctx.moveTo(centerX + glassWidth / 2 - 5, topY + 2);
+        ctx.lineTo(centerX + glassWidth / 2 - 5, topPillarEndY);
+        ctx.bezierCurveTo(
+          centerX + glassWidth / 2 - 5, topPillarEndY + (neckY - topPillarEndY) * 0.5,
+          centerX + neckWidth / 2 + 1, neckY - 10,
+          centerX + neckWidth / 2 + 1, neckY
+        );
+        ctx.bezierCurveTo(
+          centerX + neckWidth / 2 + 1, neckY + 10,
+          centerX + glassWidth / 2 - 5, bottomPillarStartY - (bottomPillarStartY - neckY) * 0.5,
+          centerX + glassWidth / 2 - 5, bottomPillarStartY
+        );
+        ctx.lineTo(centerX + glassWidth / 2 - 5, bottomY - 2);
+        ctx.stroke();
+
+        // GLASS REFLEKSJONER
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(centerX - glassWidth / 2 + 14, topY + 10);
+        ctx.lineTo(centerX - glassWidth / 2 + 14, topPillarEndY + 10);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(centerX + glassWidth / 2 - 14, bottomPillarStartY - 10);
+        ctx.lineTo(centerX + glassWidth / 2 - 14, bottomY - 10);
+        ctx.stroke();
+
+        // TOPP OG BUNN TREKAPPER
+        const drawCap = (yPos, isTop) => {
+          const capWidth = glassWidth + 20;
+          const capHeight = 16;
+          const radius = 6;
+
+          ctx.save();
+          const grad = ctx.createLinearGradient(centerX - capWidth / 2, 0, centerX + capWidth / 2, 0);
+          grad.addColorStop(0, woodDark);
+          grad.addColorStop(0.5, woodLight);
+          grad.addColorStop(1, woodDark);
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.roundRect(centerX - capWidth / 2, yPos - capHeight / 2, capWidth, capHeight, radius);
+          ctx.fill();
+
+          ctx.restore();
+
+          ctx.fillStyle = woodBase;
+          const lipWidth = capWidth + 4;
+          const lipHeight = 5;
+          const lipY = isTop ? yPos - capHeight / 2 - 1 : yPos + capHeight / 2 - 4;
+          ctx.beginPath();
+          ctx.roundRect(centerX - lipWidth / 2, lipY, lipWidth, lipHeight, 2);
+          ctx.fill();
+        };
+
+        drawCap(topY - 2, true);
+        drawCap(bottomY + 2, false);
+
+        // DIGITAL TIMER OVERLAY
+        const timerBoxW = 110;
+        const timerBoxH = 38;
+        const timerBoxX = centerX - timerBoxW / 2;
+        const timerBoxY = bottomY - (bottomY - neckY) * 0.28;
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.strokeStyle = 'rgba(51, 65, 85, 0.8)';
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        ctx.roundRect(timerBoxX, timerBoxY, timerBoxW, timerBoxH, 8);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '700 20px "Inter", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(formatTime(remainingSeconds), centerX, timerBoxY + timerBoxH / 2);
+      }
+
+      function updateParticles(delta) {
+        const rect = canvas.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const neckY = rect.height / 2;
+        const bottomY = rect.height - 12;
+
+        const progress = durationSeconds > 0 ? Math.max(0, Math.min(1, remainingSeconds / durationSeconds)) : 0;
+        const elapsed = 1 - progress;
+        
+        const bottomMaxHeight = (bottomY - neckY) * 0.88;
+        const peakHeight = Math.pow(elapsed, 0.7) * bottomMaxHeight;
+        const peakY = bottomY - peakHeight;
+
+        if (isRunning && remainingSeconds > 0 && progress > 0.001) {
+          if (Math.random() < 0.7) {
+            particles.push({
+              x: centerX + (Math.random() - 0.5) * 4,
+              y: neckY,
+              vy: 3 + Math.random() * 4,
+              radius: 1.2 + Math.random() * 1.5
+            });
+          }
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          let p = particles[i];
+          p.y += p.vy;
+          if (p.y >= peakY) {
+            particles.splice(i, 1);
+          }
+        }
+      }
+
+      function animate(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const delta = (timestamp - lastTimestamp) / 1000;
+        lastTimestamp = timestamp;
+
+        if (isRunning && remainingSeconds > 0) {
+          remainingSeconds -= delta;
+          if (remainingSeconds <= 0) {
+            triggerAlarm();
+          }
+        }
+
+        updateParticles(delta);
+        updateDisplays();
+        drawHourglass();
+
+        requestAnimationFrame(animate);
+      }
+
+      // MAIN INIT
+      resizeCanvas();
+      updateDisplays();
+      requestAnimationFrame(animate);
+    });
+  </script>
+</body>
+</html>
