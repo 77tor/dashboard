@@ -1,0 +1,69 @@
+body {
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Glassmorphism visual elements */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hourglass-svg {
+  width: 100%;
+  height: 100%;
+  /* Fjernet max-height slik at den kan fylle hele beholderen */
+  max-height: 100%; 
+  overflow: visible;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+/* Smooth transition for visualization mode containers */
+.view-mode {
+  display: none !important;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.view-mode.active {
+  display: flex !important;
+  opacity: 1;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-center: center;
+}
+
+/* Custom range input styling */
+input[type=range] {
+  accent-color: #0284c7;
+}
+
+/* Fjerner spinner-piler i tallfelt (Firefox fix) */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Enkel Bounce-animasjon for modal */
+@keyframes bounceShort {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-15px);}
+  60% {transform: translateY(-7px);}
+}
+.animate-bounce-short {
+  animation: bounceShort 0.8s ease;
+}

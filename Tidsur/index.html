@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="no" class="h-full dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tidsur</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- style.css -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white transition-colors duration-300 antialiased overflow-x-hidden">
+
+  <!-- Hovedbeholder -->
+  <div class="flex-1 flex flex-col max-w-4xl w-full mx-auto px-4 py-3 sm:px-6 justify-between relative">
+    
+    <!-- TOPPBAR / HEADER -->
+    <header class="flex items-center justify-between gap-3 pb-3 border-b border-slate-800 shrink-0">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-sky-600 text-white rounded-xl shadow-md">
+          <i class="fa-solid fa-hourglass-half text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent">
+            Tidsur
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium">Interaktivt tidsur for skolen</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- HOVEDINNHOLD: Tidsur og Styringskontroller -->
+    <main class="flex-1 flex flex-col my-4 min-h-0 overflow-hidden relative">
+      
+      <!-- Visualisering Card -->
+      <section class="w-full h-full flex flex-col items-center justify-between glass-card rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
+        
+        <!-- KONTROLLBAR TOPP: Modusvelger + Styring + Hamburgermeny -->
+        <div class="w-full flex items-center justify-between gap-2 border-b border-slate-700/60 pb-3 z-10 shrink-0 flex-wrap sm:flex-nowrap">
+          
+          <!-- Visningsmodus Velger -->
+          <div class="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl text-xs font-medium">
+            <button data-mode="hourglass" class="mode-btn px-3 py-1.5 rounded-lg transition-all bg-slate-700 text-sky-400 shadow-sm">Timeglass</button>
+            <button data-mode="circle" class="mode-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-100 transition">Sirkel</button>
+            <button data-mode="line" class="mode-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-100 transition">Linje</button>
+            <button data-mode="digital" class="mode-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-100 transition">Digital</button>
+          </div>
+
+          <!-- Boks: STYR TIMEREN -->
+          <div class="flex items-center gap-1.5 bg-slate-800/90 p-1 rounded-xl border border-slate-700 shadow-inner">
+            <button id="startPauseBtn" class="py-1.5 px-4 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-xs active:scale-95 transition flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-play text-xs"></i> <span>Start</span>
+            </button>
+            <button id="resetBtn" class="py-1.5 px-3 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition flex items-center gap-1 border border-slate-600">
+              <i class="fa-solid fa-rotate-left text-[10px]"></i> Nullstill
+            </button>
+            <button id="addOneMinBtn" class="py-1.5 px-3 rounded-lg bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 font-semibold text-xs transition flex items-center gap-1 border border-sky-800">
+              <i class="fa-solid fa-plus text-[10px]"></i> 1 min
+            </button>
+          </div>
+
+          <!-- HAMBURGERMENY KNAPP -->
+          <div class="relative">
+            <button id="menuToggleBtn" title="Åpne innstillinger" class="p-2.5 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 transition flex items-center gap-2 border border-slate-700">
+              <span id="statusBadge" class="inline-flex items-center text-[11px] font-semibold text-slate-300">
+                <span class="w-2 h-2 rounded-full bg-slate-400 mr-1.5"></span> Klar
+              </span>
+              <i class="fa-solid fa-bars text-base ml-1"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- VISNINGSOMRÅDE FOR TIDSUR -->
+        <div class="w-full flex-1 flex flex-col items-center justify-center relative py-2 min-h-0 overflow-hidden">
+          
+          <!-- MODE 1: TIMEGLASS SVG -->
+          <div id="viewHourglass" class="view-mode active w-full h-full flex items-center justify-center relative p-2 gap-4">
+            <!-- Digital klokke ved siden av timeglasset -->
+            <div class="px-5 py-2.5 rounded-2xl bg-slate-950 text-sky-400 font-mono font-black text-2xl sm:text-3xl tracking-wider shadow-lg border-2 border-slate-700/60 flex items-center gap-2.5 shrink-0">
+              <i class="fa-regular fa-clock text-xl opacity-75"></i>
+              <span id="mainTimeDisplay">05:00</span>
+            </div>
+
+            <svg class="hourglass-svg w-full h-full max-h-[440px]" viewBox="160 55 293 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="sandGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#fff4bd"/><stop offset="25%" stop-color="#f8df92"/><stop offset="55%" stop-color="#edc76c"/><stop offset="82%" stop-color="#dda746"/><stop offset="100%" stop-color="#c48727"/>
+                </linearGradient>
+                <radialGradient id="sandPileGradient" cx="50%" cy="5%" r="95%">
+                  <stop offset="0%" stop-color="#fff1ad"/><stop offset="25%" stop-color="#f6d77f"/><stop offset="58%" stop-color="#e8b653"/><stop offset="100%" stop-color="#c17d20"/>
+                </radialGradient>
+                <linearGradient id="woodGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#241006"/><stop offset="18%" stop-color="#59280f"/><stop offset="38%" stop-color="#91471a"/><stop offset="50%" stop-color="#b96629"/><stop offset="63%" stop-color="#91471a"/><stop offset="83%" stop-color="#55240d"/><stop offset="100%" stop-color="#210c04"/>
+                </linearGradient>
+                <linearGradient id="brassGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#6b3c05"/><stop offset="20%" stop-color="#bd821b"/><stop offset="43%" stop-color="#ffe89a"/><stop offset="57%" stop-color="#d7a33b"/><stop offset="82%" stop-color="#8a5909"/><stop offset="100%" stop-color="#472703"/>
+                </linearGradient>
+                <linearGradient id="glassGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#dcecf4" stop-opacity=".40"/><stop offset="20%" stop-color="#eef7fb" stop-opacity=".20"/><stop offset="48%" stop-color="#b8d0dc" stop-opacity=".12"/><stop offset="72%" stop-color="#edf6fa" stop-opacity=".22"/><stop offset="100%" stop-color="#b4ccd8" stop-opacity=".40"/>
+                </linearGradient>
+                <linearGradient id="glassEdge" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#7898a8" stop-opacity=".75"/><stop offset="25%" stop-color="#ffffff" stop-opacity=".85"/><stop offset="50%" stop-color="#b6d0dc" stop-opacity=".55"/><stop offset="75%" stop-color="#ffffff" stop-opacity=".85"/><stop offset="100%" stop-color="#7898a8" stop-opacity=".75"/>
+                </linearGradient>
+                <linearGradient id="glassInnerShadow" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#55717f" stop-opacity=".18"/><stop offset="25%" stop-color="#ffffff" stop-opacity="0"/><stop offset="75%" stop-color="#ffffff" stop-opacity="0"/><stop offset="100%" stop-color="#55717f" stop-opacity=".18"/>
+                </linearGradient>
+                <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+                <clipPath id="topMask"><path d="M188 91 C195 174 237 249 298 266 C304 268 307 271 307 275 C307 271 310 268 316 266 C377 249 419 174 426 91 Z"/></clipPath>
+                <clipPath id="bottomMask"><path d="M298 284 C237 301 195 376 188 459 L426 459 C419 376 377 301 316 284 C310 282 307 279 307 275 C307 279 304 282 298 284 Z"/></clipPath>
+                <path id="glassShape" d="M432 459 H181 C185 369 230 302 289 284 C299 281 303 278 303 275 C303 271 299 268 289 266 C230 248 185 180 181 91 H432 C428 180 383 248 317 266 C307 268 303 271 303 275 C303 278 307 281 317 284 C383 302 428 369 432 459 Z"/>
+              </defs>
+              <ellipse cx="307" cy="490" rx="135" ry="14" fill="#000000" opacity=".17" filter="url(#softShadow)"/><rect x="175" y="70" width="263" height="21" rx="4" fill="url(#woodGradient)" stroke="#321506" stroke-width="2"/><rect x="166" y="61" width="281" height="10" rx="3" fill="url(#brassGradient)"/><rect x="175" y="459" width="263" height="21" rx="4" fill="url(#woodGradient)" stroke="#321506" stroke-width="2"/><rect x="166" y="480" width="281" height="10" rx="3" fill="url(#brassGradient)"/><rect x="166" y="70" width="18" height="410" rx="7" fill="url(#woodGradient)"/><rect x="426" y="70" width="18" height="410" rx="7" fill="url(#woodGradient)"/><use href="#glassShape" fill="#b9d0da" opacity=".18"/><g clip-path="url(#topMask)"><path id="topSand" fill="url(#sandGradient)" d=""/><path id="topSandSurface" fill="#fff0ac" opacity=".88" d=""/><g id="topTexture"></g></g><g clip-path="url(#bottomMask)"><path id="bottomSand" fill="url(#sandPileGradient)" d=""/><path id="pileHighlight" fill="#fff0a5" opacity=".38" d=""/><g id="settledGrains"></g></g><path id="sandStream" fill="none" stroke="url(#sandGradient)" stroke-linecap="round" d=""/><path id="sandStreamCore" fill="none" stroke="#fff0a0" stroke-linecap="round" d=""/><g id="fallingGrains"></g><ellipse cx="307" cy="275" rx="10" ry="5" fill="#8c5d17" opacity=".88"/><ellipse cx="307" cy="274" rx="5" ry="2.3" fill="#50340a" opacity=".70"/><use href="#glassShape" fill="url(#glassGradient)" stroke="url(#glassEdge)" stroke-width="3"/><use href="#glassShape" fill="url(#glassInnerShadow)" opacity=".65"/><path d="M194 103 C198 165 223 224 268 250 C283 258 291 263 294 269" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" opacity=".48"/><path d="M194 447 C198 383 223 324 268 300 C283 292 291 287 294 281" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" opacity=".34"/><path d="M408 104 C404 169 383 224 344 250" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".25"/><path d="M181 91 C185 180 230 248 289 266 C299 268 303 271 303 275" fill="none" stroke="#6f8e9d" stroke-width="2" opacity=".48"/><path d="M303 275 C303 279 299 282 289 284 C230 302 185 369 181 459" fill="none" stroke="#6f8e9d" stroke-width="2" opacity=".40"/><path d="M317 266 C377 248 419 180 432 91" fill="none" stroke="#6f8e9d" stroke-width="2" opacity=".48"/><path d="M317 284 C383 302 428 369 432 459" fill="none" stroke="#6f8e9d" stroke-width="2" opacity=".40"/><path d="M181 91 H432" fill="none" stroke="#ffffff" stroke-width="3" opacity=".80"/><path d="M181 459 H432" fill="none" stroke="#ffffff" stroke-width="3" opacity=".65"/>
+            </svg>
+          </div>
+
+          <!-- MODE 2: SIRKEL -->
+          <div id="viewCircle" class="view-mode w-full h-full flex items-center justify-center relative p-2">
+            <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke-width="8" class="stroke-slate-700/60 fill-none"/>
+                <circle id="circleProgress" cx="50" cy="50" r="42" stroke-width="8" stroke-dasharray="263.89" stroke-dashoffset="0" stroke-linecap="round" class="stroke-sky-400 fill-none transition-all duration-300"/>
+              </svg>
+              <div class="absolute flex flex-col items-center justify-center">
+                <span id="circleTimeDisplay" class="text-4xl sm:text-5xl font-extrabold tracking-tight font-mono text-slate-100">05:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODE 3: LINJE -->
+          <div id="viewLine" class="view-mode w-full h-full flex flex-col items-center justify-center px-6 max-w-xl">
+            <div class="w-full mb-6 text-center">
+              <span id="lineTimeDisplay" class="text-6xl font-extrabold font-mono text-slate-100">05:00</span>
+            </div>
+            <div class="w-full bg-slate-700 h-6 rounded-full overflow-hidden p-1 shadow-inner relative border border-slate-600">
+              <div id="lineProgressBar" class="bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full transition-all duration-300 w-full"></div>
+            </div>
+          </div>
+
+          <!-- MODE 4: DIGITAL ONLY -->
+          <div id="viewDigital" class="view-mode w-full h-full flex items-center justify-center">
+            <div class="p-6 rounded-2xl bg-slate-900 text-sky-400 font-mono text-6xl sm:text-8xl font-black tracking-wider shadow-2xl border-4 border-slate-800">
+              <span id="digitalTimeDisplay">05:00</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- HAMBURGER SIDEMENY -->
+      <aside id="sideMenuPanel" class="hidden absolute top-14 right-4 h-auto max-h-[90vh] w-80 z-30 bg-slate-900/95 backdrop-blur-md p-5 rounded-3xl shadow-2xl border border-slate-700 flex flex-col gap-4 overflow-y-auto transition-all">
+        
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h2 class="font-bold text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-gear text-sky-500"></i> Innstillinger
+          </h2>
+          <button id="closeMenuBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- 1. Hurtigvalg -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-amber-500"></i> Hurtigvalg
+          </h3>
+          <div class="grid grid-cols-4 gap-1.5">
+            <button data-time="60" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">1 min</button>
+            <button data-time="180" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">3 min</button>
+            <button data-time="300" class="preset-btn py-1.5 rounded-lg bg-sky-900/30 text-sky-300 font-bold text-xs border border-sky-800 transition">5 min</button>
+            <button data-time="600" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">10 min</button>
+            <button data-time="900" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">15 min</button>
+            <button data-time="1200" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">20 min</button>
+            <button data-time="1800" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">30 min</button>
+            <button data-time="2700" class="preset-btn py-1.5 rounded-lg bg-slate-800 hover:bg-sky-950/50 hover:text-sky-600 text-slate-300 font-bold text-xs border border-slate-700 transition">45 min</button>
+          </div>
+        </div>
+
+        <!-- 2. Egendefinert tid -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-sky-500"></i> Egendefinert tid
+          </h3>
+          <div class="flex items-end gap-2">
+            <div class="flex-1">
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Minutter</label>
+              <input id="inputMinutes" type="number" min="0" max="180" value="5" class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 font-semibold focus:ring-1 focus:ring-sky-500">
+            </div>
+            <div class="flex-1">
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Sekunder</label>
+              <input id="inputSeconds" type="number" min="0" max="59" value="0" class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 font-semibold focus:ring-1 focus:ring-sky-500">
+            </div>
+            <button id="setCustomTimeBtn" class="py-1.5 px-3 bg-slate-200 hover:bg-white text-slate-900 rounded-lg font-bold text-xs transition">
+              Sett
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Lyd -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-volume-high text-indigo-500"></i> Lydinnstillinger
+          </h3>
+          <div class="space-y-2">
+            <select id="soundSelect" class="w-full px-2.5 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 font-semibold transition">
+              <option value="schoolbell">Skoleklokke</option>
+              <option value="fanfare">Fanfare</option>
+              <option value="digital">Digital Pip</option>
+              <option value="shiphorn">Skipssignal</option>
+              <option value="scifi">Sci-Fi Signal</option>
+            </select>
+            
+            <div class="flex items-center gap-2 p-1.5 bg-slate-800 rounded-lg border border-slate-700">
+              <i class="fa-solid fa-volume-low text-slate-400 text-xs pl-1"></i>
+              <input id="volumeSlider" type="range" min="0" max="1" step="0.05" value="0.7" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+              <i class="fa-solid fa-volume-high text-slate-400 text-xs pr-1"></i>
+            </div>
+
+            <button id="testSoundBtn" class="w-full py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition flex items-center justify-center gap-1.5 border border-slate-700">
+              <i class="fa-solid fa-play text-[10px]"></i> Test lyd
+            </button>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+  </div>
+
+  <!-- Alarm Modal -->
+  <div id="alarmModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 transition-all">
+    <div class="glass-card bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border-2 border-rose-500 animate-bounce-short">
+      <div class="w-16 h-16 bg-rose-900/40 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+        <i class="fa-solid fa-bell text-3xl"></i>
+      </div>
+      <h3 class="text-2xl font-black text-slate-100 mb-1">Tiden er ute!</h3>
+      <p class="text-slate-300 text-xs mb-5">Nedtellingen er ferdig.</p>
+      
+      <!-- KNAPPER -->
+      <div class="flex flex-col gap-2.5">
+        <button id="btnStopAlarmOnly" class="w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-volume-xmark"></i>
+          <span>Stopp alarm</span>
+        </button>
+
+        <button id="btnRestartTimer" class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Kjør samme tid på nytt</span>
+        </button>
+
+        <button id="btnCloseModal" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl transition transform active:scale-95">
+          Lukk
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuBtn = document.getElementById("menuToggleBtn");
+      const sideMenu = document.getElementById("sideMenuPanel");
+      const closeBtn = document.getElementById("closeMenuBtn");
+
+      // Åpne / lukke meny
+      if (menuBtn && sideMenu) {
+        menuBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          sideMenu.classList.toggle("hidden");
+        });
+      }
+
+      if (closeBtn && sideMenu) {
+        closeBtn.addEventListener("click", () => {
+          sideMenu.classList.add("hidden");
+        });
+      }
+
+      // Lukke meny ved klikk utenfor
+      document.addEventListener("click", (e) => {
+        if (sideMenu && !sideMenu.classList.contains("hidden")) {
+          if (!sideMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+            sideMenu.classList.add("hidden");
+          }
+        }
+      });
+    });
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
