@@ -81,12 +81,14 @@ button:hover { background: #1d4ed8; }
 .schedule-list { 
   display: flex; 
   flex-direction: column; 
-  gap: 4px !important; 
+  gap: 6px !important; /* Økt litt for litt bedre avstand mellom kortene */
   flex: 1; 
   height: 100%;
   overflow: hidden !important; 
   min-height: 0 !important; 
-  padding: 2px; 
+  padding: 8px !important; /* Økt padding slik at rammen stikker tydelig ut rundt kortene */
+  background: #cbd5e1 !important; /* Grå bakgrunnsfarge på rammen (juster eventuelt her) */
+  border-radius: 8px !important; /* Avrundede hjørner på ytterrammen */
 }
 
 .schedule-card { 
