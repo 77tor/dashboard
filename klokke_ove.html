@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interaktiv Læreklokke</title>
-    <style>
+
+<style>
         * {
             box-sizing: border-box;
             margin: 0;
@@ -27,15 +28,15 @@
             min-height: 100vh;
         }
 
-        /* Venstremeny */
+        /* Venstremeny - Kompakt layout */
         .sidebar {
-            width: 340px;
+            width: 320px;
             background: #ffffff;
             border-right: 1px solid #e2e8f0;
-            padding: 25px 20px;
+            padding: 16px 16px;          /* Redusert padding fra 25px */
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 14px;                   /* Kortere avstand mellom hovedseksjonene */
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.03);
             z-index: 10;
             flex-shrink: 0;
@@ -43,19 +44,19 @@
 
         .sidebar h1 {
             color: #1e293b;
-            font-size: 22px;
+            font-size: 18px;             /* Litt mer kompakt tittel */
             border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 12px;
+            padding-bottom: 6px;
         }
 
         .menu-section {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;                    /* Tettere mellom elementene */
         }
 
         .menu-section h2 {
-            font-size: 13px;
+            font-size: 11px;             /* Mindre og renere seksjonsoverskrifter */
             text-transform: uppercase;
             letter-spacing: 0.8px;
             color: #64748b;
@@ -65,25 +66,25 @@
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .row-group {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         label {
             font-weight: 600;
             color: #475569;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         select, input[type="time"], button {
-            padding: 10px 12px;
-            border-radius: 8px;
+            padding: 7px 10px;           /* Slankere input-felter og knapper */
+            border-radius: 6px;
             border: 1px solid #cbd5e1;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
             width: 100%;
             transition: all 0.2s;
@@ -111,6 +112,7 @@
         button.secondary {
             background-color: #059669;
             width: 100%;
+            margin-top: 2px;
         }
         button.secondary:hover {
             background-color: #047857;
@@ -119,6 +121,7 @@
         button.warning {
             background-color: #d97706;
             width: 100%;
+            margin-top: 2px;
         }
         button.warning:hover {
             background-color: #b45309;
@@ -127,41 +130,52 @@
         /* Digital visning i sidemeny */
         .digital-box {
             background: #1e293b;
-            padding: 12px;
+            padding: 6px 10px;            /* Lavere digitalboks */
             border-radius: 8px;
             text-align: center;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .digital-display {
-            font-size: 32px;
+            font-size: 24px;              /* Litt mer kompakt skrift på klokkeslettet */
             font-family: 'Courier New', Courier, monospace;
             font-weight: bold;
             color: #38bdf8;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
+        }
+
+        /* Kompakt Sol/Måne-boks */
+        #dayNightBox {
+            margin: 4px 0 !important;
+            width: 100% !important;
+            height: 70px !important;      /* Lavere høyde så den spiser mindre plass */
+            border-radius: 10px !important;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12) !important;
+            overflow: hidden !important;
+            border: 2px solid #ffffff !important;
+            box-sizing: border-box !important;
         }
 
         .feedback-message {
             font-weight: bold;
-            font-size: 14px;
-            min-height: 20px;
+            font-size: 13px;
+            min-height: 18px;
             text-align: center;
-            margin-top: 5px;
+            margin-top: 3px;
         }
         .correct { color: #16a34a; }
         .wrong { color: #dc2626; }
 
         /* Main Klokkeområde */
-        .main-content {
+.main-content {
             flex-grow: 1;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 30px;
+            padding: 40px 20px 20px 20px; /* Mer luft i toppen (40px) så skyggen ikke kuttes */
             background: #f8fafc;
         }
-
-        .clock-container {
+.clock-container {
             background: white;
             padding: 16px;
             border-radius: 50%;
@@ -169,11 +183,19 @@
             border: 6px solid #ffffff;
             position: relative;
             touch-action: none;
+            
+            /* Tvinger sirkelform og hindrer at flexbox strekker/klemmer beholderen */
+            aspect-ratio: 1 / 1;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         canvas#learningClock {
             display: block;
             cursor: pointer;
+            border-radius: 50%;
         }
 
         /* Responsivt for mindre skjermer (mobil) */
@@ -191,6 +213,7 @@
             }
         }
     </style>
+
 </head>
 <body>
 
@@ -255,33 +278,39 @@
                 </div>
             </div>
 
-            <!-- 3. Digital Visning & Øving -->
-            <div class="menu-section">
-                <h2>Klokkeslett & Øving</h2>
-                <div class="digital-box">
-                    <div class="digital-display" id="digitalClock">10:10:00</div>
-                </div>
+<!-- 3. Digital Visning & Øving -->
+<div class="menu-section">
+    <h2>Klokkeslett & Øving</h2>
 
-                <div class="control-group" style="margin-top: 5px;">
-                    <label for="quizDifficulty">Vanskelighetsgrad:</label>
-                    <select id="quizDifficulty">
-                        <option value="hours">Hele timer</option>
-                        <option value="half">Hel og halv</option>
-                        <option value="quarter">Hel, halv og kvart</option>
-                        <option value="tenMin">Hel, halv, kvart og ti</option>
-                        <option value="all">Alle klokkeslett</option>
-                    </select>
-                </div>
+    <div class="digital-box">
+        <div class="digital-display" id="digitalClock">10:10:00</div>
+    </div>
 
-                <button id="newTaskBtn" class="secondary">Ny oppgave</button>
-                <button id="checkTaskBtn" class="warning" style="display:none;">Sjekk svar</button>
-                <div class="feedback-message" id="feedback"></div>
-            </div>
+    <!-- REKTANGULÆR SOL/MÅNE-BOKS -->
+    <div id="dayNightBox">
+        <canvas id="dayNightCanvas" width="220" height="70" style="width: 100%; height: 100%; display: block;"></canvas>
+    </div>
+
+    <div class="control-group">
+        <label for="quizDifficulty">Vanskelighetsgrad:</label>
+        <select id="quizDifficulty">
+            <option value="hours">Hele timer</option>
+            <option value="half">Hel og halv</option>
+            <option value="quarter">Hel, halv og kvart</option>
+            <option value="tenMin">Hel, halv, kvart og ti</option>
+            <option value="all">Alle klokkeslett</option>
+        </select>
+    </div>
+
+    <button id="newTaskBtn" class="secondary">Ny oppgave</button>
+    <button id="checkTaskBtn" class="warning" style="display:none;">Sjekk svar</button>
+    <div class="feedback-message" id="feedback"></div>
+</div>
         </aside>
 
-        <!-- Hovedområde med klokken -->
+<!-- Hovedområde med klokken -->
         <main class="main-content">
-            <div class="clock-container">
+            <div class="clock-container" style="position: relative;">
                 <canvas id="learningClock"></canvas>
             </div>
         </main>
@@ -569,6 +598,9 @@
             ctx.restore();
 
             updateDigitalDisplay();
+
+            // Oppdater sol/måne-animasjonen i øverste høyre hjørne
+            drawDayNight(currentMinutes);
         }
 
         function drawHourHand(ctx, angle, length, color) {
@@ -727,7 +759,7 @@
             }
         }
 
-        function handleMove(e) {
+function handleMove(e) {
             if (!activeHand) return;
             e.preventDefault();
 
@@ -745,12 +777,28 @@
 
                 currentMinutes = (currentMinutes + diff + 1440) % 1440;
             } else if (activeHand === 'hour') {
-                let newHour = (angle / (2 * Math.PI)) * 12;
-                let currentHour24 = Math.floor(currentMinutes / 60);
-                let isPM = currentHour24 >= 12;
+                // Beregn timer basert på vinkelen (0.0 til 12.0)
+                let newHour12 = (angle / (2 * Math.PI)) * 12;
+
+                // Gjeldende time i 24-timers format (0..23)
+                let currentHour24 = currentMinutes / 60;
                 
-                let targetHour = newHour + (isPM ? 12 : 0);
-                currentMinutes = Math.round(targetHour * 60) % 1440;
+                // Sjekk om vi opprinnelig var i dag (12-24) eller natt (0-12)
+                let isPM = currentHour24 >= 12;
+
+                // Finn gammel 12-timers time for å oppdage når vi krysser 12-tallet øverst
+                let oldHour12 = currentHour24 % 12;
+
+                // Hvis vi krysser 12-tallet på toppen (fra >10 til <2 eller omvendt),
+                // må vi krysse grensen mellom AM og PM i stedet for å hoppe
+                if (oldHour12 > 10 && newHour12 < 2) {
+                    isPM = !isPM; // Bytt mellom dag/natt når viseren passerer toppen med klokken
+                } else if (oldHour12 < 2 && newHour12 > 10) {
+                    isPM = !isPM; // Bytt mellom dag/natt når viseren passerer toppen mot klokken
+                }
+
+                let targetHour = newHour12 + (isPM ? 12 : 0);
+                currentMinutes = (Math.round(targetHour * 60) + 1440) % 1440;
             }
 
             draw();
@@ -787,6 +835,162 @@
                 draw();
             }
         });
+
+
+
+function interpolateColor(color1, color2, factor) {
+    const result = [0, 0, 0];
+    for (let i = 0; i < 3; i++) {
+        result[i] = Math.round(color1[i] + factor * (color2[i] - color1[i]));
+    }
+    return result;
+}
+
+
+function drawDayNight(totalMinutes) {
+    const canvas = document.getElementById("dayNightCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const box = document.getElementById("dayNightBox");
+
+    // Tilpass canvas-størrelse til faktisk boksstørrelse (70px høyde)
+    if (canvas.width !== box.clientWidth && box.clientWidth > 0) {
+        canvas.width = box.clientWidth;
+        canvas.height = box.clientHeight || 70;
+    }
+
+    const width = canvas.width;
+    const height = canvas.height;
+    ctx.clearRect(0, 0, width, height);
+
+    // Beregne timer (0 - 24)
+    const hours = ((totalMinutes % 1440) + 1440) % 1440 / 60;
+
+    // Fargepaletter [R, G, B]
+    const nightTop = [15, 23, 42];
+    const nightBottom = [30, 41, 59];
+
+    const sunriseTop = [249, 115, 22];
+    const sunriseBottom = [253, 186, 116];
+
+    const dayTop = [56, 189, 248];
+    const dayBottom = [186, 230, 253];
+
+    let currentTop, currentBottom;
+    const isDay = hours >= 6 && hours < 18;
+
+    if (hours < 5) {
+        currentTop = nightTop;
+        currentBottom = nightBottom;
+    } else if (hours < 8) {
+        const t = (hours - 5) / 3;
+        if (t < 0.5) {
+            currentTop = interpolateColor(nightTop, sunriseTop, t * 2);
+            currentBottom = interpolateColor(nightBottom, sunriseBottom, t * 2);
+        } else {
+            currentTop = interpolateColor(sunriseTop, dayTop, (t - 0.5) * 2);
+            currentBottom = interpolateColor(sunriseBottom, dayBottom, (t - 0.5) * 2);
+        }
+    } else if (hours < 17) {
+        currentTop = dayTop;
+        currentBottom = dayBottom;
+    } else if (hours < 21) {
+        const t = (hours - 17) / 4;
+        if (t < 0.5) {
+            currentTop = interpolateColor(dayTop, sunriseTop, t * 2);
+            currentBottom = interpolateColor(sunriseBottom, dayBottom, t * 2);
+        } else {
+            currentTop = interpolateColor(sunriseTop, nightTop, (t - 0.5) * 2);
+            currentBottom = interpolateColor(sunriseBottom, nightTop, (t - 0.5) * 2);
+        }
+    } else {
+        currentTop = nightTop;
+        currentBottom = nightBottom;
+    }
+
+    const cTopStr = `rgb(${currentTop[0]}, ${currentTop[1]}, ${currentTop[2]})`;
+    const cBotStr = `rgb(${currentBottom[0]}, ${currentBottom[1]}, ${currentBottom[2]})`;
+    box.style.background = `linear-gradient(to bottom, ${cTopStr}, ${cBotStr})`;
+
+    // Stjerner spredt over den bredere boksen
+    let starOpacity = 0;
+    if (hours < 5 || hours >= 21) starOpacity = 1;
+    else if (hours >= 5 && hours < 7) starOpacity = 1 - (hours - 5) / 2;
+    else if (hours >= 19 && hours < 21) starOpacity = (hours - 19) / 2;
+
+    if (starOpacity > 0) {
+        ctx.save();
+        ctx.globalAlpha = starOpacity;
+        ctx.fillStyle = "#ffffff";
+        const stars = [
+            [width * 0.1, 15], [width * 0.25, 35], [width * 0.4, 12], 
+            [width * 0.55, 45], [width * 0.7, 18], [width * 0.85, 38], [width * 0.92, 14]
+        ];
+        stars.forEach(([sx, sy]) => {
+            ctx.beginPath();
+            ctx.arc(sx, sy, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.restore();
+    }
+
+    // Bane for sol/måne tilpasset 70px høyde
+    let progress = isDay ? (hours - 6) / 12 : ((hours >= 18 ? hours - 18 : hours + 6) / 12);
+    const margin = 20;
+    const x = margin + progress * (width - margin * 2);
+    const y = height - Math.sin(progress * Math.PI) * (height - 30) - 15;
+
+    if (isDay) {
+        // SOL
+        ctx.save();
+        ctx.translate(x, y);
+
+        ctx.strokeStyle = "rgba(255, 223, 0, 0.85)";
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 8; i++) {
+            ctx.rotate(Math.PI / 4);
+            ctx.beginPath();
+            ctx.moveTo(0, 12);
+            ctx.lineTo(0, 16);
+            ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "#FFD700";
+        ctx.shadowColor = "#FFA500";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+
+        ctx.restore();
+    } else {
+        // MÅNE (Tydelig halvmåne)
+        ctx.save();
+        ctx.translate(x, y);
+
+        ctx.fillStyle = "#FFF8DC"; 
+        ctx.shadowColor = "rgba(255, 255, 255, 0.6)";
+        ctx.shadowBlur = 8;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 11, -Math.PI * 0.4, Math.PI * 0.7, false);
+        ctx.quadraticCurveTo(2, -2, 0, -11 * Math.sin(Math.PI * 0.4));
+        ctx.closePath();
+        ctx.fill();
+
+        // Kraterdetaljer
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(200, 190, 170, 0.4)";
+        ctx.beginPath();
+        ctx.arc(3, -2, 1.5, 0, Math.PI * 2);
+        ctx.arc(5, 3, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+
 
         // Velg verdensby
         document.getElementById("worldClockSelect").addEventListener("change", (e) => {
